@@ -1,0 +1,31 @@
+{
+  "generatedAt": 1783005415207,
+  "gameRoot": "D:\\我的世界\\客户端\\版本隔离的通用端\\.minecraft\\versions\\Mechanomania-航空学",
+  "count": 2539,
+  "items": {
+    "create:acacia_window": {
+      "id": "create:acacia_window",
+      "name": "金合欢木窗户",
+      "englishName": "Acacia Window",
+      "icon": "/generated/items/create/acacia_window.png",
+      "iconSource": "create:block/palettes/acacia_window",
+      "source": "mods/create-1.21.1-6.0.10.jar"
+    },
+    "create:acacia_window_pane": {
+      "id": "create:acacia_window_pane",
+      "name": "金合欢木窗户板",
+      "englishName": "Acacia Window Pane",
+      "icon": "/generated/items/create/acacia_window_pane.png",
+      "iconSource": "create:block/palettes/acacia_window",
+      "source": "mods/create-1.21.1-6.0.10.jar"
+    },
+    "create:adjustable_chain_gearshift": {
+      "id": "create:adjustable_chain_gearshift",
+      "name": "可调节链式传动箱",
+      "englishName": "Adjustable Chain Gearshift",
+      "icon": "/generated/items/create/adjustable_chain_gearshift.png",
+      "iconSource": "create:block/encased_chain_drive",
+      "source": "mods/create-1.21.1-6.0.10.jar"
+    }
+  }
+}

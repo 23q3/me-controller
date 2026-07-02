@@ -1,0 +1,10 @@
+{
+  enabled = true,
+  includeStock = false,
+  reconnectSeconds = 5,
+  clientId = "cc-0",
+  receiveTimeoutSeconds = 0.2,
+  url = "ws://localhost:8787/bridge",
+  heartbeatSeconds = 1,
+  commandLimit = 20,
+}

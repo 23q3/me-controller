@@ -1,0 +1,6624 @@
+[
+  {
+    "commandId": "web_1782923542345_rh04ttf4",
+    "kind": "upsert_target",
+    "status": "synced",
+    "createdAt": 1782923542345,
+    "completedAt": 1782923542393,
+    "request": {
+      "kind": "upsert_target",
+      "targetId": "target",
+      "target": {
+        "id": "create_iron_sheet",
+        "enabled": true,
+        "address": "press",
+        "priority": 100,
+        "products": [
+          {
+            "item": "create:iron_sheet",
+            "count": 1,
+            "targetCount": 256,
+            "label": "Iron Sheet"
+          }
+        ],
+        "inputs": [
+          {
+            "item": "minecraft:iron_ingot",
+            "count": 1,
+            "label": "Iron Ingot"
+          }
+        ],
+        "targetCount": 256,
+        "productItem": "create:iron_sheet",
+        "productLabel": "Iron Sheet",
+        "inputItem": "minecraft:iron_ingot",
+        "inputLabel": "Iron Ingot",
+        "requestCooldownSeconds": 5,
+        "minImmediateRequest": 64,
+        "delayedRequestSeconds": 20,
+        "promiseTtlSeconds": 90,
+        "maxOutstandingInputs": 1024,
+        "maxRequestPerCycle": 576,
+        "deficitConfirmScans": 3,
+        "deficitConfirmSeconds": 2,
+        "stockDropConfirmScans": 3,
+        "stockDropConfirmSeconds": 2
+      },
+      "commandId": "web_1782923542345_rh04ttf4",
+      "id": "web_1782923542345_rh04ttf4",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923542345_rh04ttf4",
+      "result": {
+        "target": "create_iron_sheet",
+        "name": "Iron Sheet"
+      },
+      "kind": "upsert_target"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921307,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921307097_6vsh1ier",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921307
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308213_otnokyzj",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308834_xgzvwm57",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        }
+      ],
+      "time": 1782923541,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923541,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "target",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923541,
+        "stockSerial": 2363,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923541695,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308213_otnokyzj",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308834_xgzvwm57",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        }
+      ],
+      "time": 1782923542,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923542,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923542,
+        "stockSerial": 2364,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923542745
+  },
+  {
+    "commandId": "web_1782923549536_vewre670",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923549536,
+    "completedAt": 1782923549588,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": false,
+      "commandId": "web_1782923549536_vewre670",
+      "id": "web_1782923549536_vewre670",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923549536_vewre670",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": false
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308213_otnokyzj",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308834_xgzvwm57",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        }
+      ],
+      "time": 1782923548,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923547,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923547,
+        "stockSerial": 2369,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923548546,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        }
+      ],
+      "time": 1782923550,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923549,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923549,
+        "stockSerial": 2371,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923550348
+  },
+  {
+    "commandId": "web_1782923550315_0it7wc4v",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923550316,
+    "completedAt": 1782923550362,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": true,
+      "commandId": "web_1782923550315_0it7wc4v",
+      "id": "web_1782923550315_0it7wc4v",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923550315_0it7wc4v",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": true
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308834_xgzvwm57",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        }
+      ],
+      "time": 1782923549,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923548,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923548,
+        "stockSerial": 2370,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923549576,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        }
+      ],
+      "time": 1782923550,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923550,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923550,
+        "stockSerial": 2372,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923550692
+  },
+  {
+    "commandId": "web_1782923552206_ju9r3lac",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923552206,
+    "completedAt": 1782923552249,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": false,
+      "commandId": "web_1782923552206_ju9r3lac",
+      "id": "web_1782923552206_ju9r3lac",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923552206_ju9r3lac",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": false
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921308,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921308957_07hkrqfb",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921308
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        }
+      ],
+      "time": 1782923551,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923550,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923550,
+        "stockSerial": 2372,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923551696,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        }
+      ],
+      "time": 1782923552,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923552,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923552,
+        "stockSerial": 2374,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923552773
+  },
+  {
+    "commandId": "web_1782923552741_jqr1y9gs",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923552741,
+    "completedAt": 1782923552787,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": true,
+      "commandId": "web_1782923552741_jqr1y9gs",
+      "id": "web_1782923552741_jqr1y9gs",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923552741_jqr1y9gs",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": true
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309322_k415nfoe",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        }
+      ],
+      "time": 1782923552,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923551,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923551,
+        "stockSerial": 2373,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923552239,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        }
+      ],
+      "time": 1782923552,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923552,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923552,
+        "stockSerial": 2374,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923552794
+  },
+  {
+    "commandId": "web_1782923556657_4hgcbbvt",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923556657,
+    "completedAt": 1782923556707,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": false,
+      "commandId": "web_1782923556657_4hgcbbvt",
+      "id": "web_1782923556657_4hgcbbvt",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923556657_4hgcbbvt",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": false
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921309,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921309475_691v2gc5",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782921309
+        },
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        }
+      ],
+      "time": 1782923556,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923555,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923555,
+        "stockSerial": 2377,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923556147,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        }
+      ],
+      "time": 1782923557,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923556,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923556,
+        "stockSerial": 2378,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923557244
+  },
+  {
+    "commandId": "web_1782923560826_ow38dpi7",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923560826,
+    "completedAt": 1782923560877,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": true,
+      "commandId": "web_1782923560826_ow38dpi7",
+      "id": "web_1782923560826_ow38dpi7",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923560826_ow38dpi7",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": true
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921331,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921331552_e673hzou",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921331
+        },
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        }
+      ],
+      "time": 1782923560,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923559,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923559,
+        "stockSerial": 2381,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923560246,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        }
+      ],
+      "time": 1782923561,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923560,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923560,
+        "stockSerial": 2382,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923561444
+  },
+  {
+    "commandId": "web_1782923564068_518o6wvx",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923564070,
+    "completedAt": 1782923564114,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": false,
+      "commandId": "web_1782923564068_518o6wvx",
+      "id": "web_1782923564068_518o6wvx",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923564068_518o6wvx",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": false
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782921343,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782921343298_rjdyxuil",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782921343
+        },
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        }
+      ],
+      "time": 1782923563,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923562,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923562,
+        "stockSerial": 2384,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923563443,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        }
+      ],
+      "time": 1782923564,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923563,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923563,
+        "stockSerial": 2385,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923564443
+  },
+  {
+    "commandId": "web_1782923567437_3lcb56ny",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923567439,
+    "completedAt": 1782923567486,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": true,
+      "commandId": "web_1782923567437_3lcb56ny",
+      "id": "web_1782923567437_3lcb56ny",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923567437_3lcb56ny",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": true
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922167,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922167101_3mp2gt99",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922167
+        },
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        }
+      ],
+      "time": 1782923566,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923565,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923565,
+        "stockSerial": 2387,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923566645,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        }
+      ],
+      "time": 1782923567,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923566,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923566,
+        "stockSerial": 2388,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923567643
+  },
+  {
+    "commandId": "web_1782923570472_njjmblyy",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923570473,
+    "completedAt": 1782923570539,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": false,
+      "commandId": "web_1782923570472_njjmblyy",
+      "id": "web_1782923570472_njjmblyy",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923570472_njjmblyy",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": false
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922326,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922326287_zplpts2u",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922326
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        }
+      ],
+      "time": 1782923569,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923568,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923568,
+        "stockSerial": 2390,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923569846,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        },
+        {
+          "completedAt": 1782923570,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923570472_njjmblyy",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923570
+        }
+      ],
+      "time": 1782923570,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923570,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923570,
+        "stockSerial": 2392,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923570893
+  },
+  {
+    "commandId": "web_1782923573394_0ss6gkrp",
+    "kind": "set_enabled",
+    "status": "synced",
+    "createdAt": 1782923573395,
+    "completedAt": 1782923573439,
+    "request": {
+      "kind": "set_enabled",
+      "targetId": "create_iron_sheet",
+      "enabled": true,
+      "commandId": "web_1782923573394_0ss6gkrp",
+      "id": "web_1782923573394_0ss6gkrp",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923573394_0ss6gkrp",
+      "result": {
+        "target": "create_iron_sheet",
+        "enabled": true
+      },
+      "kind": "set_enabled"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336210_rpjdp80y",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        },
+        {
+          "completedAt": 1782923570,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923570472_njjmblyy",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923570
+        }
+      ],
+      "time": 1782923573,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "DISABLED",
+          "priority": 100,
+          "lastChangedAt": 1782923572,
+          "promisedInputs": 0,
+          "enabled": false,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "Target disabled",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 0,
+        "total": 1,
+        "disabled": 1,
+        "requested": 0,
+        "satisfied": 0,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923572,
+        "stockSerial": 2394,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923573095,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        },
+        {
+          "completedAt": 1782923570,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923570472_njjmblyy",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923570
+        },
+        {
+          "completedAt": 1782923573,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923573394_0ss6gkrp",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923573
+        }
+      ],
+      "time": 1782923574,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923573,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923573,
+        "stockSerial": 2395,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923574193
+  },
+  {
+    "commandId": "web_1782923593207_ngqvzdyr",
+    "kind": "upsert_target",
+    "status": "synced",
+    "createdAt": 1782923593207,
+    "completedAt": 1782923593255,
+    "request": {
+      "kind": "upsert_target",
+      "targetId": "create_iron_sheet",
+      "target": {
+        "id": "create_iron_sheet",
+        "enabled": true,
+        "address": "press",
+        "priority": 100,
+        "products": [
+          {
+            "item": "create:iron_sheet",
+            "count": 1,
+            "targetCount": 2560,
+            "label": "Iron Sheet"
+          }
+        ],
+        "inputs": [
+          {
+            "item": "minecraft:iron_ingot",
+            "count": 1,
+            "label": "Iron Ingot"
+          }
+        ],
+        "targetCount": 2560,
+        "productItem": "create:iron_sheet",
+        "productLabel": "Iron Sheet",
+        "inputItem": "minecraft:iron_ingot",
+        "inputLabel": "Iron Ingot",
+        "requestCooldownSeconds": 5,
+        "minImmediateRequest": 64,
+        "delayedRequestSeconds": 20,
+        "promiseTtlSeconds": 90,
+        "maxOutstandingInputs": 1024,
+        "maxRequestPerCycle": 576,
+        "deficitConfirmScans": 3,
+        "deficitConfirmSeconds": 2,
+        "stockDropConfirmScans": 3,
+        "stockDropConfirmSeconds": 2
+      },
+      "commandId": "web_1782923593207_ngqvzdyr",
+      "id": "web_1782923593207_ngqvzdyr",
+      "source": "web"
+    },
+    "response": {
+      "ok": true,
+      "commandId": "web_1782923593207_ngqvzdyr",
+      "result": {
+        "target": "create_iron_sheet",
+        "name": "Iron Sheet"
+      },
+      "kind": "upsert_target"
+    },
+    "preSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336419_na9ucl10",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        },
+        {
+          "completedAt": 1782923570,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923570472_njjmblyy",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923570
+        },
+        {
+          "completedAt": 1782923573,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923573394_0ss6gkrp",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923573
+        }
+      ],
+      "time": 1782923592,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 256,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923592,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923592,
+        "stockSerial": 2413,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "preSnapshotAt": 1782923592997,
+    "postSnapshot": {
+      "commands": [
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336630_xw5qw3yz",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922336,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922336824_5t48aplg",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922336
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337000_gwpgacto",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337173_bqmosl0f",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337349_hoc3suab",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922337,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922337734_15l9nvfl",
+          "kind": "reset_target_state",
+          "status": "done",
+          "createdAt": 1782922337
+        },
+        {
+          "completedAt": 1782922995,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782922995589_r8ixx8wb",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782922995
+        },
+        {
+          "completedAt": 1782923053,
+          "source": "web",
+          "targetId": "iron_sheet",
+          "id": "web_1782923053647_festg74p",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923053
+        },
+        {
+          "completedAt": 1782923542,
+          "source": "web",
+          "targetId": "target",
+          "id": "web_1782923542345_rh04ttf4",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923542
+        },
+        {
+          "completedAt": 1782923549,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923549536_vewre670",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923549
+        },
+        {
+          "completedAt": 1782923550,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923550315_0it7wc4v",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923550
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552206_ju9r3lac",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923552,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923552741_jqr1y9gs",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923552
+        },
+        {
+          "completedAt": 1782923556,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923556657_4hgcbbvt",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923556
+        },
+        {
+          "completedAt": 1782923560,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923560826_ow38dpi7",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923560
+        },
+        {
+          "completedAt": 1782923564,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923564068_518o6wvx",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923564
+        },
+        {
+          "completedAt": 1782923567,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923567437_3lcb56ny",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923567
+        },
+        {
+          "completedAt": 1782923570,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923570472_njjmblyy",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923570
+        },
+        {
+          "completedAt": 1782923573,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923573394_0ss6gkrp",
+          "kind": "set_enabled",
+          "status": "done",
+          "createdAt": 1782923573
+        },
+        {
+          "completedAt": 1782923593,
+          "source": "web",
+          "targetId": "create_iron_sheet",
+          "id": "web_1782923593207_ngqvzdyr",
+          "kind": "upsert_target",
+          "status": "done",
+          "createdAt": 1782923593
+        }
+      ],
+      "time": 1782923593,
+      "dependency": {
+        "demandByTarget": {},
+        "passes": 1
+      },
+      "targets": [
+        {
+          "products": [
+            {
+              "targetCount": 2560,
+              "item": "create:iron_sheet",
+              "count": 1,
+              "label": "Iron Sheet"
+            }
+          ],
+          "inputCount": 1000000000,
+          "productCount": 1774,
+          "neededInputItems": {},
+          "desiredBatches": 0,
+          "promisedProducts": 0,
+          "status": "SATISFIED",
+          "priority": 100,
+          "lastChangedAt": 1782923593,
+          "promisedInputs": 0,
+          "enabled": true,
+          "inputs": [
+            {
+              "count": 1,
+              "item": "minecraft:iron_ingot",
+              "label": "Iron Ingot"
+            }
+          ],
+          "inputCounts": {
+            "minecraft:iron_ingot": 1000000000
+          },
+          "id": "create_iron_sheet",
+          "neededInputs": 0,
+          "neededBatches": 0,
+          "promisedBatches": 0,
+          "message": "ME target met",
+          "promisedInputItems": {},
+          "targetCount": 256,
+          "address": "press",
+          "dependencyDemand": 0,
+          "baseTargetCount": 256,
+          "productCounts": {
+            "create:iron_sheet": {
+              "dependencyDemand": 0,
+              "deficit": 0,
+              "count": 1774,
+              "baseTargetCount": 256,
+              "targetCount": 256,
+              "batches": 0
+            }
+          },
+          "deficitProducts": 0
+        }
+      ],
+      "summary": {
+        "enabled": 1,
+        "total": 1,
+        "disabled": 0,
+        "requested": 0,
+        "satisfied": 1,
+        "error": 0,
+        "waiting": 0
+      },
+      "schema": "me_controller.snapshot.v1",
+      "network": {
+        "stockName": "Create_StockTicker_0",
+        "monitorName": "right",
+        "lastStockReadAt": 1782923593,
+        "stockSerial": 2414,
+        "stockEntries": 3,
+        "ready": true
+      }
+    },
+    "postSnapshotAt": 1782923593993
+  }
+]

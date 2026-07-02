@@ -1,0 +1,42 @@
+{
+  version = 1,
+  targets = {
+    {
+      minImmediateRequest = 64,
+      products = {
+        {
+          targetCount = 2560,
+          count = 1,
+          item = "create:iron_sheet",
+          label = "Iron Sheet",
+        },
+      },
+      targetCount = 2560,
+      stockDropConfirmSeconds = 2,
+      delayedRequestSeconds = 20,
+      maxOutstandingInputs = 1024,
+      deficitConfirmSeconds = 2,
+      priority = 100,
+      requestCooldownSeconds = 5,
+      productItem = "create:iron_sheet",
+      enabled = true,
+      inputs = {
+        {
+          count = 1,
+          item = "minecraft:iron_ingot",
+          label = "Iron Ingot",
+        },
+      },
+      productLabel = "Iron Sheet",
+      id = "create_iron_sheet",
+      inputLabel = "Iron Ingot",
+      inputPerProduct = 1,
+      stockDropConfirmScans = 3,
+      address = "press",
+      promiseTtlSeconds = 90,
+      maxRequestPerCycle = 576,
+      deficitConfirmScans = 3,
+      inputItem = "minecraft:iron_ingot",
+    },
+  },
+}
