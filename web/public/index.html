@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ME 控制器</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div>
+          <h1>ME 控制器</h1>
+          <p id="subtitle">桥接未连接</p>
+        </div>
+        <div class="actions">
+          <button id="addTargetBtn" type="button">新增目标</button>
+          <button id="refreshBtn" type="button">刷新</button>
+        </div>
+      </header>
+
+      <section class="metrics" aria-label="summary">
+        <div class="metric">
+          <span>目标数</span>
+          <strong id="mTotal">0</strong>
+        </div>
+        <div class="metric">
+          <span>已启用</span>
+          <strong id="mEnabled">0</strong>
+        </div>
+        <div class="metric">
+          <span>已下单</span>
+          <strong id="mRequested">0</strong>
+        </div>
+        <div class="metric">
+          <span>等待中</span>
+          <strong id="mWaiting">0</strong>
+        </div>
+        <div class="metric">
+          <span>错误</span>
+          <strong id="mError">0</strong>
+        </div>
+        <div class="metric">
+          <span>库存条目</span>
+          <strong id="mStock">0</strong>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panelHeader">
+          <h2>维持目标</h2>
+          <span id="networkStatus" class="pill">离线</span>
+        </div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>状态</th>
+                <th>目标</th>
+                <th>库存</th>
+                <th>需求</th>
+                <th>在途</th>
+                <th>地址</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="targetsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="split">
+        <div class="panel">
+          <div class="panelHeader">
+            <h2>命令记录</h2>
+            <span id="commandCount" class="pill">0</span>
+          </div>
+          <div id="commandsList" class="list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panelHeader">
+            <h2>桥接</h2>
+            <span id="bridgeStatus" class="pill">离线</span>
+          </div>
+          <dl class="kv">
+            <dt>客户端</dt>
+            <dd id="bridgeClient">-</dd>
+            <dt>协议</dt>
+            <dd id="bridgeProtocol">-</dd>
+            <dt>最后通信</dt>
+            <dd id="bridgeSeen">-</dd>
+          </dl>
+          <div id="messages" class="messages"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="targetDialog" class="dialog">
+      <form id="targetForm" method="dialog" class="targetForm">
+        <div class="dialogHeader">
+          <h2 id="targetDialogTitle">新增目标</h2>
+          <button id="closeTargetDialogBtn" type="button" aria-label="关闭">关闭</button>
+        </div>
+
+        <input id="editingTargetId" type="hidden" />
+
+        <label class="checkboxLine">
+          <input id="targetEnabledInput" name="enabled" type="checkbox" checked />
+          <span>启用</span>
+        </label>
+
+        <div class="formGrid">
+          <label>
+            <span>工序地址</span>
+            <input id="targetAddressInput" name="address" required />
+          </label>
+          <label>
+            <span>优先级</span>
+            <input id="targetPriorityInput" name="priority" type="number" min="0" step="1" />
+          </label>
+        </div>
+
+        <label>
+          <span>产物（物品ID=每批产出@目标库存）</span>
+          <input id="targetProductsInput" name="products" placeholder="create:iron_sheet=1@2048" required />
+        </label>
+
+        <label>
+          <span>显示名称</span>
+          <input id="targetNameInput" name="displayName" />
+        </label>
+
+        <label>
+          <span>输入（物品ID=每批消耗）</span>
+          <input id="targetInputsInput" name="inputs" placeholder="minecraft:iron_ingot=1" required />
+        </label>
+
+        <details class="advancedFields">
+          <summary>高级设置</summary>
+          <label>
+            <span>内部 ID</span>
+            <input id="targetIdInput" name="id" />
+          </label>
+          <div class="formGrid three">
+            <label>
+              <span>请求冷却秒</span>
+              <input id="requestCooldownInput" name="requestCooldownSeconds" type="number" min="0" step="1" />
+            </label>
+            <label>
+              <span>立即请求批量</span>
+              <input id="minImmediateRequestInput" name="minImmediateRequest" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>小批量等待秒</span>
+              <input id="delayedRequestInput" name="delayedRequestSeconds" type="number" min="0" step="1" />
+            </label>
+          </div>
+          <div class="formGrid three">
+            <label>
+              <span>承诺 TTL 秒</span>
+              <input id="promiseTtlInput" name="promiseTtlSeconds" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>最大在途输入</span>
+              <input id="maxOutstandingInput" name="maxOutstandingInputs" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>单轮最大请求</span>
+              <input id="maxRequestPerCycleInput" name="maxRequestPerCycle" type="number" min="1" step="1" />
+            </label>
+          </div>
+          <div class="formGrid two">
+            <label>
+              <span>低库存确认扫描</span>
+              <input id="deficitConfirmScansInput" name="deficitConfirmScans" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>低库存确认秒</span>
+              <input id="deficitConfirmSecondsInput" name="deficitConfirmSeconds" type="number" min="0" step="1" />
+            </label>
+          </div>
+          <div class="formGrid two">
+            <label>
+              <span>库存下降确认扫描</span>
+              <input id="stockDropConfirmScansInput" name="stockDropConfirmScans" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>库存下降确认秒</span>
+              <input id="stockDropConfirmSecondsInput" name="stockDropConfirmSeconds" type="number" min="0" step="1" />
+            </label>
+          </div>
+        </details>
+
+        <div class="dialogActions">
+          <button id="deleteTargetBtn" type="button" class="danger">删除</button>
+          <span class="spacer"></span>
+          <button id="cancelTargetBtn" type="button">取消</button>
+          <button id="saveTargetBtn" type="submit">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

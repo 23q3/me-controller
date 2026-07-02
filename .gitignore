@@ -1,0 +1,26 @@
+# 依赖与构建产物
+web/node_modules/
+web/public/generated/
+web/public/assets/
+
+# 运行时数据库（活数据不入库；fixtures/ 下有基线副本）
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+web/data/*.sqlite
+web/data/*.sqlite-shm
+web/data/*.sqlite-wal
+
+# 游戏内运行时数据（活数据不入库；fixtures/ 下有基线副本）
+computer/0/apps/me_controller/state.db
+computer/0/apps/me_controller/targets.db
+computer/0/apps/me_controller/bridge.db
+computer/0/apps/me_controller/events.log
+computer/0/apps/me_controller/events.log.old
+
+# 文件 RPC 队列（运行时瞬态文件）
+computer/0/cc_agent/
+
+# Python
+mcp/.venv/
+mcp/__pycache__/

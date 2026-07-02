@@ -1,0 +1,2 @@
+local unpackArgs = table.unpack or unpack
+shell.run("apps/me_controller/main.lua", unpackArgs({ ... }))
