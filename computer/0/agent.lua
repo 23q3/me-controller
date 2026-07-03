@@ -206,6 +206,13 @@ end
 
 local function makeShellApi()
     local api = {}
+    -- 真实 shell 会跟踪当前运行的程序；main.lua 等程序靠
+    -- shell.getRunningProgram() 推导自身目录，缺了它相对路径全会解析到根目录
+    local runningProgram = nil
+
+    function api.getRunningProgram()
+        return runningProgram
+    end
 
     function api.dir()
         return currentDir
@@ -254,7 +261,11 @@ local function makeShellApi()
 
         local env = setmetatable({ shell = api }, { __index = _G })
         local unpackArgs = table.unpack or unpack
-        return os.run(env, program, unpackArgs(args, 2))
+        local previous = runningProgram
+        runningProgram = program
+        local ok = os.run(env, program, unpackArgs(args, 2))
+        runningProgram = previous
+        return ok
     end
 
     function api.openTab()
@@ -354,12 +365,10 @@ local function runShell(command)
         local builtin = runBuiltinShell(args)
         if builtin ~= nil then return builtin end
 
-        local program = resolveProgram(args[1])
-        if not program then error("Program not found: " .. args[1]) end
+        if not resolveProgram(args[1]) then error("Program not found: " .. args[1]) end
 
-        local env = setmetatable({ shell = makeShellApi() }, { __index = _G })
-        local unpackArgs = table.unpack or unpack
-        return os.run(env, program, unpackArgs(args, 2))
+        -- 经 api.run 执行，顶层程序也进入 runningProgram 跟踪
+        return makeShellApi().run(command)
     end)
     return ok and value ~= false, value, output
 end
