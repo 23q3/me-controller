@@ -1,22 +1,8 @@
 return function(Core)
     local Bridge = {}
 
-    local function readSerialized(path)
-        if not fs.exists(path) then return nil end
-        local handle = fs.open(path, "r")
-        if not handle then return nil end
-        local data = handle.readAll()
-        handle.close()
-        return textutils.unserialize(data or "")
-    end
-
-    local function writeSerialized(path, value)
-        local handle = fs.open(path, "w")
-        if not handle then return false end
-        handle.write(textutils.serialize(value))
-        handle.close()
-        return true
-    end
+    local readSerialized = Core.readSerialized
+    local writeSerialized = Core.writeSerialized
 
     local function computerId()
         if os.getComputerID then return os.getComputerID() end
@@ -110,10 +96,8 @@ return function(Core)
         return envelope
     end
 
-    local function commandIdOf(command)
-        if type(command) ~= "table" then return nil end
-        return command.commandId or command.id
-    end
+    -- Core.commandIdOf 相比旧私有版会 tostring 并把空串规整为 nil
+    local commandIdOf = Core.commandIdOf
 
     local function sendCommandResult(socket, config, command, ok, response)
         return send(socket, {

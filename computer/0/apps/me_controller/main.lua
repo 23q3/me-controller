@@ -1,26 +1,16 @@
-local function programDir()
-    if shell and shell.getRunningProgram then
-        local running = shell.getRunningProgram()
-        local dir = fs.getDir(running or "")
-        if dir and dir ~= "" then return dir end
-    end
-    return ""
-end
+-- require 引导：三种启动路径（me_controller stub / run_all / 直接运行本文件）
+-- 都经 shell.run，程序目录由 shell.getRunningProgram() 推导。
+local dir = fs.getDir(shell.getRunningProgram())
+package.path = fs.combine(dir, "?.lua") .. ";" .. package.path
 
-local function localProgram(path)
-    local dir = programDir()
-    if dir == "" then return path end
-    return fs.combine(dir, path)
-end
+local Core = require("core")
+Core.CONFIG.targetsFile = fs.combine(dir, "targets.db")
+Core.CONFIG.stateFile = fs.combine(dir, "state.db")
+Core.CONFIG.eventsFile = fs.combine(dir, "events.log")
+Core.CONFIG.bridgeFile = fs.combine(dir, "bridge.db")
 
-local Core = dofile(localProgram("core.lua"))
-Core.CONFIG.targetsFile = localProgram("targets.db")
-Core.CONFIG.stateFile = localProgram("state.db")
-Core.CONFIG.eventsFile = localProgram("events.log")
-Core.CONFIG.bridgeFile = localProgram("bridge.db")
-
-local Bridge = dofile(localProgram("bridge.lua"))(Core)
-local UI = dofile(localProgram("ui.lua"))(Core)
+local Bridge = require("bridge")(Core)
+local UI = require("ui")(Core)
 
 local function controlLoop(runtime)
     local config = Core.CONFIG

@@ -260,6 +260,12 @@ local function makeShellApi()
         if not program then return false end
 
         local env = setmetatable({ shell = api }, { __index = _G })
+        -- 真实 shell 会给程序注入 require/package（cc.require），os.run 不会；
+        -- me_controller 拆分后的模块化代码依赖 require，这里对齐真实 shell 行为
+        local okRequire, maker = pcall(dofile, "rom/modules/main/cc/require.lua")
+        if okRequire and type(maker) == "table" and maker.make then
+            env.require, env.package = maker.make(env, fs.getDir(program))
+        end
         local unpackArgs = table.unpack or unpack
         local previous = runningProgram
         runningProgram = program
