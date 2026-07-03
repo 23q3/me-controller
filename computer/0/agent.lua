@@ -136,7 +136,10 @@ local function capture(fn)
 
     if term.redirect then term.redirect(fakeTerm) end
     local ok, result = pcall(fn)
-    if oldTerm and term.redirect then term.redirect(oldTerm) end
+    -- 恢复必须 pcall 保护：恢复失败会让全局交换永久泄漏到宿主 shell
+    pcall(function()
+        if oldTerm and term.redirect then term.redirect(oldTerm) end
+    end)
     print = oldPrint
     write = oldWrite
 
@@ -349,25 +352,47 @@ local function encodeResult(id, ok, output, value)
 end
 
 local function runLua(code)
+    -- 私有环境捕获 print/write，不再交换全局（run_all 下与 me_controller
+    -- 三循环并发时，交换全局会把别的协程的输出也吞进来）。
+    -- 代价：代码里直接 term.write 的输出不再被捕获——工具约定走返回值与 print。
+    local lines = {}
+    local function append(text)
+        lines[#lines + 1] = tostring(text or "")
+    end
+
     local env = setmetatable({
         stopAgent = function()
             running = false
             return "stopping"
-        end
+        end,
+        print = function(...)
+            local parts = {}
+            for i = 1, select("#", ...) do
+                parts[#parts + 1] = tostring(select(i, ...))
+            end
+            append(table.concat(parts, "\t") .. "\n")
+        end,
+        write = function(text)
+            append(text)
+        end,
     }, { __index = _G })
 
     local chunk, err = load(code, "@cc_agent_command", "t", env)
     if not chunk then return false, err, "" end
 
-    local ok, value, output = capture(chunk)
+    local ok, value = pcall(chunk)
+    local output = table.concat(lines):gsub("%s+$", "")
     return ok, value, output
 end
 
 local function runShell(command)
-    local ok, value, output = capture(function()
-        local args = splitCommand(command)
-        if #args == 0 then return true end
+    local args = splitCommand(command)
+    if #args == 0 then return true, true, "" end
 
+    -- shell kind 保留全局交换（子程序在自己的环境链里拿不到我们的私有 env），
+    -- 但窗口缩到实际执行段；builtin（如 list）也会 print，须留在捕获内。
+    -- 残余风险：交换窗口内其他并发协程的 print/write 会被本次捕获。
+    local ok, value, output = capture(function()
         local builtin = runBuiltinShell(args)
         if builtin ~= nil then return builtin end
 
