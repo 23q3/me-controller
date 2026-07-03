@@ -38,7 +38,7 @@ mcp/
 
 默认情况下 wrapper 会从自身位置推导 `CC_ROOT`，也可以用环境变量覆盖。
 
-> **与旧版的行为差异**：旧的手写服务端（`computercraft-mcp.py`）同时支持 `Content-Length` 分帧和 newline JSON-RPC 两种 stdio 分帧；SDK 版只走标准的 newline JSON-RPC。现代 MCP 客户端（Codex、Claude Code、Inspector）都用后者。旧脚本保留到游戏内门禁 B 通过后删除。
+> **与旧版的行为差异**：旧的手写服务端（`computercraft-mcp.py`，已删除）同时支持 `Content-Length` 分帧和 newline JSON-RPC 两种 stdio 分帧；SDK 版只走标准的 newline JSON-RPC。现代 MCP 客户端（Codex、Claude Code、Inspector）都用后者。
 
 ## Codex 配置示例
 

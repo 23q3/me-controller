@@ -19,9 +19,9 @@
 - `GET /generated/**.png` → content-type `application/octet-stream`（应为 `image/png`）
 - `POST /api/commands` 非法 JSON → 500（应为 400 `{error:"invalid json"}`）
 
-## 游戏内门禁 checklist（抓取时游戏离线，下次游戏在跑时补验）
+## 游戏内门禁 checklist（2026-07-03 已全部补验通过）
 
-- [ ] `cc_ping` / `cc_agent_status` 通
-- [ ] `cc_run_lua "return 1+1"` 返回 2
-- [ ] `me_controller once` 输出 summary 行且无报错
-- [ ] `me_controller targets` / `events 5` / `commands 5` / `bridge status` 正常
+- [x] `cc_ping` / `cc_agent_status` 通
+- [x] `cc_run_lua "return 1+1"` 返回 2
+- [x] `me_controller once` 输出 summary 行且无报错
+- [x] `me_controller targets` / `events 5` / `commands 5` / `bridge status` 正常
