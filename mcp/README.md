@@ -25,7 +25,11 @@ mcp/
 └── cc-mcp-wrapper.cmd # Windows 入口
 ```
 
-两个 wrapper 行为一致：优先用 `uv run --project` 启动（自动创建 venv 并安装依赖）；`uv` 不在 PATH 时回退到已有 venv 里的 python。venv 按平台分开（WSL 用 `.venv/`，Windows 用 `.venv-win/`），避免两边的 uv 反复重建同一个环境。启动日志分别写到：
+两个 wrapper 行为一致：优先用 `uv run --project` 启动（自动创建 venv 并安装依赖）；`uv` 不在 PATH 时回退到已有 venv 里的 python。venv 按平台分开，避免两边的 uv 反复重建同一个环境：WSL 用 `~/.venvs/cc-mcp`，Windows 用 `mcp/.venv-win/`。
+
+> **警告**：WSL 侧的 venv 必须放在存档目录外——Linux venv 自带 `lib64->lib` 符号链接，而 Minecraft 1.20+ 拒绝加载含符号链接的存档（报 "Found forbidden symlinks"，世界无法进入）。因此不要在 `mcp/` 目录里直接跑 `uv sync`/`uv run`（会在存档内重建 `.venv`）；要么走 wrapper，要么手动带上 `UV_PROJECT_ENVIRONMENT=~/.venvs/cc-mcp`。
+
+启动日志分别写到：
 
 ```text
 /tmp/cc-mcp-wrapper.log          # WSL
