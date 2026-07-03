@@ -1,0 +1,6 @@
+[project]
+name = "cc-mcp"
+version = "0.3.0"
+description = "ComputerCraft 文件队列 MCP 桥（官方 SDK / FastMCP）"
+requires-python = ">=3.10"
+dependencies = ["mcp>=1.2"]

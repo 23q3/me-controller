@@ -1,6 +1,6 @@
 # ComputerCraft MCP 桥
 
-这是一个给当前存档里的 CC:Tweaked 电脑使用的小型 MCP 桥。它通过存档目录里的文件队列和游戏内 `agent.lua` 通信，让 Codex 可以运行 Lua、读写电脑文件，并访问外设。
+这是一个给当前存档里的 CC:Tweaked 电脑使用的小型 MCP 桥。它通过存档目录里的文件队列和游戏内 `agent.lua` 通信，让 MCP 客户端（Codex、Claude Code 等）可以运行 Lua、读写电脑文件，并访问外设。
 
 ## 游戏内启动
 
@@ -14,26 +14,25 @@ agent
 
 ## MCP 服务端
 
-当前使用 Python 版服务端：
+基于官方 Python SDK（FastMCP）的 uv 项目：
 
 ```text
-mcp/computercraft-mcp.py
+mcp/
+├── pyproject.toml    # uv 项目，依赖 mcp>=1.2
+├── server.py         # FastMCP：9 个 @mcp.tool() + 1 个状态资源
+├── cc_queue.py       # inbox/outbox 文件队列协议（从旧脚本逐字移植）
+└── cc-mcp-wrapper.sh # MCP 客户端实际启动的入口
 ```
 
-Codex 实际启动的是 wrapper：
-
-```text
-mcp/cc-mcp-wrapper.sh
-```
-
-wrapper 会调用 `/usr/bin/python3` 运行 Python MCP 服务端，并把启动日志写到：
+wrapper 优先用 `uv run --project` 启动（自动创建 `.venv` 并安装依赖）；`uv` 不在 PATH 时回退到 `mcp/.venv/bin/python`。启动日志写到：
 
 ```text
 /tmp/cc-mcp-wrapper.log
-/tmp/cc-mcp-python.log
 ```
 
-默认情况下 wrapper 会从自身位置推导 `CC_ROOT`，也可以继续用环境变量覆盖。
+默认情况下 wrapper 会从自身位置推导 `CC_ROOT`，也可以用环境变量覆盖。
+
+> **与旧版的行为差异**：旧的手写服务端（`computercraft-mcp.py`）同时支持 `Content-Length` 分帧和 newline JSON-RPC 两种 stdio 分帧；SDK 版只走标准的 newline JSON-RPC。现代 MCP 客户端（Codex、Claude Code、Inspector）都用后者。旧脚本保留到游戏内门禁 B 通过后删除。
 
 ## Codex 配置示例
 
@@ -68,4 +67,4 @@ CC_COMPUTER_ID = "0"
 
 ## 工作原理
 
-Codex 通过 MCP 调用 `computercraft-mcp.py`。Python 服务端把命令写入 `computer/0/cc_agent/inbox`，游戏里的 `agent.lua` 读到命令后执行，并把结果写入 `computer/0/cc_agent/outbox`。MCP 服务端再把结果返回给 Codex，并默认删除已消费的结果文件，避免 outbox 慢慢堆积。
+MCP 客户端通过 stdio 调用 `server.py`。服务端把命令写入 `computer/0/cc_agent/inbox`，游戏里的 `agent.lua` 读到命令后执行，并把结果写入 `computer/0/cc_agent/outbox`。服务端再把结果返回给客户端，并默认删除已消费的结果文件，避免 outbox 慢慢堆积。协议细节（命令文件格式、结果的 `VALUE/OUTPUT` 段式）见 `cc_queue.py` 文件头注释。
