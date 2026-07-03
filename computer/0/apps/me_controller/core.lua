@@ -1,9 +1,12 @@
 local Config = require("config")
 local Util = require("util")
+local Items = require("items")
+local TargetsStore = require("targets_store")
+local StateStore = require("state_store")
 
 local Core = {}
 
--- 配置常量（config.lua）。CONFIG 与 config.lua 是同一张表：
+-- 配置常量（config.lua)。CONFIG 与 config.lua 是同一张表：
 -- main.lua 启动时经 Core.CONFIG 原地改写文件路径，util.lua 内部读的也是它。
 Core.CONFIG = Config.CONFIG
 Core.TARGET_DEFAULTS = Config.TARGET_DEFAULTS
@@ -19,460 +22,50 @@ Core.readSerialized = Util.readSerialized
 Core.writeSerialized = Util.writeSerialized
 Core.commandIdOf = Util.commandIdOf
 
+-- 物品/配方纯函数（items.lua）重导出
+Core.normalizeId = Items.normalizeId
+Core.defaultDisplayName = Items.defaultDisplayName
+Core.displayName = Items.displayName
+Core.formatRecipeEntries = Items.formatRecipeEntries
+Core.parseRecipeEntries = Items.parseRecipeEntries
+Core.productsToInputs = Items.productsToInputs
+Core.inputsToProducts = Items.inputsToProducts
+
+-- 目标存取（targets_store.lua）重导出
+Core.normalizeTarget = TargetsStore.normalizeTarget
+Core.normalizeTargets = TargetsStore.normalizeTargets
+Core.saveTargets = TargetsStore.saveTargets
+Core.loadTargets = TargetsStore.loadTargets
+Core.findTarget = TargetsStore.findTarget
+
+-- 状态/账本存取（state_store.lua）重导出
+Core.loadState = StateStore.loadState
+Core.saveState = StateStore.saveState
+Core.resetAllState = StateStore.resetAllState
+Core.getTargetState = StateStore.getTargetState
+Core.recentCommands = StateStore.recentCommands
+Core.pruneOrphanedTargetState = StateStore.pruneOrphanedTargetState
+
 -- 本文件沿用的短名
 local numberOrDefault = Util.numberOrDefault
 local boolOrDefault = Util.boolOrDefault
 local trimText = Util.trimText
 local formatNumber = Util.formatNumber
-local readSerialized = Util.readSerialized
 local commandIdOf = Util.commandIdOf
-
-function Core.normalizeId(text)
-    text = tostring(text or ""):lower()
-    text = text:gsub("[^%w_%-]+", "_"):gsub("^_+", ""):gsub("_+$", "")
-    if text == "" then return "target" end
-    return text
-end
-
-function Core.defaultDisplayName(item)
-    local text = tostring(item or "")
-    local name = text:match("^[^:]+:(.+)$") or text
-    name = name:gsub("[_%-%./]+", " "):gsub("[^%w%s]+", " ")
-    name = trimText(name:gsub("%s+", " "))
-    if name == "" then return text ~= "" and text or "Item" end
-
-    return (name:gsub("(%S)(%S*)", function(first, rest)
-        return first:upper() .. rest:lower()
-    end))
-end
-
-local function labelOrDefault(label, item)
-    local itemText = tostring(item or "")
-    local text = label ~= nil and trimText(label) or ""
-    if text == "" or text == itemText then return Core.defaultDisplayName(itemText) end
-    return text
-end
-
-local function isGeneratedLabel(label, item)
-    local itemText = tostring(item or "")
-    local text = label ~= nil and trimText(label) or ""
-    return text == "" or text == itemText or text == Core.defaultDisplayName(itemText)
-end
-
-function Core.displayName(target)
-    local product = target.products and target.products[1]
-    if product and product.label then return product.label end
-    if target.productLabel then return target.productLabel end
-    if target.productItem then return Core.defaultDisplayName(target.productItem) end
-    return target.id
-end
-
-local function positiveCount(value, defaultValue)
-    return numberOrDefault(value, defaultValue or 1, 0.0001)
-end
-
-local function primaryProduct(target)
-    return target.products and target.products[1] or {
-        item = target.productItem,
-        label = target.productLabel,
-        count = 1,
-        targetCount = target.targetCount,
-    }
-end
-
-local function recipeInputCounts(target)
-    local counts = {}
-    for _, input in ipairs(target.inputs or {}) do
-        counts[input.item] = (counts[input.item] or 0) + positiveCount(input.count)
-    end
-    return counts
-end
-
-local function totalInputUnitsForBatches(target, batches)
-    local total = 0
-    for _, amount in pairs(recipeInputCounts(target)) do
-        total = total + (amount * math.max(0, batches or 0))
-    end
-    return total
-end
-
-local function productCountPerBatch(product)
-    return positiveCount(product and product.count, 1)
-end
-
-local function primaryProductCountPerBatch(target)
-    return productCountPerBatch(primaryProduct(target))
-end
-
-local function entryLabel(entry)
-    return entry and (entry.label or entry.item) or "item"
-end
-
-function Core.formatRecipeEntries(entries, isProduct)
-    local parts = {}
-    for _, entry in ipairs(entries or {}) do
-        local text = tostring(entry.item) .. "=" .. formatNumber(entry.count or 1)
-        if isProduct then text = text .. "@" .. formatNumber(entry.targetCount or 0) end
-        parts[#parts + 1] = text
-    end
-    return table.concat(parts, ", ")
-end
-
-function Core.parseRecipeEntries(text, isProduct, defaultTargetCount)
-    local entries = {}
-    text = tostring(text or "")
-
-    for token in text:gmatch("[^,]+") do
-        token = trimText(token)
-        if token ~= "" then
-            local targetCount = nil
-            if isProduct then
-                local beforeTarget, targetText = token:match("^(.-)@([^@]+)$")
-                if beforeTarget then
-                    token = trimText(beforeTarget)
-                    targetCount = tonumber(trimText(targetText))
-                    if not targetCount or targetCount < 0 then
-                        return nil, "Invalid target count: " .. tostring(targetText)
-                    end
-                end
-            end
-
-            local item = token
-            local count = 1
-            local beforeCount, countText = token:match("^(.-)=([^=]+)$")
-            if beforeCount then
-                item = trimText(beforeCount)
-                count = tonumber(trimText(countText))
-            end
-
-            item = trimText(item)
-            if item == "" then return nil, "Missing item id" end
-            if not count or count <= 0 then return nil, "Invalid item count for " .. item end
-
-            local entry = {
-                item = item,
-                label = Core.defaultDisplayName(item),
-                count = count,
-            }
-            if isProduct then
-                entry.targetCount = numberOrDefault(targetCount, defaultTargetCount or 0, 0)
-            end
-            entries[#entries + 1] = entry
-        end
-    end
-
-    if #entries == 0 then return nil, "Enter at least one item" end
-    return entries
-end
-
-function Core.productsToInputs(target, products)
-    local batches = math.ceil(math.max(0, products or 0) / primaryProductCountPerBatch(target))
-    return math.ceil(totalInputUnitsForBatches(target, batches))
-end
-
-function Core.inputsToProducts(target, inputs)
-    local inputPerBatch = totalInputUnitsForBatches(target, 1)
-    if inputPerBatch <= 0 then return 0 end
-    local batches = math.floor(math.max(0, inputs or 0) / inputPerBatch)
-    return math.floor(batches * primaryProductCountPerBatch(target))
-end
-
-local function uniqueTargetId(existing, wanted)
-    local base = Core.normalizeId(wanted)
-    local candidate = base
-    local index = 2
-    while existing[candidate] do
-        candidate = base .. "_" .. index
-        index = index + 1
-    end
-    existing[candidate] = true
-    return candidate
-end
-
-local function normalizeRecipeEntry(raw, isProduct, defaultTargetCount)
-    if type(raw) ~= "table" then return nil end
-    local item = raw.item or raw.name or raw.itemId
-    if item == nil or tostring(item) == "" then return nil end
-
-    local entry = {
-        item = tostring(item),
-        label = labelOrDefault(raw.label or raw.displayName, item),
-        count = positiveCount(raw.count or raw.amount or raw.qty or raw.perBatch, 1),
-    }
-
-    if isProduct then
-        entry.targetCount = numberOrDefault(raw.targetCount, defaultTargetCount or 0, 0)
-    end
-
-    return entry
-end
-
-local function appendRecipeEntry(entries, byItem, entry, isProduct)
-    if not entry then return end
-    local existing = byItem[entry.item]
-    if existing then
-        existing.count = existing.count + entry.count
-        if isProduct and entry.targetCount ~= nil then existing.targetCount = entry.targetCount end
-        if entry.label and isGeneratedLabel(existing.label, existing.item) then
-            existing.label = entry.label
-        end
-    else
-        byItem[entry.item] = entry
-        entries[#entries + 1] = entry
-    end
-end
-
-local function normalizeRecipeEntries(rawEntries, isProduct, fallback, defaultTargetCount)
-    local entries, byItem = {}, {}
-
-    if type(rawEntries) == "table" then
-        if rawEntries.item or rawEntries.name or rawEntries.itemId then
-            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct, defaultTargetCount), isProduct)
-        else
-            for _, raw in ipairs(rawEntries) do
-                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct, defaultTargetCount), isProduct)
-            end
-
-            if #entries == 0 then
-                for key, value in pairs(rawEntries) do
-                    if type(key) == "string" then
-                        local raw = nil
-                        if type(value) == "table" then
-                            raw = Core.copyTable(value)
-                            raw.item = raw.item or raw.name or key
-                        else
-                            raw = { item = key, count = value }
-                        end
-                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct, defaultTargetCount), isProduct)
-                    end
-                end
-            end
-        end
-    end
-
-    if #entries == 0 and fallback and fallback.item then
-        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct, defaultTargetCount), isProduct)
-    end
-
-    return entries
-end
-
-function Core.normalizeTarget(raw, existing, index)
-    raw = type(raw) == "table" and raw or {}
-    existing = existing or {}
-    local defaults = Core.TARGET_DEFAULTS
-    local target = Core.copyTable(defaults)
-
-    for key, value in pairs(raw) do
-        target[key] = value
-    end
-
-    local rawProducts = target.products or target.outputs
-    if target.id == nil and raw.productItem == nil and type(rawProducts) == "table" then
-        local inferredProduct = nil
-        if rawProducts.item or rawProducts.name or rawProducts.itemId then
-            inferredProduct = rawProducts.item or rawProducts.name or rawProducts.itemId
-        else
-            local first = rawProducts[1]
-            if type(first) == "table" then inferredProduct = first.item or first.name or first.itemId end
-        end
-        if inferredProduct then target.productItem = tostring(inferredProduct) end
-    end
-
-    target.id = uniqueTargetId(existing, target.id or target.productItem or ("target_" .. tostring(index or 1)))
-    target.enabled = boolOrDefault(target.enabled, defaults.enabled)
-    target.address = tostring(target.address or defaults.address)
-    target.inputItem = tostring(target.inputItem or defaults.inputItem)
-    target.inputLabel = labelOrDefault(target.inputLabel, target.inputItem)
-    target.productItem = tostring(target.productItem or defaults.productItem)
-    target.productLabel = labelOrDefault(target.productLabel, target.productItem)
-    target.targetCount = numberOrDefault(target.targetCount, defaults.targetCount, 0)
-    target.inputPerProduct = numberOrDefault(target.inputPerProduct, defaults.inputPerProduct, 0.0001)
-    target.products = normalizeRecipeEntries(target.products or target.outputs, true, {
-        item = target.productItem,
-        label = target.productLabel,
-        count = target.productCount or 1,
-        targetCount = target.targetCount,
-    }, target.targetCount)
-    target.inputs = normalizeRecipeEntries(target.inputs or target.ingredients, false, {
-        item = target.inputItem,
-        label = target.inputLabel,
-        count = target.inputPerProduct,
-    }, target.targetCount)
-    target.outputs = nil
-    target.ingredients = nil
-    target.productsText = nil
-    target.inputsText = nil
-
-    local product = target.products[1]
-    local input = target.inputs[1]
-    if product then
-        target.productItem = product.item
-        target.productLabel = product.label
-        target.targetCount = numberOrDefault(product.targetCount, target.targetCount, 0)
-    end
-    if input then
-        target.inputItem = input.item
-        target.inputLabel = input.label
-    end
-    target.inputPerProduct = totalInputUnitsForBatches(target, 1) / primaryProductCountPerBatch(target)
-    target.priority = numberOrDefault(target.priority, defaults.priority)
-    target.requestCooldownSeconds = numberOrDefault(target.requestCooldownSeconds, defaults.requestCooldownSeconds, 0)
-    target.minImmediateRequest = numberOrDefault(target.minImmediateRequest, defaults.minImmediateRequest, 1)
-    target.delayedRequestSeconds = numberOrDefault(target.delayedRequestSeconds, defaults.delayedRequestSeconds, 0)
-    target.promiseTtlSeconds = numberOrDefault(target.promiseTtlSeconds, defaults.promiseTtlSeconds, 1)
-    target.maxOutstandingInputs = numberOrDefault(target.maxOutstandingInputs, defaults.maxOutstandingInputs, 1)
-    target.maxRequestPerCycle = numberOrDefault(target.maxRequestPerCycle, defaults.maxRequestPerCycle, 1)
-    target.deficitConfirmScans = numberOrDefault(target.deficitConfirmScans, defaults.deficitConfirmScans, 1)
-    target.deficitConfirmSeconds = numberOrDefault(target.deficitConfirmSeconds, defaults.deficitConfirmSeconds, 0)
-    target.stockDropConfirmScans = numberOrDefault(target.stockDropConfirmScans, defaults.stockDropConfirmScans, 1)
-    target.stockDropConfirmSeconds = numberOrDefault(target.stockDropConfirmSeconds, defaults.stockDropConfirmSeconds, 0)
-
-    return target
-end
-
-function Core.normalizeTargets(rawTargets)
-    local targets = {}
-    local existing = {}
-
-    for index, raw in ipairs(rawTargets or {}) do
-        targets[#targets + 1] = Core.normalizeTarget(raw, existing, index)
-    end
-
-    table.sort(targets, function(a, b)
-        if a.priority == b.priority then return Core.displayName(a) < Core.displayName(b) end
-        return a.priority < b.priority
-    end)
-
-    return targets
-end
-
-function Core.saveTargets(targets)
-    local handle = fs.open(Core.CONFIG.targetsFile, "w")
-    if not handle then return false end
-    handle.write(textutils.serialize({
-        version = 1,
-        targets = targets,
-    }))
-    handle.close()
-    return true
-end
+local recipeInputCounts = Items.recipeInputCounts
+local productCountPerBatch = Items.productCountPerBatch
+local primaryProduct = Items.primaryProduct
+local entryLabel = Items.entryLabel
+local commandState = StateStore.commandState
+local findCommandRecord = StateStore.findCommandRecord
+local rememberCommand = StateStore.rememberCommand
+local nextLocalCommandId = StateStore.nextLocalCommandId
 
 function Core.saveRuntimeTargets(runtime)
     runtime.targets = Core.normalizeTargets(runtime.targets or {})
     Core.saveTargets(runtime.targets)
     if Core.syncTargetData then Core.syncTargetData(runtime) end
     return true
-end
-
-function Core.loadTargets()
-    local decoded = readSerialized(Core.CONFIG.targetsFile)
-
-    local rawTargets = nil
-    if type(decoded) == "table" and type(decoded.targets) == "table" then
-        rawTargets = decoded.targets
-    elseif type(decoded) == "table" then
-        rawTargets = decoded
-    end
-
-    local targets = Core.normalizeTargets(rawTargets)
-    if #targets == 0 then targets = Core.normalizeTargets(Core.DEFAULT_TARGETS) end
-    Core.saveTargets(targets)
-    return targets
-end
-
-function Core.loadState()
-    local state = readSerialized(Core.CONFIG.stateFile)
-
-    if type(state) ~= "table" then state = {} end
-    state.version = Core.CONFIG.stateVersion
-    if type(state.targets) ~= "table" then state.targets = {} end
-    if type(state.commands) ~= "table" then state.commands = {} end
-    if type(state.commands.history) ~= "table" then state.commands.history = {} end
-    state.commands.sequence = numberOrDefault(state.commands.sequence, 0, 0)
-    return state
-end
-
-function Core.saveState(state)
-    state.version = Core.CONFIG.stateVersion
-    if type(state.targets) ~= "table" then state.targets = {} end
-    if type(state.commands) ~= "table" then state.commands = {} end
-    if type(state.commands.history) ~= "table" then state.commands.history = {} end
-    state.commands.sequence = numberOrDefault(state.commands.sequence, 0, 0)
-
-    local handle = fs.open(Core.CONFIG.stateFile, "w")
-    if not handle then return false end
-    handle.write(textutils.serialize(state))
-    handle.close()
-    return true
-end
-
-function Core.getTargetState(state, target)
-    if type(state.targets) ~= "table" then state.targets = {} end
-    local targetState = state.targets[target.id]
-    if type(targetState) ~= "table" then
-        targetState = { commitments = {} }
-        state.targets[target.id] = targetState
-    end
-    if type(targetState.commitments) ~= "table" then targetState.commitments = {} end
-    return targetState
-end
-
-function Core.findTarget(runtime, targetId)
-    targetId = tostring(targetId or "")
-    if targetId == "" then return nil, nil end
-    for index, target in ipairs(runtime.targets or {}) do
-        if target.id == targetId then return target, index end
-    end
-    return nil, nil
-end
-
-local function commandState(state)
-    if type(state.commands) ~= "table" then state.commands = {} end
-    if type(state.commands.history) ~= "table" then state.commands.history = {} end
-    state.commands.sequence = numberOrDefault(state.commands.sequence, 0, 0)
-    return state.commands
-end
-
-local function findCommandRecord(commands, commandId)
-    if not commandId then return nil end
-    for _, record in ipairs(commands.history or {}) do
-        if record.id == commandId then return record end
-    end
-    return nil
-end
-
-local function rememberCommand(state, record)
-    local commands = commandState(state)
-    local history = commands.history
-
-    for index = #history, 1, -1 do
-        if history[index].id == record.id then table.remove(history, index) end
-    end
-    history[#history + 1] = record
-
-    local limit = math.max(1, Core.CONFIG.commandHistoryLimit or 256)
-    while #history > limit do table.remove(history, 1) end
-    return record
-end
-
-function Core.recentCommands(state, limit)
-    local commands = commandState(state or {})
-    local history = commands.history or {}
-    limit = math.max(1, math.floor(tonumber(limit) or 20))
-
-    local out = {}
-    local first = math.max(1, #history - limit + 1)
-    for index = first, #history do
-        out[#out + 1] = Core.copyTable(history[index])
-    end
-    return out
-end
-
-local function nextLocalCommandId(runtime, target)
-    local commands = commandState(runtime.state)
-    commands.sequence = (tonumber(commands.sequence) or 0) + 1
-    return "local_" .. Core.normalizeId(target.id) .. "_" .. tostring(Core.now()) .. "_" .. tostring(commands.sequence)
 end
 
 function Core.executeRequestCommand(runtime, target, command)
@@ -1953,11 +1546,6 @@ function Core.runOnce(runtime)
     dirty = Core.decideTargets(runtime) or dirty
     Core.saveState(runtime.state)
     return dirty
-end
-
-function Core.resetAllState()
-    if fs.exists(Core.CONFIG.stateFile) then fs.delete(Core.CONFIG.stateFile) end
-    return true
 end
 
 function Core.formatTimeLeft(seconds)
