@@ -440,9 +440,8 @@ return function(Core)
         if not ok then return end
         if not applyRecipeDraft(draft) then return end
 
-        runtime.targets[runtime.selectedIndex] = draft
-        Core.logEvent(runtime, "INFO", "target_edited", { target = draft.id, name = Core.displayName(draft) })
-        Core.saveTargets(Core.normalizeTargets(runtime.targets))
+        -- 单实现：与远程 upsert_target 共用 Core.upsertTarget（uiEvents 保持 target_edited 事件名）
+        Core.upsertTarget(runtime, draft, target.id, { uiEvents = true })
         UI.reloadTargets(runtime)
     end
 
@@ -453,10 +452,7 @@ return function(Core)
         local value = promptValue(runtime, "Delete " .. Core.displayName(target), "Type DELETE to confirm", "")
         if isCancel(value) or value ~= "DELETE" then return end
 
-        table.remove(runtime.targets, runtime.selectedIndex)
-        runtime.state.targets[target.id] = nil
-        Core.logEvent(runtime, "WARN", "target_deleted", { target = target.id, name = Core.displayName(target) })
-        Core.saveTargets(Core.normalizeTargets(runtime.targets))
+        Core.deleteTargetById(runtime, target.id, { uiEvents = true })
         Core.saveState(runtime.state)
         UI.reloadTargets(runtime)
     end
@@ -478,11 +474,8 @@ return function(Core)
         local value = promptValue(runtime, "Reset " .. Core.displayName(target), "Type RESET to clear promises", "")
         if isCancel(value) or value ~= "RESET" then return end
 
-        runtime.state.targets[target.id] = { commitments = {} }
-        Core.logEvent(runtime, "WARN", "target_state_reset", { target = target.id, name = Core.displayName(target) })
+        Core.resetTargetStateById(runtime, target.id, { uiEvents = true })
         Core.saveState(runtime.state)
-        runtime.dataById[target.id] = nil
-        Core.ensureTargetData(runtime, target)
     end
 
     function UI.handleKey(runtime, key)
