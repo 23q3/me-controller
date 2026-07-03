@@ -23,4 +23,5 @@ computer/0/cc_agent/
 
 # Python
 mcp/.venv/
+mcp/.venv-win/
 mcp/__pycache__/

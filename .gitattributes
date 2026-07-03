@@ -2,3 +2,5 @@
 *.sh text eol=lf
 # Lua 由游戏内 CraftOS 读取，保持 LF
 *.lua text eol=lf
+# 批处理由 cmd.exe 解析，LF-only 文件的 goto 标签有已知 bug，强制 CRLF
+*.cmd text eol=crlf
