@@ -3,6 +3,7 @@ local Util = require("util")
 local Items = require("items")
 local TargetsStore = require("targets_store")
 local StateStore = require("state_store")
+local Tracking = require("tracking")
 
 local Core = {}
 
@@ -46,6 +47,14 @@ Core.getTargetState = StateStore.getTargetState
 Core.recentCommands = StateStore.recentCommands
 Core.pruneOrphanedTargetState = StateStore.pruneOrphanedTargetState
 
+-- 外设访问（network.lua，function(Core) 工厂：refreshNetwork 要回调仍在本文件的
+-- syncTargetData/ensureTargetData/updatePromiseData/buildDependencyPlan/updateDemandData）
+local Network = require("network")(Core)
+Core.discoverPeripherals = Network.discoverPeripherals
+Core.readNetworkStock = Network.readNetworkStock
+Core.refreshNetwork = Network.refreshNetwork
+Core.executeRequestCommand = Network.executeRequestCommand
+
 -- 本文件沿用的短名
 local numberOrDefault = Util.numberOrDefault
 local boolOrDefault = Util.boolOrDefault
@@ -60,446 +69,28 @@ local commandState = StateStore.commandState
 local findCommandRecord = StateStore.findCommandRecord
 local rememberCommand = StateStore.rememberCommand
 local nextLocalCommandId = StateStore.nextLocalCommandId
+local sumCommitments = Tracking.sumCommitments
+local inputTotalsToBatches = Tracking.inputTotalsToBatches
+local inputRequirementsForBatches = Tracking.inputRequirementsForBatches
+local inputPlanForBatches = Tracking.inputPlanForBatches
+local pruneCommitments = Tracking.pruneCommitments
+local reduceCommitments = Tracking.reduceCommitments
+local clearPendingRequest = Tracking.clearPendingRequest
+local clearDeficitConfirmation = Tracking.clearDeficitConfirmation
+local confirmDeficit = Tracking.confirmDeficit
+local nextExpiry = Tracking.nextExpiry
+local productTargetCount = Tracking.productTargetCount
+local desiredBatchesForTarget = Tracking.desiredBatchesForTarget
+local inputStockCounts = Tracking.inputStockCounts
+local updateObservedProductCounts = Tracking.updateObservedProductCounts
+local stockCountsForTarget = Tracking.stockCountsForTarget
+local effectiveStockCounts = Tracking.effectiveStockCounts
 
 function Core.saveRuntimeTargets(runtime)
     runtime.targets = Core.normalizeTargets(runtime.targets or {})
     Core.saveTargets(runtime.targets)
     if Core.syncTargetData then Core.syncTargetData(runtime) end
     return true
-end
-
-function Core.executeRequestCommand(runtime, target, command)
-    local commands = commandState(runtime.state)
-    local existing = findCommandRecord(commands, command.id)
-    if existing then
-        Core.logEvent(runtime, "WARN", "command_duplicate", {
-            commandId = command.id,
-            target = target.id,
-            item = command.item,
-            status = existing.status,
-        })
-        return true, 0, nil, true
-    end
-
-    local timestamp = Core.now()
-    local record = {
-        id = command.id,
-        kind = "request",
-        source = command.source or "local",
-        targetId = target.id,
-        address = command.address,
-        item = command.item,
-        requested = 0,
-        wanted = command.count,
-        createdAt = timestamp,
-        completedAt = timestamp,
-    }
-
-    local filter = { name = command.item, _requestCount = command.count }
-    local ok, requested = pcall(function()
-        return runtime.stockTicker.requestFiltered(command.address, filter)
-    end)
-
-    if ok then
-        requested = math.max(0, tonumber(requested) or 0)
-        record.requested = requested
-        record.status = requested > 0 and "done" or "zero"
-        rememberCommand(runtime.state, record)
-        Core.logEvent(runtime, requested > 0 and "INFO" or "WARN", "command_request_" .. record.status, {
-            commandId = command.id,
-            target = target.id,
-            item = command.item,
-            wanted = command.count,
-            requested = requested,
-            address = command.address,
-        })
-        return true, requested, nil, false
-    end
-
-    record.status = "failed"
-    record.error = tostring(requested)
-    rememberCommand(runtime.state, record)
-    Core.logEvent(runtime, "ERROR", "command_request_failed", {
-        commandId = command.id,
-        target = target.id,
-        item = command.item,
-        wanted = command.count,
-        address = command.address,
-        error = record.error,
-    })
-    return false, 0, requested, false
-end
-
-local function promiseInputs(promise, target)
-    local inputs = {}
-
-    if type(promise.inputs) == "table" then
-        for item, amount in pairs(promise.inputs) do
-            amount = tonumber(amount) or 0
-            if amount > 0 then inputs[tostring(item)] = (inputs[tostring(item)] or 0) + amount end
-        end
-    elseif promise.item and promise.amount then
-        inputs[tostring(promise.item)] = tonumber(promise.amount) or 0
-    elseif target and target.inputItem and promise.amount then
-        inputs[target.inputItem] = tonumber(promise.amount) or 0
-    end
-
-    return inputs
-end
-
-local function totalInputAmount(inputs)
-    local total = 0
-    for _, amount in pairs(inputs or {}) do
-        total = total + (tonumber(amount) or 0)
-    end
-    return total
-end
-
-local function sumCommitments(targetState, target)
-    local totals = {}
-    for _, promise in ipairs(targetState.commitments or {}) do
-        for item, amount in pairs(promiseInputs(promise, target)) do
-            totals[item] = (totals[item] or 0) + amount
-        end
-    end
-    return totalInputAmount(totals), totals
-end
-
-local function inputTotalsToBatches(target, totals)
-    local batches = nil
-    for item, required in pairs(recipeInputCounts(target)) do
-        local itemBatches = math.floor((totals[item] or 0) / required)
-        if batches == nil or itemBatches < batches then batches = itemBatches end
-    end
-    return batches or 0
-end
-
-local function inputRequirementsForBatches(target, batches)
-    local required = {}
-    for item, amount in pairs(recipeInputCounts(target)) do
-        required[item] = amount * math.max(0, batches or 0)
-    end
-    return required
-end
-
-local function inputPlanForBatches(target, batches, committedTotals)
-    local plan, total = {}, 0
-    for item, required in pairs(inputRequirementsForBatches(target, batches)) do
-        local missing = math.ceil(math.max(0, required - (committedTotals[item] or 0)))
-        if missing > 0 then
-            plan[item] = missing
-            total = total + missing
-        end
-    end
-    return plan, total
-end
-
-local function pruneCommitments(targetState, target, timestamp)
-    local kept, expired = {}, 0
-    for _, promise in ipairs(targetState.commitments or {}) do
-        local amount = totalInputAmount(promiseInputs(promise, target))
-        if (promise.expiresAt or 0) > timestamp and amount > 0 then
-            promise.inputs = promiseInputs(promise, target)
-            promise.amount = amount
-            kept[#kept + 1] = promise
-        else
-            expired = expired + amount
-        end
-    end
-    targetState.commitments = kept
-    targetState.totalExpiredInputs = (targetState.totalExpiredInputs or 0) + expired
-    return expired
-end
-
-local function reduceCommitments(targetState, target, requiredInputs)
-    local remaining = Core.copyTable(requiredInputs or {})
-    local reduced = 0
-    local kept = {}
-
-    for _, promise in ipairs(targetState.commitments or {}) do
-        local inputs = promiseInputs(promise, target)
-        local nextInputs = {}
-
-        for item, current in pairs(inputs) do
-            local needed = remaining[item] or 0
-            if needed > 0 then
-                local used = math.min(current, needed)
-                current = current - used
-                remaining[item] = needed - used
-                reduced = reduced + used
-            end
-            if current > 0 then nextInputs[item] = current end
-        end
-
-        local amount = totalInputAmount(nextInputs)
-        if amount > 0 then
-            promise.inputs = nextInputs
-            promise.amount = amount
-            kept[#kept + 1] = promise
-        end
-    end
-
-    targetState.commitments = kept
-    return reduced
-end
-
-local function clearPendingRequest(targetState)
-    local dirty = targetState.pendingRequestSince ~= nil or targetState.pendingRequestAmount ~= nil
-    targetState.pendingRequestSince = nil
-    targetState.pendingRequestAmount = nil
-    return dirty
-end
-
-local function clearDeficitConfirmation(targetState)
-    local dirty = targetState.deficitConfirmSince ~= nil
-        or targetState.deficitConfirmScans ~= nil
-        or targetState.deficitConfirmLastStockSerial ~= nil
-    targetState.deficitConfirmSince = nil
-    targetState.deficitConfirmScans = nil
-    targetState.deficitConfirmLastStockSerial = nil
-    return dirty
-end
-
-local function confirmDeficit(runtime, targetState, target, data, timestamp)
-    if (data.desiredBatches or 0) <= 0 or (data.neededInputs or 0) <= 0 then
-        return true, 0, 0, clearDeficitConfirmation(targetState)
-    end
-
-    local dirty = false
-    local stockSerial = runtime.stockSerial or 0
-    if not targetState.deficitConfirmSince then
-        targetState.deficitConfirmSince = timestamp
-        targetState.deficitConfirmScans = 0
-        targetState.deficitConfirmLastStockSerial = nil
-        dirty = true
-    end
-
-    if targetState.deficitConfirmLastStockSerial ~= stockSerial then
-        targetState.deficitConfirmScans = (targetState.deficitConfirmScans or 0) + 1
-        targetState.deficitConfirmLastStockSerial = stockSerial
-        dirty = true
-    end
-
-    local scans = targetState.deficitConfirmScans or 0
-    local age = timestamp - (targetState.deficitConfirmSince or timestamp)
-    local confirmed = scans >= target.deficitConfirmScans and age >= target.deficitConfirmSeconds
-    return confirmed, age, scans, dirty
-end
-
-local function nextExpiry(targetState, timestamp)
-    local nearest = nil
-    for _, promise in ipairs(targetState.commitments or {}) do
-        if not nearest or promise.expiresAt < nearest then nearest = promise.expiresAt end
-    end
-    if not nearest then return nil end
-    return nearest - timestamp
-end
-
-local function hasType(name, wanted)
-    for _, typeName in ipairs({ peripheral.getType(name) }) do
-        if typeName == wanted then return true end
-    end
-    return false
-end
-
-local function findPeripheral(wanted, predicate)
-    for _, name in ipairs(peripheral.getNames()) do
-        if hasType(name, wanted) then
-            local wrapped = peripheral.wrap(name)
-            if not predicate or predicate(name, wrapped) then return name, wrapped end
-        end
-    end
-    return nil, nil
-end
-
-function Core.discoverPeripherals(runtime)
-    local monitorName, monitor = findPeripheral("monitor")
-    local stockName, stockTicker = findPeripheral("Create_StockTicker")
-
-    runtime.monitorName = monitorName
-    runtime.monitor = monitor
-    runtime.stockName = stockName
-    runtime.stockTicker = stockTicker
-end
-
-function Core.readNetworkStock(stockTicker)
-    if type(stockTicker.stock) ~= "function" then return nil, "stock() unavailable" end
-    local ok, stock = pcall(function() return stockTicker.stock(false) end)
-    if not ok then return nil, stock end
-
-    local counts = {}
-    local entries = 0
-    for _, item in ipairs(stock or {}) do
-        if item.name then
-            local count = item.count or 0
-            counts[item.name] = (counts[item.name] or 0) + count
-            entries = entries + 1
-        end
-    end
-
-    return { counts = counts, entries = entries }, nil
-end
-
-local function productTargetCount(target, product, extraProducts)
-    local base = numberOrDefault(product and product.targetCount, target.targetCount or 0, 0)
-    local extra = extraProducts and product and (extraProducts[product.item] or 0) or 0
-    return math.max(base, math.max(0, extra))
-end
-
-local function desiredBatchesForTarget(target, stockCounts, extraProducts)
-    local desiredBatches = 0
-    local productData = {}
-
-    for _, product in ipairs(target.products or {}) do
-        local count = stockCounts[product.item] or 0
-        local baseTargetCount = productTargetCount(target, product)
-        local dependencyDemand = extraProducts and (extraProducts[product.item] or 0) or 0
-        local targetCount = productTargetCount(target, product, extraProducts)
-        local deficit = math.max(0, targetCount - count)
-        local batches = math.ceil(deficit / productCountPerBatch(product))
-
-        productData[product.item] = {
-            count = count,
-            baseTargetCount = baseTargetCount,
-            dependencyDemand = dependencyDemand,
-            targetCount = targetCount,
-            deficit = deficit,
-            batches = batches,
-        }
-        if batches > desiredBatches then desiredBatches = batches end
-    end
-
-    return desiredBatches, productData
-end
-
-local function inputStockCounts(target, stockCounts)
-    local counts = {}
-    for _, input in ipairs(target.inputs or {}) do
-        counts[input.item] = stockCounts[input.item] or 0
-    end
-    return counts
-end
-
-local function clearPendingProductDrop(targetState, item)
-    local dirty = false
-    for _, field in ipairs({ "pendingProductDropCounts", "pendingProductDropSince", "pendingProductDropScans" }) do
-        local bucket = targetState[field]
-        if type(bucket) == "table" and bucket[item] ~= nil then
-            bucket[item] = nil
-            dirty = true
-        end
-    end
-    return dirty
-end
-
-local function updateObservedProductCounts(targetState, target, rawCounts, timestamp)
-    local previousCounts = targetState.lastProductCounts
-    if type(previousCounts) ~= "table" and targetState.lastProductCount ~= nil then
-        previousCounts = { [target.productItem] = targetState.lastProductCount }
-    end
-    if type(previousCounts) ~= "table" then previousCounts = {} end
-
-    if type(targetState.pendingProductDropCounts) ~= "table" then targetState.pendingProductDropCounts = {} end
-    if type(targetState.pendingProductDropSince) ~= "table" then targetState.pendingProductDropSince = {} end
-    if type(targetState.pendingProductDropScans) ~= "table" then targetState.pendingProductDropScans = {} end
-
-    local acceptedCounts = {}
-    local effectiveCounts = {}
-    local deliveredBatches = 0
-    local deliveredProducts = 0
-    local dirty = type(targetState.lastProductCounts) ~= "table"
-
-    for _, product in ipairs(target.products or {}) do
-        local item = product.item
-        local current = rawCounts[item] or 0
-        local previous = previousCounts[item]
-
-        if previous == nil then
-            acceptedCounts[item] = current
-            effectiveCounts[item] = current
-            dirty = true
-            clearPendingProductDrop(targetState, item)
-        elseif current >= previous then
-            acceptedCounts[item] = current
-            effectiveCounts[item] = current
-
-            if current > previous then
-                local delta = current - previous
-                deliveredProducts = deliveredProducts + delta
-                deliveredBatches = math.max(deliveredBatches, math.ceil(delta / productCountPerBatch(product)))
-                dirty = true
-            end
-            dirty = clearPendingProductDrop(targetState, item) or dirty
-        else
-            local pendingCounts = targetState.pendingProductDropCounts
-            local pendingSince = targetState.pendingProductDropSince
-            local pendingScans = targetState.pendingProductDropScans
-
-            if pendingCounts[item] ~= current then
-                pendingCounts[item] = current
-                pendingSince[item] = timestamp
-                pendingScans[item] = 1
-            else
-                pendingScans[item] = (pendingScans[item] or 0) + 1
-            end
-
-            local age = timestamp - (pendingSince[item] or timestamp)
-            local confirmed = pendingScans[item] >= target.stockDropConfirmScans
-                and age >= target.stockDropConfirmSeconds
-
-            if confirmed then
-                acceptedCounts[item] = current
-                effectiveCounts[item] = current
-                dirty = clearPendingProductDrop(targetState, item) or true
-            else
-                acceptedCounts[item] = previous
-                effectiveCounts[item] = previous
-                dirty = true
-            end
-        end
-    end
-
-    targetState.lastProductCounts = acceptedCounts
-    targetState.lastProductCount = acceptedCounts[target.productItem]
-    targetState.effectiveProductCounts = effectiveCounts
-
-    return {
-        deliveredBatches = deliveredBatches,
-        deliveredProducts = deliveredProducts,
-        dirty = dirty,
-    }
-end
-
-local function stockCountsForTarget(runtime, target)
-    local counts = runtime.stockCounts or {}
-    local targetState = Core.getTargetState(runtime.state, target)
-    local effectiveCounts = targetState.effectiveProductCounts
-    if type(effectiveCounts) ~= "table" then return counts end
-
-    local out = nil
-    for _, product in ipairs(target.products or {}) do
-        local effective = effectiveCounts[product.item]
-        if effective ~= nil and effective ~= counts[product.item] then
-            if not out then out = Core.copyTable(counts) end
-            out[product.item] = effective
-        end
-    end
-
-    return out or counts
-end
-
-local function effectiveStockCounts(runtime)
-    local counts = Core.copyTable(runtime.stockCounts or {})
-    for _, target in ipairs(runtime.targets or {}) do
-        local targetState = Core.getTargetState(runtime.state, target)
-        local effectiveCounts = targetState.effectiveProductCounts
-        if type(effectiveCounts) == "table" then
-            for _, product in ipairs(target.products or {}) do
-                if effectiveCounts[product.item] ~= nil then counts[product.item] = effectiveCounts[product.item] end
-            end
-        end
-    end
-    return counts
 end
 
 local function buildProducerMap(targets)
@@ -718,6 +309,10 @@ local function updateDemandData(runtime, target)
     return data
 end
 
+-- 临时导出：network.refreshNetwork 回调用；步骤 4 移入 planner.lua 后改直连
+Core.buildDependencyPlan = buildDependencyPlan
+Core.updateDemandData = updateDemandData
+
 function Core.ensureTargetData(runtime, target)
     local data = runtime.dataById[target.id]
     if data then return data end
@@ -757,88 +352,6 @@ function Core.syncTargetData(runtime)
     for id in pairs(runtime.dataById) do
         if not live[id] then runtime.dataById[id] = nil end
     end
-end
-
-function Core.refreshNetwork(runtime)
-    Core.discoverPeripherals(runtime)
-    Core.syncTargetData(runtime)
-
-    if not runtime.stockTicker then
-        runtime.networkReady = false
-        runtime.stockError = "No Stock Ticker peripheral found"
-        runtime.stockCounts = {}
-        runtime.dependencyDemandByTarget = {}
-        runtime.dependencyPlan = nil
-        if runtime.lastLoggedStockError ~= runtime.stockError then
-            Core.logEvent(runtime, "ERROR", "stock_offline", { message = runtime.stockError })
-            runtime.lastLoggedStockError = runtime.stockError
-        end
-        for _, target in ipairs(runtime.targets) do
-            local data = Core.ensureTargetData(runtime, target)
-            data.status = "ERROR"
-            data.message = runtime.stockError
-            data.productCount = 0
-            data.inputCount = 0
-            Core.updatePromiseData(runtime, target)
-        end
-        return false
-    end
-
-    local report, err = Core.readNetworkStock(runtime.stockTicker)
-    if not report then
-        runtime.networkReady = false
-        runtime.stockError = tostring(err)
-        runtime.stockCounts = {}
-        runtime.dependencyDemandByTarget = {}
-        runtime.dependencyPlan = nil
-        if runtime.lastLoggedStockError ~= runtime.stockError then
-            Core.logEvent(runtime, "ERROR", "stock_read_failed", { message = runtime.stockError })
-            runtime.lastLoggedStockError = runtime.stockError
-        end
-        for _, target in ipairs(runtime.targets) do
-            local data = Core.ensureTargetData(runtime, target)
-            data.status = "ERROR"
-            data.message = "Stock read failed: " .. runtime.stockError
-            data.productCount = 0
-            data.inputCount = 0
-            Core.updatePromiseData(runtime, target)
-        end
-        return false
-    end
-
-    local dirty = false
-    local timestamp = Core.now()
-    runtime.networkReady = true
-    runtime.stockError = nil
-    if runtime.lastLoggedStockError then
-        Core.logEvent(runtime, "INFO", "stock_recovered", { entries = report.entries or 0 })
-        runtime.lastLoggedStockError = nil
-    end
-    runtime.stockCounts = report.counts or {}
-    runtime.stockEntries = report.entries or 0
-    runtime.lastStockReadAt = timestamp
-    runtime.stockSerial = (runtime.stockSerial or 0) + 1
-
-    for _, target in ipairs(runtime.targets) do
-        local targetState = Core.getTargetState(runtime.state, target)
-        local observed = updateObservedProductCounts(targetState, target, runtime.stockCounts, timestamp)
-        dirty = observed.dirty or dirty
-
-        if observed.deliveredBatches > 0 then
-            local reduced = reduceCommitments(targetState, target, inputRequirementsForBatches(target, observed.deliveredBatches))
-            if reduced > 0 then
-                targetState.totalSettledInputs = (targetState.totalSettledInputs or 0) + reduced
-                targetState.totalDeliveredProducts = (targetState.totalDeliveredProducts or 0) + observed.deliveredProducts
-                targetState.totalDeliveredBatches = (targetState.totalDeliveredBatches or 0) + observed.deliveredBatches
-                dirty = true
-            end
-        end
-    end
-
-    buildDependencyPlan(runtime)
-    for _, target in ipairs(runtime.targets) do updateDemandData(runtime, target) end
-
-    return dirty
 end
 
 local function inputEntryForItem(target, item)
