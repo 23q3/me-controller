@@ -26,7 +26,12 @@ export async function handleApi(req: Request, url: URL) {
   }
 
   if (url.pathname === "/api/commands" && req.method === "POST") {
-    const body = (await req.json()) as ControllerCommand;
+    let body: ControllerCommand;
+    try {
+      body = (await req.json()) as ControllerCommand;
+    } catch {
+      return jsonResponse({ ok: false, error: "invalid json" }, 400);
+    }
     if (!body || typeof body.kind !== "string") {
       return jsonResponse({ ok: false, error: "command.kind is required" }, 400);
     }
