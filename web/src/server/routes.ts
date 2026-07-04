@@ -1,5 +1,5 @@
 // HTTP API 路由。
-import { getAssetIndex, getItemAsset } from "./assets";
+import { ensureAssetIndex } from "./assets";
 import type { ControllerCommand } from "../shared/protocol";
 import { dispatchCommand, stateEnvelope } from "./state";
 
@@ -16,13 +16,7 @@ export async function handleApi(req: Request, url: URL) {
   }
 
   if (url.pathname === "/api/items" && req.method === "GET") {
-    return jsonResponse(getAssetIndex());
-  }
-
-  if (url.pathname.startsWith("/api/items/") && req.method === "GET") {
-    const id = decodeURIComponent(url.pathname.slice("/api/items/".length));
-    const item = getItemAsset(id);
-    return item ? jsonResponse(item) : jsonResponse({ ok: false, error: "item not found" }, 404);
+    return jsonResponse(await ensureAssetIndex());
   }
 
   if (url.pathname === "/api/commands" && req.method === "POST") {

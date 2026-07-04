@@ -377,12 +377,21 @@ export function buildAssetIndex() {
 }
 
 let cachedIndex: AssetIndex | undefined;
+let indexPromise: Promise<AssetIndex> | undefined;
 
-export function getAssetIndex() {
-  if (!cachedIndex) cachedIndex = buildAssetIndex();
-  return cachedIndex;
+// 启动时调用一次（server/index.ts bootstrap）。扫描是同步 IO，放进微任务里
+// memoize，避免第一个 /api/items 请求在请求内同步扫盘。重建靠重启（见 README）。
+export function ensureAssetIndex() {
+  if (!indexPromise) {
+    indexPromise = Promise.resolve().then(() => {
+      cachedIndex = buildAssetIndex();
+      return cachedIndex;
+    });
+  }
+  return indexPromise;
 }
 
+// 同步查询：索引未就绪时返回 undefined，标签清洗会退回 defaultDisplayName
 export function getItemAsset(id: string) {
-  return getAssetIndex().items[id];
+  return cachedIndex?.items[id];
 }

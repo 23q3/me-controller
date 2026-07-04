@@ -9,6 +9,10 @@ import type { BridgeEnvelope } from "../shared/protocol";
 
 const PORT = Number(Bun.env.PORT || 8787);
 
+// 资产索引启动即异步构建（memoized），/api/items 只需 await 现成结果
+import { ensureAssetIndex } from "./assets";
+void ensureAssetIndex();
+
 function readJson(text: string): unknown {
   if (!text) return null;
   return JSON.parse(text);
