@@ -21,6 +21,7 @@ mcp/
 ├── pyproject.toml     # uv 项目，依赖 mcp>=1.2
 ├── server.py          # FastMCP：9 个 @mcp.tool() + 1 个状态资源
 ├── cc_queue.py        # inbox/outbox 文件队列协议（从旧脚本逐字移植）
+├── gate2.py           # Lua 侧回归门禁（编译全模块 + targets.db 往返 + 冒烟五连）
 ├── cc-mcp-wrapper.sh  # WSL/Linux 入口
 └── cc-mcp-wrapper.cmd # Windows 入口
 ```
@@ -85,3 +86,14 @@ args = []
 ## 工作原理
 
 MCP 客户端通过 stdio 调用 `server.py`。服务端把命令写入 `computer/0/cc_agent/inbox`，游戏里的 `agent.lua` 读到命令后执行，并把结果写入 `computer/0/cc_agent/outbox`。服务端再把结果返回给客户端，并默认删除已消费的结果文件，避免 outbox 慢慢堆积。协议细节（命令文件格式、结果的 `VALUE/OUTPUT` 段式）见 `cc_queue.py` 文件头注释。
+
+## 回归门禁
+
+改动 Lua 侧代码后，在游戏运行、agent 在线时可以跑一遍回归门禁（目前只支持 Windows）：
+
+```text
+python mcp\gate2.py            # all：编译 15 个模块 + targets.db 落盘往返 + me_controller 冒烟五连
+python mcp\gate2.py compile    # 只编译；另有 roundtrip / smoke / stop 单项模式
+```
+
+往返门禁依赖仓库里的 `fixtures/targets.db`。任何一步失败时脚本退出码为 1，输出里对应步骤会标 `FAIL`。
