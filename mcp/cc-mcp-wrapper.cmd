@@ -3,7 +3,10 @@ rem Windows wrapper for the ComputerCraft MCP server (see README.md).
 rem Keep this file ASCII-only: cmd.exe misparses UTF-8 under legacy code pages.
 setlocal
 set "SCRIPT_DIR=%~dp0"
-set "LOG=%TEMP%\cc-mcp-wrapper.log"
+rem Unique log per instance: cmd holds ">>" redirects exclusively for the process
+rem lifetime, so a long-running server instance would block any second one
+rem (gate2.py, another MCP client) from starting if they shared one log file.
+set "LOG=%TEMP%\cc-mcp-wrapper-%RANDOM%%RANDOM%.log"
 if not defined CC_ROOT for %%I in ("%SCRIPT_DIR%..") do set "CC_ROOT=%%~fI"
 rem Keep the Windows venv separate from the WSL one (.venv), or each uv rebuilds the other's.
 set "UV_PROJECT_ENVIRONMENT=%SCRIPT_DIR%.venv-win"

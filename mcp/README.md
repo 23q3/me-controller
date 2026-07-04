@@ -33,8 +33,8 @@ mcp/
 启动日志分别写到：
 
 ```text
-/tmp/cc-mcp-wrapper.log          # WSL
-%TEMP%\cc-mcp-wrapper.log        # Windows
+/tmp/cc-mcp-wrapper.log                # WSL
+%TEMP%\cc-mcp-wrapper-<随机数>.log     # Windows（每个实例独立日志——cmd 的 >> 重定向是进程独占的，共用一个文件会让第二个实例起不来）
 ```
 
 默认情况下 wrapper 会从自身位置推导 `CC_ROOT`，也可以用环境变量覆盖。
