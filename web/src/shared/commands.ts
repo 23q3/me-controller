@@ -1,5 +1,7 @@
-// 命令清洗与乐观更新的单实现（消灭原 index.ts / app.js 各一份的复制）。
-// applyCommandToSnapshot 是纯函数：不改入参，返回应用乐观效果后的新快照。
+// 命令清洗的单实现 + Lua applyCommand 语义的 TS 对照。
+// applyCommandToSnapshot 已不再用于生产乐观层（UI/服务端的乐观预测已移除，
+// 界面改为 pending 转圈等待权威快照）；保留它是作为 Lua 侧命令语义的可执行
+// 文档，由 tests/commands.test.ts 的金样配对锁定，勿删。
 // 它只是"会被下一份控制器快照覆盖的预览"——Lua 侧 applyCommand 才是权威。
 // 命令别名对（红线，与 Lua commands.lua 对齐）：
 //   set_enabled/target_enabled、upsert_target/save_target、

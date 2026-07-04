@@ -581,6 +581,43 @@ input::placeholder {
   background: rgb(239 116 128 / 0.07);
 }
 
+/* 命令在途:转圈胶囊(乐观预测已移除,操作反馈全靠它) */
+.pill.pending {
+  color: var(--energy);
+  border-color: rgb(79 214 232 / 0.45);
+  background: rgb(79 214 232 / 0.07);
+}
+
+.spinner {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-right-color: currentColor;
+    opacity: 0.55;
+  }
+}
+
+.commandError {
+  color: var(--bad);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ---- 物品终端(AE2 槽位网格) ---- */
 
 .terminalGrid {

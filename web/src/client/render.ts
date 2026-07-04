@@ -12,9 +12,9 @@ import { openTargetDialog } from "./target-editor";
 
 function statusClass(status: unknown): string {
   const value = text(status, "").toUpperCase();
-  if (value === "ERROR" || value === "FAILED") return "bad";
-  if (value === "WAITING" || value === "SENT" || value === "ACKNOWLEDGED") return "warn";
-  if (value === "SATISFIED" || value === "REQUESTED" || value === "DONE" || value === "SYNCED") return "good";
+  if (value === "ERROR") return "bad";
+  if (value === "WAITING") return "warn";
+  if (value === "SATISFIED" || value === "REQUESTED") return "good";
   return "";
 }
 
@@ -25,11 +25,6 @@ const STATUS_LABELS: Record<string, string> = {
   REQUESTED: "已下单",
   DISABLED: "已停用",
   NEW: "初始化",
-  SENT: "已发送",
-  ACKNOWLEDGED: "已确认",
-  SYNCED: "已同步",
-  DONE: "完成",
-  FAILED: "失败",
 };
 
 function statusLabel(status: unknown): string {
@@ -57,6 +52,30 @@ function commandKindLabel(kind: unknown): string {
 
 function pill(label: string, tone: string) {
   return el("span", { className: `pill ${tone}`.trim(), text: label });
+}
+
+function pendingPill(label: string) {
+  return el("span", { className: "pill pending" }, [
+    el("span", { className: "spinner", attrs: { "aria-hidden": "true" } }),
+    label,
+  ]);
+}
+
+// enabled 是权威配置;status 字段由 decide 循环滞后一拍重算——显示层以
+// enabled 优先,消灭"刚停用的目标短暂显示已满足"的窗口。
+function effectiveTargetStatus(target: TargetSnapshot): string {
+  const status = text(target.status, "NEW").toUpperCase();
+  if (target.enabled === false) return "DISABLED";
+  if (status === "DISABLED") return "NEW";
+  return status;
+}
+
+// 目标状态胶囊:有在途命令时显示转圈(不改写快照,乐观预测已移除)
+function targetStatusPill(target: TargetSnapshot) {
+  const pending = targetPending(target.id);
+  if (pending) return pendingPill(pending.label);
+  const status = effectiveTargetStatus(target);
+  return pill(statusLabel(status), statusClass(status));
 }
 
 export function itemName(itemId: string | undefined | null): string {
@@ -143,8 +162,9 @@ function renderSidebar() {
   badgeTargets.textContent = String(asNumber(summary.total));
   badgeTargets.hidden = asNumber(summary.total) === 0;
 
+  // 命令徽标只数还在等控制器回包的命令(sent);成功/失败都算已定型
   const activeCommands = (app.commands || []).filter(
-    (command) => !["done", "synced", "failed"].includes(text(command.status, "").toLowerCase())
+    (command) => text(command.status, "").toLowerCase() === "sent"
   ).length;
   const badgeCommands = must<HTMLElement>("#navBadgeCommands");
   badgeCommands.textContent = String(activeCommands);
@@ -189,7 +209,7 @@ function renderOverview() {
             el("span", { className: "muted", text: text(target.message, "") }),
           ]),
           el("span", { className: "miniTargetCount mono", text: `${formatExact(asNumber(target.productCount))} / ${formatExact(asNumber(target.targetCount))}` }),
-          pill(statusLabel(target.status), statusClass(target.status)),
+          targetStatusPill(target),
         ]);
         return row;
       })
@@ -297,14 +317,26 @@ function renderTerminal() {
 
 function targetActions(target: TargetSnapshot): HTMLElement {
   const pending = targetPending(target.id);
+  const locked = Boolean(pending);
   const needed = firstNeededInput(target);
 
   const toggle = el("button", {
     className: "ghost",
-    text: pending ? "同步中" : target.enabled ? "停用" : "启用",
+    text: target.enabled ? "停用" : "启用",
     onClick: () => sendCommand({ kind: "set_enabled", targetId: target.id, enabled: !target.enabled }),
   });
-  toggle.disabled = pending;
+  toggle.disabled = locked;
+
+  const edit = el("button", { className: "ghost", text: "编辑", onClick: () => openTargetDialog(target) });
+  edit.disabled = locked;
+
+  const reset = el("button", {
+    className: "ghost",
+    text: "重置",
+    title: "清空该目标的承诺跟踪状态",
+    onClick: () => sendCommand({ kind: "reset_target_state", targetId: target.id }),
+  });
+  reset.disabled = locked;
 
   const request = el("button", {
     className: "ghost",
@@ -315,27 +347,19 @@ function targetActions(target: TargetSnapshot): HTMLElement {
       sendCommand({ kind: "request", targetId: target.id, item: needed.item, count: needed.count });
     },
   });
-  request.disabled = !needed;
+  request.disabled = locked || !needed;
 
-  return el("div", { className: "rowActions" }, [
-    toggle,
-    el("button", { className: "ghost", text: "编辑", onClick: () => openTargetDialog(target) }),
-    el("button", {
-      className: "ghost",
-      text: "重置",
-      title: "清空该目标的承诺跟踪状态",
-      onClick: () => sendCommand({ kind: "reset_target_state", targetId: target.id }),
-    }),
-    request,
-    el("button", {
-      className: "ghost danger",
-      text: "删除",
-      onClick: () => {
-        if (!confirm(`删除目标「${productLabel(target)}」?`)) return;
-        sendCommand({ kind: "delete_target", targetId: target.id });
-      },
-    }),
-  ]);
+  const remove = el("button", {
+    className: "ghost danger",
+    text: "删除",
+    onClick: () => {
+      if (!confirm(`删除目标「${productLabel(target)}」?`)) return;
+      sendCommand({ kind: "delete_target", targetId: target.id });
+    },
+  });
+  remove.disabled = locked;
+
+  return el("div", { className: "rowActions" }, [toggle, edit, reset, request, remove]);
 }
 
 function renderTargets() {
@@ -356,11 +380,13 @@ function renderTargets() {
       const want = asNumber(target.targetCount);
       const pct = want > 0 ? Math.min(100, Math.round((have / want) * 100)) : 0;
 
-      const bar = el("div", { className: "stockBar" }, [el("div", { className: `stockBarFill ${statusClass(target.status)}`.trim() })]);
+      const bar = el("div", { className: "stockBar" }, [
+        el("div", { className: `stockBarFill ${statusClass(effectiveTargetStatus(target))}`.trim() }),
+      ]);
       (bar.firstElementChild as HTMLElement).style.width = `${pct}%`;
 
       return el("tr", {}, [
-        el("td", {}, [pill(statusLabel(target.status), statusClass(target.status))]),
+        el("td", {}, [targetStatusPill(target)]),
         el("td", {}, [
           el("div", { className: "itemCell" }, [
             itemIcon(productId || target.id, "m"),
@@ -388,6 +414,31 @@ function renderTargets() {
 
 // ---- 命令日志 ---------------------------------------------------------------
 
+// 命令状态按"执行结果"呈现:sent = 还没等到控制器回包(执行中,15 秒无回包
+// 视为无响应);acknowledged/synced = Lua 执行成功后才回包,即"成功";
+// failed = 执行失败,附带控制器返回的错误文本。
+function commandStatusPill(command: StoredCommand) {
+  const status = text(command.status, "").toLowerCase();
+  if (status === "sent") {
+    const age = Date.now() - asNumber(command.createdAt);
+    return age > 15_000 ? pill("无响应", "warn") : pendingPill("执行中");
+  }
+  if (status === "failed") return pill("失败", "bad");
+  if (status === "acknowledged" || status === "synced" || status === "done") return pill("成功", "good");
+  return pill(text(command.status), "");
+}
+
+function commandErrorText(command: StoredCommand): string | null {
+  if (text(command.status, "").toLowerCase() !== "failed") return null;
+  const response = command.response;
+  if (typeof response === "string" && response.trim()) return response;
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    const error = (response as { error?: unknown }).error;
+    if (error !== undefined && error !== null && error !== "") return String(error);
+  }
+  return "控制器未返回错误详情";
+}
+
 function commandRow(command: StoredCommand, compact = false): HTMLElement {
   const request = (command.request && typeof command.request === "object" && !Array.isArray(command.request)
     ? command.request
@@ -397,15 +448,17 @@ function commandRow(command: StoredCommand, compact = false): HTMLElement {
   const detailParts: string[] = [];
   if (request.targetId) detailParts.push(`目标 ${request.targetId}`);
   if (request.item) detailParts.push(`${itemName(request.item)} ×${asNumber(request.count) || 1}`);
+  const errorText = commandErrorText(command);
 
-  const children: (Node | string)[] = [
+  const children: (Node | string | null)[] = [
     el("span", { className: "mono muted", text: formatTime(command.createdAt) }),
     el("div", { className: "commandMain" }, [
       el("strong", { text: kind }),
       detailParts.length > 0 ? el("span", { className: "muted", text: detailParts.join(" · ") }) : null,
+      errorText ? el("span", { className: "commandError", title: errorText, text: errorText }) : null,
       compact ? null : el("span", { className: "mono muted commandId", text: id }),
     ]),
-    pill(statusLabel(command.status), statusClass(command.status)),
+    commandStatusPill(command),
   ];
   return el("div", { className: "listItem", title: id }, children);
 }

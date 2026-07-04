@@ -2,8 +2,7 @@
 import type { ServerWebSocket } from "bun";
 import { Store } from "./store";
 import { getItemAsset } from "./assets";
-import { applyCommandToSnapshot, sanitizeCommandForController } from "../shared/commands";
-import type { BridgeState, ControllerCommand, ControllerSnapshot, JsonValue, UiEnvelope } from "../shared/protocol";
+import { sanitizeCommandForController } from "../shared/commands";import type { BridgeState, ControllerCommand, ControllerSnapshot, JsonValue, UiEnvelope } from "../shared/protocol";
 
 export type SocketData = {
   role: "bridge" | "ui";
@@ -73,7 +72,8 @@ export function dispatchCommand(command: ControllerCommand) {
   };
 
   store.createCommand(id, outgoing);
-  state.latestSnapshot = applyCommandToSnapshot(state.latestSnapshot, outgoing);
+  // 乐观层已移除:latestSnapshot 只反映 Lua 权威快照。bridge.lua 执行完命令会
+  // 立即回发新快照,广播这里只为让命令列表即时出现在 UI。
   state.bridgeSocket.send(
     JSON.stringify({
       type: "command",
