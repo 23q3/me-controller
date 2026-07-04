@@ -10,6 +10,10 @@ bun install
 bun run dev
 ```
 
+`bun run dev` / `bun run start` 会先把前端(`src/client/main.ts`)打包到 `public/assets/main.js` 再起服务器;改前端后重跑即可,或用 `bun run dev:client` 挂 watch 增量打包。端口默认 8787,可用 `PORT` 环境变量覆盖。
+
+前端开发不必开游戏:`PORT=8787 bun run scripts/fake-bridge.ts` 可模拟游戏内桥接(发送带 `stockCounts` 的快照、确认命令),物品终端等视图即可看到数据。
+
 Open:
 
 ```text

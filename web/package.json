@@ -3,8 +3,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun run src/server/index.ts",
-    "start": "bun run src/server/index.ts"
+    "build": "bun build src/client/main.ts --outdir=public/assets --target=browser --sourcemap=linked",
+    "dev:client": "bun build src/client/main.ts --outdir=public/assets --target=browser --sourcemap=linked --watch",
+    "dev:server": "bun run src/server/index.ts",
+    "dev": "bun run build && bun run dev:server",
+    "start": "bun run build && bun run src/server/index.ts",
+    "test": "bun test"
   },
   "devDependencies": {
     "bun-types": "latest",

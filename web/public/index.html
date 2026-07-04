@@ -3,204 +3,220 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ME 控制器</title>
+    <title>ME 网络控制台</title>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="shell">
-      <header class="topbar">
-        <div>
-          <h1>ME 控制器</h1>
-          <p id="subtitle">桥接未连接</p>
-        </div>
-        <div class="actions">
-          <button id="addTargetBtn" type="button">新增目标</button>
-          <button id="refreshBtn" type="button">刷新</button>
-        </div>
-      </header>
-
-      <section class="metrics" aria-label="summary">
-        <div class="metric">
-          <span>目标数</span>
-          <strong id="mTotal">0</strong>
-        </div>
-        <div class="metric">
-          <span>已启用</span>
-          <strong id="mEnabled">0</strong>
-        </div>
-        <div class="metric">
-          <span>已下单</span>
-          <strong id="mRequested">0</strong>
-        </div>
-        <div class="metric">
-          <span>等待中</span>
-          <strong id="mWaiting">0</strong>
-        </div>
-        <div class="metric">
-          <span>错误</span>
-          <strong id="mError">0</strong>
-        </div>
-        <div class="metric">
-          <span>库存条目</span>
-          <strong id="mStock">0</strong>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panelHeader">
-          <h2>维持目标</h2>
-          <span id="networkStatus" class="pill">离线</span>
-        </div>
-        <div class="tableWrap">
-          <table>
-            <thead>
-              <tr>
-                <th>状态</th>
-                <th>目标</th>
-                <th>库存</th>
-                <th>需求</th>
-                <th>在途</th>
-                <th>地址</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="targetsBody"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <section class="split">
-        <div class="panel">
-          <div class="panelHeader">
-            <h2>命令记录</h2>
-            <span id="commandCount" class="pill">0</span>
+    <div class="frame">
+      <!-- 侧边导航:模块清单即项目蓝图,未实现模块以「规划中」占位 -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div id="energyCore" class="energyCore offline" aria-hidden="true">
+            <div class="coreInner"></div>
           </div>
-          <div id="commandsList" class="list"></div>
-        </div>
-
-        <div class="panel">
-          <div class="panelHeader">
-            <h2>桥接</h2>
-            <span id="bridgeStatus" class="pill">离线</span>
+          <div class="brandText">
+            <h1>ME 网络控制台</h1>
+            <span class="protocol mono">me_controller.bridge.v1</span>
           </div>
-          <dl class="kv">
-            <dt>客户端</dt>
-            <dd id="bridgeClient">-</dd>
-            <dt>协议</dt>
-            <dd id="bridgeProtocol">-</dd>
-            <dt>最后通信</dt>
-            <dd id="bridgeSeen">-</dd>
-          </dl>
-          <div id="messages" class="messages"></div>
         </div>
-      </section>
-    </main>
 
+        <div class="coreStatus">
+          <strong id="coreState">网络离线</strong>
+          <span id="coreDetail" class="muted">正在连接控制台服务…</span>
+          <div id="coreStats" class="coreStats"></div>
+        </div>
+
+        <nav class="nav" aria-label="模块导航">
+          <span class="navGroup">监控</span>
+          <a id="nav-overview" class="navItem" href="#/overview">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 9a6 6 0 1 1 12 0" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 9 11 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="9" r="1.2" fill="currentColor"/></svg>
+            <span>总览</span>
+          </a>
+          <a id="nav-terminal" class="navItem" href="#/terminal">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9.5" y="1.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="1.5" y="9.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="9.5" y="9.5" width="5" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.3"/></svg>
+            <span>物品终端</span>
+          </a>
+
+          <span class="navGroup">自动化</span>
+          <a id="nav-targets" class="navItem" href="#/targets">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13.8 1.8v2.6h-2.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span>自动维持</span>
+            <span id="navBadgeTargets" class="navBadge" hidden>0</span>
+          </a>
+          <a id="nav-crafting" class="navItem" href="#/crafting">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 1v2M10 1v2M6 13v2M10 13v2M1 6h2M1 10h2M13 6h2M13 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            <span>自动合成</span>
+            <span class="navTag">规划中</span>
+          </a>
+          <a id="nav-patterns" class="navItem" href="#/patterns">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.5h12M6.5 2v12" stroke="currentColor" stroke-width="1.3"/></svg>
+            <span>样板管理</span>
+            <span class="navTag">规划中</span>
+          </a>
+
+          <span class="navGroup">运维</span>
+          <a id="nav-commands" class="navItem" href="#/commands">
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5 6 8l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 12h5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span>命令日志</span>
+            <span id="navBadgeCommands" class="navBadge" hidden>0</span>
+          </a>
+        </nav>
+
+        <footer class="sidebarFooter mono">me_controller.snapshot.v1</footer>
+      </aside>
+
+      <main class="content">
+        <!-- 总览 -->
+        <section id="view-overview" class="view">
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.OVERVIEW</span>
+              <h2>总览</h2>
+            </div>
+            <div class="viewActions">
+              <button id="refreshBtn" type="button">刷新快照</button>
+            </div>
+          </header>
+          <div id="overviewMetrics" class="metrics"></div>
+          <div class="overviewGrid">
+            <div class="panel">
+              <div class="panelHeader"><h3>目标健康</h3></div>
+              <div id="overviewTargets" class="panelBody scroll"></div>
+            </div>
+            <div class="panelStack">
+              <div class="panel">
+                <div class="panelHeader"><h3>最近命令</h3></div>
+                <div id="overviewCommands" class="panelBody scroll short"></div>
+              </div>
+              <div class="panel">
+                <div class="panelHeader"><h3>消息</h3></div>
+                <div id="overviewMessages" class="panelBody scroll short"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 物品终端 -->
+        <section id="view-terminal" class="view" hidden>
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.TERMINAL</span>
+              <h2>物品终端</h2>
+            </div>
+            <div class="viewActions">
+              <input id="terminalSearch" type="search" placeholder="搜索物品名称或 ID…" autocomplete="off" />
+              <select id="terminalSort" aria-label="排序方式">
+                <option value="count">按数量</option>
+                <option value="name">按名称</option>
+              </select>
+            </div>
+          </header>
+          <p id="terminalMeta" class="viewMeta muted mono"></p>
+          <div id="terminalGrid" class="terminalGrid"></div>
+        </section>
+
+        <!-- 自动维持 -->
+        <section id="view-targets" class="view" hidden>
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.LEVEL_MAINTAINER</span>
+              <h2>自动维持</h2>
+            </div>
+            <div class="viewActions">
+              <button id="addTargetBtn" type="button" class="primary">新增目标</button>
+            </div>
+          </header>
+          <div class="panel">
+            <div class="tableWrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>状态</th>
+                    <th>目标</th>
+                    <th>库存</th>
+                    <th>需求</th>
+                    <th>在途</th>
+                    <th>地址</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="targetsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- 自动合成(规划中) -->
+        <section id="view-crafting" class="view" hidden>
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.CRAFTING</span>
+              <h2>自动合成</h2>
+            </div>
+          </header>
+          <div class="panel plannedPanel">
+            <div class="panelBody">
+              <p class="emptyTitle">此模块尚未实装</p>
+              <p class="emptyHint">规划能力:合成 CPU 状态与占用、按需合成任务下达、任务队列与依赖树跟踪、失败回滚。</p>
+              <p class="emptyHint">底层依赖:控制器的依赖规划器(dependency planner)已在快照中上报 demandByTarget,前端布局已为其预留。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 样板管理(规划中) -->
+        <section id="view-patterns" class="view" hidden>
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.PATTERNS</span>
+              <h2>样板管理</h2>
+            </div>
+          </header>
+          <div class="panel plannedPanel">
+            <div class="panelBody">
+              <p class="emptyTitle">此模块尚未实装</p>
+              <p class="emptyHint">规划能力:合成/处理样板库、按工序地址分组、样板编码与冲突检测。</p>
+              <p class="emptyHint">当前"自动维持"目标中的产物/输入配方,就是未来样板系统的最小形态。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 命令日志 -->
+        <section id="view-commands" class="view" hidden>
+          <header class="viewHeader">
+            <div>
+              <span class="eyebrow mono">ME.COMMAND_LOG</span>
+              <h2>命令日志</h2>
+            </div>
+            <div class="viewActions">
+              <span class="pill"><span id="commandCount">0</span> 条记录</span>
+            </div>
+          </header>
+          <div class="panel">
+            <div id="commandsList" class="panelBody scroll tall"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- 目标编辑器:表单字段由 target-editor.ts 按描述符生成到 #targetFields -->
     <dialog id="targetDialog" class="dialog">
       <form id="targetForm" method="dialog" class="targetForm">
         <div class="dialogHeader">
           <h2 id="targetDialogTitle">新增目标</h2>
-          <button id="closeTargetDialogBtn" type="button" aria-label="关闭">关闭</button>
+          <button id="closeTargetDialogBtn" type="button" aria-label="关闭">✕</button>
         </div>
-
-        <input id="editingTargetId" type="hidden" />
-
-        <label class="checkboxLine">
-          <input id="targetEnabledInput" name="enabled" type="checkbox" checked />
-          <span>启用</span>
-        </label>
-
-        <div class="formGrid">
-          <label>
-            <span>工序地址</span>
-            <input id="targetAddressInput" name="address" required />
-          </label>
-          <label>
-            <span>优先级</span>
-            <input id="targetPriorityInput" name="priority" type="number" min="0" step="1" />
-          </label>
-        </div>
-
-        <label>
-          <span>产物（物品ID=每批产出@目标库存）</span>
-          <input id="targetProductsInput" name="products" placeholder="create:iron_sheet=1@2048" required />
-        </label>
-
-        <label>
-          <span>显示名称</span>
-          <input id="targetNameInput" name="displayName" />
-        </label>
-
-        <label>
-          <span>输入（物品ID=每批消耗）</span>
-          <input id="targetInputsInput" name="inputs" placeholder="minecraft:iron_ingot=1" required />
-        </label>
-
-        <details class="advancedFields">
-          <summary>高级设置</summary>
-          <label>
-            <span>内部 ID</span>
-            <input id="targetIdInput" name="id" />
-          </label>
-          <div class="formGrid three">
-            <label>
-              <span>请求冷却秒</span>
-              <input id="requestCooldownInput" name="requestCooldownSeconds" type="number" min="0" step="1" />
-            </label>
-            <label>
-              <span>立即请求批量</span>
-              <input id="minImmediateRequestInput" name="minImmediateRequest" type="number" min="1" step="1" />
-            </label>
-            <label>
-              <span>小批量等待秒</span>
-              <input id="delayedRequestInput" name="delayedRequestSeconds" type="number" min="0" step="1" />
-            </label>
-          </div>
-          <div class="formGrid three">
-            <label>
-              <span>承诺 TTL 秒</span>
-              <input id="promiseTtlInput" name="promiseTtlSeconds" type="number" min="1" step="1" />
-            </label>
-            <label>
-              <span>最大在途输入</span>
-              <input id="maxOutstandingInput" name="maxOutstandingInputs" type="number" min="1" step="1" />
-            </label>
-            <label>
-              <span>单轮最大请求</span>
-              <input id="maxRequestPerCycleInput" name="maxRequestPerCycle" type="number" min="1" step="1" />
-            </label>
-          </div>
-          <div class="formGrid two">
-            <label>
-              <span>低库存确认扫描</span>
-              <input id="deficitConfirmScansInput" name="deficitConfirmScans" type="number" min="1" step="1" />
-            </label>
-            <label>
-              <span>低库存确认秒</span>
-              <input id="deficitConfirmSecondsInput" name="deficitConfirmSeconds" type="number" min="0" step="1" />
-            </label>
-          </div>
-          <div class="formGrid two">
-            <label>
-              <span>库存下降确认扫描</span>
-              <input id="stockDropConfirmScansInput" name="stockDropConfirmScans" type="number" min="1" step="1" />
-            </label>
-            <label>
-              <span>库存下降确认秒</span>
-              <input id="stockDropConfirmSecondsInput" name="stockDropConfirmSeconds" type="number" min="0" step="1" />
-            </label>
-          </div>
-        </details>
-
+        <div id="targetFields" class="dialogFields"></div>
         <div class="dialogActions">
           <button id="deleteTargetBtn" type="button" class="danger">删除</button>
           <span class="spacer"></span>
           <button id="cancelTargetBtn" type="button">取消</button>
-          <button id="saveTargetBtn" type="submit">保存</button>
+          <button id="saveTargetBtn" type="submit" class="primary">保存</button>
         </div>
       </form>
     </dialog>
 
-    <script src="/app.js"></script>
+    <div id="toasts" class="toasts" aria-live="polite"></div>
+
+    <script type="module" src="/assets/main.js"></script>
   </body>
 </html>

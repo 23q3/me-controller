@@ -11,6 +11,75 @@ import { defaultDisplayName } from "./summary";
 export type JsonRecord = { [key: string]: JsonValue };
 export type AssetNameResolver = (itemId: string) => string | undefined;
 
+// 目标可编辑字段的默认值（与 Lua config.lua 的 TARGET_DEFAULTS 对齐，勿单边改）
+export const TARGET_DEFAULTS = {
+  enabled: true,
+  address: "press",
+  priority: 100,
+  targetCount: 2048,
+  requestCooldownSeconds: 5,
+  minImmediateRequest: 64,
+  delayedRequestSeconds: 20,
+  promiseTtlSeconds: 90,
+  maxOutstandingInputs: 1024,
+  maxRequestPerCycle: 576,
+  deficitConfirmScans: 3,
+  deficitConfirmSeconds: 2,
+  stockDropConfirmScans: 3,
+  stockDropConfirmSeconds: 2,
+} as const;
+
+// 数值配置字段描述符——目标编辑器的表单由它驱动（新增字段只改这张表）。
+// group 决定字段渲染进哪个区块；min 是 UI 与读取时共同的下限。
+export type TargetNumberField = {
+  key:
+    | "priority"
+    | "requestCooldownSeconds"
+    | "minImmediateRequest"
+    | "delayedRequestSeconds"
+    | "promiseTtlSeconds"
+    | "maxOutstandingInputs"
+    | "maxRequestPerCycle"
+    | "deficitConfirmScans"
+    | "deficitConfirmSeconds"
+    | "stockDropConfirmScans"
+    | "stockDropConfirmSeconds";
+  label: string;
+  min: number;
+  group: "basic" | "advanced";
+  hint?: string;
+};
+
+export const TARGET_NUMBER_FIELDS: TargetNumberField[] = [
+  { key: "priority", label: "优先级", min: 0, group: "basic" },
+  { key: "requestCooldownSeconds", label: "请求冷却（秒）", min: 0, group: "advanced" },
+  { key: "minImmediateRequest", label: "立即请求批量", min: 1, group: "advanced" },
+  { key: "delayedRequestSeconds", label: "小批量等待（秒）", min: 0, group: "advanced" },
+  { key: "promiseTtlSeconds", label: "承诺 TTL（秒）", min: 1, group: "advanced" },
+  { key: "maxOutstandingInputs", label: "最大在途输入", min: 1, group: "advanced" },
+  { key: "maxRequestPerCycle", label: "单轮最大请求", min: 1, group: "advanced" },
+  { key: "deficitConfirmScans", label: "低库存确认扫描", min: 1, group: "advanced" },
+  { key: "deficitConfirmSeconds", label: "低库存确认（秒）", min: 0, group: "advanced" },
+  { key: "stockDropConfirmScans", label: "库存下降确认扫描", min: 1, group: "advanced" },
+  { key: "stockDropConfirmSeconds", label: "库存下降确认（秒）", min: 0, group: "advanced" },
+];
+
+// upsert 时从既有目标带回的全部可编辑键（与 Lua targets_store 的可持久字段对齐）
+export const TARGET_CONFIG_KEYS = [
+  "id",
+  "enabled",
+  "address",
+  "priority",
+  "products",
+  "inputs",
+  "productItem",
+  "productLabel",
+  "targetCount",
+  "inputItem",
+  "inputLabel",
+  ...TARGET_NUMBER_FIELDS.filter((field) => field.key !== "priority").map((field) => field.key),
+] as const;
+
 // 这些是控制器运行时回填的字段，upsert 回传时必须剥掉
 export const RUNTIME_TARGET_FIELDS = [
   "status",
