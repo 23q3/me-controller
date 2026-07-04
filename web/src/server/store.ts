@@ -99,7 +99,7 @@ export class Store {
   acknowledgeCommand(commandId: string, ok: boolean, response: JsonValue) {
     this.db
       .query("update commands set status = ?, response = ?, completed_at = ? where command_id = ?")
-      .run(ok ? "acknowledged" : "failed", json(response), ok ? null : now(), commandId);
+      .run(ok ? "acknowledged" : "failed", json(response), now(), commandId);
   }
 
   syncAcknowledgedCommands() {
