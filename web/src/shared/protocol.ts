@@ -124,12 +124,24 @@ export type BridgeEnvelope =
       error?: string;
     };
 
+// 服务端 sqlite 命令账本的行形状；/api/status 与 /ui state 信封实际下发的就是它
+export type StoredCommand = {
+  commandId: string;
+  kind: string;
+  status: string;
+  request: JsonValue;
+  response?: JsonValue;
+  createdAt: number;
+  sentAt?: number;
+  completedAt?: number;
+};
+
 export type UiEnvelope =
   | {
       type: "state";
       bridge: BridgeState;
       snapshot: ControllerSnapshot | null;
-      commands: CommandRecord[];
+      commands: StoredCommand[];
     }
   | {
       type: "command_result";

@@ -1,18 +1,9 @@
 import { Database } from "bun:sqlite";
 import { dirname, join } from "node:path";
 import { mkdirSync } from "node:fs";
-import type { ControllerCommand, ControllerSnapshot, JsonValue } from "../shared/protocol";
+import type { ControllerCommand, ControllerSnapshot, JsonValue, StoredCommand } from "../shared/protocol";
 
-export type StoredCommand = {
-  commandId: string;
-  kind: string;
-  status: string;
-  request: JsonValue;
-  response?: JsonValue;
-  createdAt: number;
-  sentAt?: number;
-  completedAt?: number;
-};
+export type { StoredCommand } from "../shared/protocol";
 
 const DATA_DIR = join(import.meta.dir, "..", "..", "..", "data");
 const DB_PATH = join(DATA_DIR, "me-controller.sqlite");
