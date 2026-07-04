@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cc": {
+      "command": "D:\\我的世界\\客户端\\版本隔离的通用端\\.minecraft\\versions\\Mechanomania-航空学\\saves\\test1\\computercraft\\mcp\\cc-mcp-wrapper.cmd",
+      "args": []
+    }
+  }
+}
