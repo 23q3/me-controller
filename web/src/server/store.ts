@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { dirname, join } from "node:path";
 import { mkdirSync } from "node:fs";
-import type { ControllerCommand, ControllerSnapshot, JsonValue } from "./protocol";
+import type { ControllerCommand, ControllerSnapshot, JsonValue } from "../shared/protocol";
 
 export type StoredCommand = {
   commandId: string;
