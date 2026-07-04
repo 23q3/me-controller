@@ -55,7 +55,7 @@ Example command:
 }
 ```
 
-The backend assigns `commandId` when absent and stores command state in `data/me-controller.sqlite`.
+The backend assigns `commandId` when absent and stores command state in `../data/me-controller.sqlite`（存档 computercraft/data/ 下，与 web/ 平级）.
 
 ## Item Names And Icons
 
