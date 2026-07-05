@@ -18,6 +18,7 @@ COMPILE_PATHS = [
     "apps/me_controller/util.lua",
     "apps/me_controller/items.lua",
     "apps/me_controller/targets_store.lua",
+    "apps/me_controller/recipes_store.lua",
     "apps/me_controller/state_store.lua",
     "apps/me_controller/tracking.lua",
     "apps/me_controller/network.lua",
@@ -33,6 +34,7 @@ COMPILE_PATHS = [
 SMOKE = [
     ("mc_once",     "me_controller once",          ["targets=", "errors="]),
     ("mc_targets",  "me_controller targets",       ["products="]),
+    ("mc_recipes",  "me_controller recipes",       ["recipes="]),
     ("mc_events",   "me_controller events 5",      ["t="]),
     ("mc_commands", "me_controller commands 5",    [". t="]),
     ("mc_bridge",   "me_controller bridge status", ["bridge enabled="]),

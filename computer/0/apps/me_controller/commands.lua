@@ -1,8 +1,10 @@
--- 快照/汇总（P 段）+ 远程命令应用与共享目标操作（Q 段）。
+-- 快照/汇总（P 段）+ 远程命令应用与共享目标/样板操作（Q 段）。
 --
--- 红线：快照 schema me_controller.snapshot.v1 形状、命令种类及别名对、
--- mutating 命令必须带 commandId（幂等，账本去重）。
--- 共享目标操作（setTargetEnabled/resetTargetStateById/deleteTargetById/upsertTarget）
+-- 红线：快照 schema me_controller.snapshot.v1 形状（recipes/recipeId 为 additive
+-- 扩展）、命令种类及别名对（upsert_recipe/save_recipe 同 upsert_target/save_target
+-- 的配对方式）、mutating 命令必须带 commandId（幂等，账本去重）。
+-- 共享目标/样板操作（setTargetEnabled/resetTargetStateById/deleteTargetById/
+-- upsertTarget/upsertRecipe/deleteRecipeById）
 -- 是 ui.lua 与远程命令的单一实现；opts.uiEvents=true 时事件类型不带 remote_ 前缀
 -- （保持两条路径的 events.log 输出与拆分前逐字一致）。
 return function(Core, Planner)
@@ -47,6 +49,7 @@ return function(Core, Planner)
                 enabled = target.enabled,
                 address = target.address,
                 priority = target.priority,
+                recipeId = target.recipeId,
                 products = Util.copyTable(target.products or {}),
                 inputs = Util.copyTable(target.inputs or {}),
                 status = data.status,
@@ -89,6 +92,9 @@ return function(Core, Planner)
                 demandByTarget = Util.copyTable(runtime.dependencyDemandByTarget or {}),
             },
             summary = Commands.summarize(runtime),
+            -- 样板库随快照下发（additive，schema 仍为 v1）：web 样板管理页与
+            -- 目标编辑器的样板选择都以它为数据源
+            recipes = Util.copyTable(runtime.recipes or {}),
             targets = targets,
             commands = StateStore.recentCommands(runtime.state, options.commandLimit or 20),
         }
@@ -162,6 +168,16 @@ return function(Core, Planner)
         rawTarget = Util.copyTable(rawTarget)
         if targetId and not rawTarget.id then rawTarget.id = targetId end
 
+        -- 样板是配方唯一权威：带 recipeId 的目标在规整前先把样板内容覆写进来
+        --（未知样板直接报错）；不带 recipeId 的旧客户端 payload 仍按内嵌配方
+        -- 保存，下次加载时由迁移逻辑挂接样板。
+        local recipeId = Util.trimText(rawTarget.recipeId or "")
+        if recipeId ~= "" then
+            local recipe = Core.findRecipe(runtime.recipes, recipeId)
+            if not recipe then error("Unknown recipe: " .. recipeId) end
+            Core.resolveTarget(rawTarget, recipe)
+        end
+
         local wantedId = targetId or rawTarget.id or rawTarget.targetId or rawTarget.productItem
         local _, existingIndex = Core.findTarget(runtime, wantedId)
         local oldId = existingIndex and runtime.targets[existingIndex].id or nil
@@ -190,6 +206,127 @@ return function(Core, Planner)
         return { target = normalized.id, name = Items.displayName(normalized) }, true
     end
 
+    -- 样板 CRUD（ui.lua 与远程命令共用的单实现，语义对齐 upsertTarget）。
+    -- 保存后立即把新配方内容重解析进所有引用它的目标——样板是配方唯一权威。
+    function Commands.upsertRecipe(runtime, rawRecipe, recipeId, opts)
+        if type(rawRecipe) ~= "table" then error("recipe must be a table") end
+        rawRecipe = Util.copyTable(rawRecipe)
+        if recipeId and not rawRecipe.id then rawRecipe.id = recipeId end
+
+        local wantedId = recipeId or rawRecipe.id or rawRecipe.recipeId
+        local _, existingIndex = Core.findRecipe(runtime.recipes, wantedId)
+        local oldId = existingIndex and runtime.recipes[existingIndex].id or nil
+        local existing = {}
+        for _, recipe in ipairs(runtime.recipes or {}) do
+            if not oldId or recipe.id ~= oldId then existing[recipe.id] = true end
+        end
+
+        local normalized = Core.normalizeRecipe(rawRecipe, existing, existingIndex or (#runtime.recipes + 1))
+        if #(normalized.products or {}) == 0 then error("Recipe needs at least one product") end
+        if #(normalized.inputs or {}) == 0 then error("Recipe needs at least one input") end
+
+        if existingIndex then
+            runtime.recipes[existingIndex] = normalized
+            if oldId ~= normalized.id then
+                -- 样板改名：同步所有引用它的目标
+                for _, target in ipairs(runtime.targets or {}) do
+                    if target.recipeId == oldId then target.recipeId = normalized.id end
+                end
+            end
+        else
+            runtime.recipes[#runtime.recipes + 1] = normalized
+        end
+        Core.saveRecipes(runtime.recipes)
+
+        local touched = false
+        for _, target in ipairs(runtime.targets or {}) do
+            if target.recipeId == normalized.id then
+                Core.resolveTarget(target, normalized)
+                touched = true
+            end
+        end
+        if touched then Core.saveRuntimeTargets(runtime) end
+
+        Util.logEvent(runtime, "INFO", eventName(opts, existingIndex and "recipe_edited" or "recipe_added"), {
+            recipe = normalized.id,
+            name = normalized.name,
+        })
+        return { recipe = normalized.id, name = normalized.name }, true
+    end
+
+    function Commands.deleteRecipeById(runtime, recipeId, opts)
+        local recipe, index = Core.findRecipe(runtime.recipes, recipeId)
+        if not recipe then error("Unknown recipe: " .. tostring(recipeId)) end
+
+        -- 被目标引用的样板拒删（AE2 语义：使用中的样板不可移除），
+        -- 避免产生悬空 recipeId
+        local users = {}
+        for _, target in ipairs(runtime.targets or {}) do
+            if target.recipeId == recipe.id then users[#users + 1] = target.id end
+        end
+        if #users > 0 then
+            error("Recipe in use by: " .. table.concat(users, ", "))
+        end
+
+        table.remove(runtime.recipes, index)
+        Core.saveRecipes(runtime.recipes)
+        Util.logEvent(runtime, "WARN", eventName(opts, "recipe_deleted"), { recipe = recipe.id, name = recipe.name })
+        return { recipe = recipe.id }, true
+    end
+
+    -- 请求订单的抽象：一条命令 = 按样板下 N 批合成订单。整批原料合并为一次
+    -- requestFiltered 变参调用 = 同一 PackageOrder（理包机按订单合包，拆成
+    -- 多张订单会让需要"同批同包"的产线卡死）。
+    -- 样板订单不参与承诺跟踪——相关目标会把到货当作外部入库观测。
+    local function applyRequestRecipe(runtime, command, commandId)
+        if not runtime.stockTicker then error("No Stock Ticker peripheral found") end
+
+        local recipeId = command.recipeId or command.recipe
+        local recipe = Core.findRecipe(runtime.recipes, recipeId)
+        if not recipe then error("Unknown recipe: " .. tostring(recipeId)) end
+
+        local batches = math.floor(tonumber(command.batches or command.count) or 1)
+        if batches <= 0 then error("batches must be positive") end
+        if #(recipe.inputs or {}) == 0 then error("Recipe has no inputs: " .. recipe.id) end
+
+        local pseudoTarget = { id = "recipe:" .. recipe.id, address = recipe.address, inputs = {}, products = {} }
+        local items = {}
+        local wanted = 0
+        for _, input in ipairs(recipe.inputs) do
+            local amount = math.ceil((tonumber(input.count) or 0) * batches)
+            if amount > 0 then
+                items[#items + 1] = { item = input.item, count = amount }
+                wanted = wanted + amount
+            end
+        end
+        if #items == 0 then error("Recipe inputs are empty: " .. recipe.id) end
+
+        local requestCommand = {
+            -- 账本双记录：commandId 由通用分支记 request_recipe 结果（幂等去重锚点），
+            -- commandId_order 记订单明细（items/requested）；rememberCommand 按 id
+            -- 覆盖，同 id 会丢明细
+            id = commandId .. "_order",
+            source = tostring(command.source or "remote"),
+            address = recipe.address,
+            items = items,
+        }
+        local ok, requested, err = Core.executeRequestCommand(runtime, pseudoTarget, requestCommand)
+        if not ok then
+            error("Request failed for " .. recipe.id .. ": " .. tostring(err))
+        end
+        requested = math.max(0, tonumber(requested) or 0)
+
+        return {
+            recipe = recipe.id,
+            name = recipe.name,
+            address = recipe.address,
+            batches = batches,
+            items = items,
+            wanted = wanted,
+            totalRequested = requested,
+        }, true
+    end
+
     local function applyRemoteRequest(runtime, command, commandId)
         if not runtime.stockTicker then error("No Stock Ticker peripheral found") end
 
@@ -208,36 +345,57 @@ return function(Core, Planner)
             }
         end
 
-        local item = tostring(command.item or "")
-        if item == "" then error("item is required") end
+        -- 多物品：command.items = {{item,count}...}；兼容旧单物品 item/count。
+        -- 全部物品并入一条命令 = 一张订单（同一 PackageOrder），理包机才能合包
+        local rawItems = command.items
+        if type(rawItems) ~= "table" or #rawItems == 0 then
+            rawItems = { { item = command.item, count = command.count or command.amount or command.requested } }
+        end
 
-        local count = math.floor(tonumber(command.count or command.amount or command.requested) or 0)
-        if count <= 0 then error("count must be positive") end
+        local items = {}
+        local wanted = 0
+        for _, entry in ipairs(rawItems) do
+            local item = type(entry) == "table" and tostring(entry.item or "") or ""
+            local count = math.floor(tonumber(type(entry) == "table" and entry.count or nil) or 0)
+            if item == "" then error("item is required") end
+            if count <= 0 then error("count must be positive") end
+            items[#items + 1] = { item = item, count = count }
+            wanted = wanted + count
+        end
 
         local requestCommand = {
             id = commandId,
             source = tostring(command.source or "remote"),
             address = tostring(command.address or target.address or ""),
-            item = item,
-            count = count,
+            items = items,
         }
 
         local ok, requested, err, duplicate = Core.executeRequestCommand(runtime, target, requestCommand)
-        local itemIsTargetInput = false
-        for _, input in ipairs(target.inputs or {}) do
-            if input.item == item then itemIsTargetInput = true end
+
+        -- 承诺跟踪：只入账属于目标原料的条目；回包只有总数，按下单量全额入账
+        -- （宁可虚高等 TTL 自愈，不低记引发重复下单）
+        local trackable, trackableTotal = {}, 0
+        for _, entry in ipairs(items) do
+            for _, input in ipairs(target.inputs or {}) do
+                if input.item == entry.item then
+                    trackable[entry.item] = (trackable[entry.item] or 0) + entry.count
+                    trackableTotal = trackableTotal + entry.count
+                    break
+                end
+            end
         end
-        local trackCommitment = command.trackCommitment == true or (command.trackCommitment ~= false and itemIsTargetInput)
+        local trackCommitment = command.trackCommitment ~= false and trackableTotal > 0
         if ok and requested > 0 and not duplicate and target.id ~= "remote" and trackCommitment then
-            Planner.recordCommitment(StateStore.getTargetState(runtime.state, target), target, { [item] = requested }, requested, Util.now())
+            Planner.recordCommitment(StateStore.getTargetState(runtime.state, target), target, trackable, trackableTotal, Util.now())
             Planner.updatePromiseData(runtime, target)
         end
 
         Core.saveState(runtime.state)
         return ok, {
             target = target.id,
-            item = item,
-            wanted = count,
+            item = #items == 1 and items[1].item or nil,
+            items = items,
+            wanted = wanted,
             requested = requested,
             duplicate = duplicate,
             error = err and tostring(err) or nil,
@@ -317,6 +475,12 @@ return function(Core, Planner)
                 return Commands.deleteTargetById(runtime, command.targetId or command.target)
             elseif kind == "upsert_target" or kind == "save_target" then
                 return Commands.upsertTarget(runtime, command.target, command.targetId)
+            elseif kind == "upsert_recipe" or kind == "save_recipe" then
+                return Commands.upsertRecipe(runtime, command.recipe, command.recipeId)
+            elseif kind == "delete_recipe" then
+                return Commands.deleteRecipeById(runtime, command.recipeId or command.recipe)
+            elseif kind == "request_recipe" then
+                return applyRequestRecipe(runtime, command, commandId)
             elseif kind == "reload_targets" then
                 Core.reloadTargets(runtime)
                 Util.logEvent(runtime, "INFO", "remote_targets_reloaded", {})

@@ -5,6 +5,7 @@ package.path = fs.combine(dir, "?.lua") .. ";" .. package.path
 
 local Core = require("core")
 Core.CONFIG.targetsFile = fs.combine(dir, "targets.db")
+Core.CONFIG.recipesFile = fs.combine(dir, "recipes.db")
 Core.CONFIG.stateFile = fs.combine(dir, "state.db")
 Core.CONFIG.eventsFile = fs.combine(dir, "events.log")
 Core.CONFIG.bridgeFile = fs.combine(dir, "bridge.db")
@@ -62,9 +63,27 @@ local function printTargets(runtime)
     for index, target in ipairs(runtime.targets) do
         local enabled = target.enabled and "on" or "off"
         print(index .. ". [" .. enabled .. "] " .. target.id
+            .. " recipe=" .. tostring(target.recipeId or "-")
             .. " products=" .. Core.formatRecipeEntries(target.products, true)
             .. " inputs=" .. Core.formatRecipeEntries(target.inputs, false)
             .. " address=" .. target.address)
+    end
+end
+
+local function printRecipes(runtime)
+    local recipes = runtime.recipes or {}
+    print("recipes=" .. #recipes)
+    for index, recipe in ipairs(recipes) do
+        local users = 0
+        for _, target in ipairs(runtime.targets or {}) do
+            if target.recipeId == recipe.id then users = users + 1 end
+        end
+        print(index .. ". " .. recipe.id
+            .. " name=" .. recipe.name
+            .. " address=" .. recipe.address
+            .. " products=" .. Core.formatRecipeEntries(recipe.products, false)
+            .. " inputs=" .. Core.formatRecipeEntries(recipe.inputs, false)
+            .. " targets=" .. users)
     end
 end
 
@@ -110,7 +129,15 @@ local function printCommands(limit)
             .. " source=" .. tostring(command.source or "?")
             .. " id=" .. tostring(command.id or "?")
         if command.targetId then line = line .. " target=" .. tostring(command.targetId) end
-        if command.item then line = line .. " item=" .. tostring(command.item) end
+        if command.item then
+            line = line .. " item=" .. tostring(command.item)
+        elseif type(command.items) == "table" and #command.items > 0 then
+            local parts = {}
+            for _, entry in ipairs(command.items) do
+                parts[#parts + 1] = tostring(entry.item) .. "x" .. tostring(entry.count)
+            end
+            line = line .. " items=" .. table.concat(parts, ",")
+        end
         if command.wanted then line = line .. " wanted=" .. tostring(command.wanted) end
         if command.requested then line = line .. " requested=" .. tostring(command.requested) end
         if command.error then line = line .. " error=" .. tostring(command.error) end
@@ -126,6 +153,9 @@ if args[1] == "reset" then
     return
 elseif args[1] == "targets" or args[1] == "list" then
     printTargets(Core.makeRuntime())
+    return
+elseif args[1] == "recipes" or args[1] == "patterns" then
+    printRecipes(Core.makeRuntime())
     return
 elseif args[1] == "events" or args[1] == "logs" or args[1] == "log" then
     printEvents(args[2])

@@ -133,7 +133,8 @@ return function(Core, Planner)
             if outstandingRoom <= 0 then
                 data.message = "Outstanding request cap reached"
             else
-                data.message = "Waiting for available inputs"
+                -- 只发整批：原料有货但凑不满一批（或超出本轮额度）时等待
+                data.message = "Waiting for a full batch of inputs"
             end
         elseif targetState.lastRequestAt and timestamp - targetState.lastRequestAt < target.requestCooldownSeconds then
             data.status = "WAITING"

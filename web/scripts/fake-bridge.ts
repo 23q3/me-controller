@@ -43,6 +43,7 @@ type FakeTarget = {
   enabled: boolean;
   address: string;
   priority: number;
+  recipeId?: string;
   products: Array<{ item: string; count: number; targetCount: number }>;
   inputs: Array<{ item: string; count: number }>;
   status: string;
@@ -55,12 +56,45 @@ type FakeTarget = {
   promisedInputs: number;
 };
 
+type FakeRecipe = {
+  id: string;
+  name: string;
+  address: string;
+  products: Array<{ item: string; count: number }>;
+  inputs: Array<{ item: string; count: number }>;
+};
+
+// 样板 = 配方唯一权威;目标经 recipeId 引用(与 Lua recipes.db 迁移后的形态一致)
+const recipes: FakeRecipe[] = [
+  {
+    id: "create_iron_sheet",
+    name: "Iron Sheet",
+    address: "press",
+    products: [{ item: "create:iron_sheet", count: 1 }],
+    inputs: [{ item: "minecraft:iron_ingot", count: 1 }],
+  },
+  {
+    id: "create_brass_ingot",
+    name: "Brass Ingot",
+    address: "mixer",
+    products: [
+      { item: "create:brass_ingot", count: 2 },
+      { item: "create:andesite_alloy", count: 1 },
+    ],
+    inputs: [
+      { item: "minecraft:copper_ingot", count: 1 },
+      { item: "create:zinc_ingot", count: 1 },
+    ],
+  },
+];
+
 const targets: FakeTarget[] = [
   {
     id: "create_iron_sheet",
     enabled: true,
     address: "press",
     priority: 100,
+    recipeId: "create_iron_sheet",
     products: [{ item: "create:iron_sheet", count: 1, targetCount: 2560 }],
     inputs: [{ item: "minecraft:iron_ingot", count: 1 }],
     status: "SATISFIED",
@@ -76,6 +110,7 @@ const targets: FakeTarget[] = [
     enabled: true,
     address: "mixer",
     priority: 90,
+    recipeId: "create_brass_ingot",
     products: [
       { item: "create:brass_ingot", count: 2, targetCount: 8192 },
       { item: "create:andesite_alloy", count: 1, targetCount: 0 },
@@ -125,6 +160,7 @@ function makeSnapshot() {
     },
     dependency: { passes: 1, demandByTarget: {} },
     summary: summarize(),
+    recipes,
     targets,
     commands: [],
     stockCounts,
@@ -132,7 +168,18 @@ function makeSnapshot() {
 }
 
 // decide 循环滞后模拟:先只改 enabled,过 2.5s 才把 status 重算成 DISABLED/SATISFIED
-function applyFakeCommand(command: { kind?: string; targetId?: string; enabled?: boolean; target?: FakeTarget }) {
+function applyFakeCommand(command: {
+  kind?: string;
+  targetId?: string;
+  enabled?: boolean;
+  target?: FakeTarget;
+  recipeId?: string;
+  recipe?: FakeRecipe;
+  batches?: number;
+  item?: string;
+  count?: number;
+  items?: Array<{ item?: string; count?: number }>;
+}) {
   const kind = command.kind || "";
   const target = targets.find((item) => item.id === command.targetId);
 
@@ -149,6 +196,43 @@ function applyFakeCommand(command: { kind?: string; targetId?: string; enabled?:
   if (kind === "delete_target" && command.targetId) {
     const index = targets.findIndex((item) => item.id === command.targetId);
     if (index >= 0) targets.splice(index, 1);
+    return;
+  }
+
+  if ((kind === "upsert_recipe" || kind === "save_recipe") && command.recipe) {
+    const next = command.recipe;
+    const wantedId = command.recipeId || next.id;
+    const index = recipes.findIndex((item) => item.id === wantedId);
+    const merged: FakeRecipe = {
+      name: next.products?.[0]?.item || "Recipe",
+      address: "press",
+      ...(index >= 0 ? recipes[index] : {}),
+      ...next,
+      id: next.id || wantedId || `recipe_${recipes.length + 1}`,
+    } as FakeRecipe;
+    if (index >= 0) recipes[index] = merged;
+    else recipes.push(merged);
+    return;
+  }
+
+  if (kind === "delete_recipe" && (command.recipeId || command.recipe)) {
+    const recipeId = command.recipeId || (command.recipe as FakeRecipe).id;
+    const index = recipes.findIndex((item) => item.id === recipeId);
+    if (index >= 0) recipes.splice(index, 1);
+    return;
+  }
+
+  if (kind === "request_recipe") {
+    console.log("[fake-bridge] request_recipe", command.recipeId, "batches:", command.batches ?? 1);
+    return;
+  }
+
+  // 多物品单订单:一条命令的全部条目会在 Lua 侧汇入同一 PackageOrder
+  if (kind === "request") {
+    const parts = Array.isArray(command.items) && command.items.length > 0
+      ? command.items.map((entry) => `${entry.item}×${entry.count}`).join(", ")
+      : `${command.item}×${command.count}`;
+    console.log("[fake-bridge] request", command.targetId ?? "(no target)", "order:", parts);
     return;
   }
 

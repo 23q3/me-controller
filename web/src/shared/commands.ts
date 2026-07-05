@@ -5,10 +5,11 @@
 // 它只是"会被下一份控制器快照覆盖的预览"——Lua 侧 applyCommand 才是权威。
 // 命令别名对（红线，与 Lua commands.lua 对齐）：
 //   set_enabled/target_enabled、upsert_target/save_target、
-//   reset_target_state/reset_target、delete_target
+//   reset_target_state/reset_target、delete_target、
+//   upsert_recipe/save_recipe、delete_recipe、request_recipe
 import type { ControllerCommand, ControllerSnapshot, TargetSnapshot } from "./protocol";
 import type { AssetNameResolver } from "./target-fields";
-import { sanitizeTargetForController } from "./target-fields";
+import { sanitizeRecipeForController, sanitizeTargetForController } from "./target-fields";
 import { recomputeSummary } from "./summary";
 
 function primaryProduct(target: Record<string, unknown>) {
@@ -24,14 +25,21 @@ export function sanitizeCommandForController(
   command: ControllerCommand,
   resolveAssetName?: AssetNameResolver
 ): ControllerCommand {
-  if ((command.kind !== "upsert_target" && command.kind !== "save_target") || command.target === undefined) {
-    return command;
+  if ((command.kind === "upsert_target" || command.kind === "save_target") && command.target !== undefined) {
+    return {
+      ...command,
+      target: sanitizeTargetForController(command.target, resolveAssetName),
+    };
   }
 
-  return {
-    ...command,
-    target: sanitizeTargetForController(command.target, resolveAssetName),
-  };
+  if ((command.kind === "upsert_recipe" || command.kind === "save_recipe") && command.recipe !== undefined) {
+    return {
+      ...command,
+      recipe: sanitizeRecipeForController(command.recipe, resolveAssetName),
+    };
+  }
+
+  return command;
 }
 
 export function optimisticTargetFromCommandTarget(raw: unknown): TargetSnapshot {

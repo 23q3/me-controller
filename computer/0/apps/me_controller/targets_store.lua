@@ -7,6 +7,7 @@
 -- inputPerProduct 由配方整体重新推导。磁盘上两种表示都写入。
 -- targetCount 位置化默认：products[1]（主产物）缺省继承目标级 targetCount，
 -- 其余产物（副产物）缺省 0；规整后每个产物都带显式 targetCount 落盘。
+-- recipeId（可选）指向样板库；无 recipeId 的旧目标由 recipes_store 迁移升格。
 local Config = require("config")
 local Util = require("util")
 local Items = require("items")
@@ -16,8 +17,8 @@ local TargetsStore = {}
 local numberOrDefault = Util.numberOrDefault
 local boolOrDefault = Util.boolOrDefault
 local labelOrDefault = Items.labelOrDefault
-local isGeneratedLabel = Items.isGeneratedLabel
-local positiveCount = Items.positiveCount
+-- 配方条目规整已上移 items.lua（样板存储共用同一实现）
+local normalizeRecipeEntries = Items.normalizeRecipeEntries
 
 local function uniqueTargetId(existing, wanted)
     local base = Items.normalizeId(wanted)
@@ -29,76 +30,6 @@ local function uniqueTargetId(existing, wanted)
     end
     existing[candidate] = true
     return candidate
-end
-
-local function normalizeRecipeEntry(raw, isProduct)
-    if type(raw) ~= "table" then return nil end
-    local item = raw.item or raw.name or raw.itemId
-    if item == nil or tostring(item) == "" then return nil end
-
-    local entry = {
-        item = tostring(item),
-        label = labelOrDefault(raw.label or raw.displayName, item),
-        count = positiveCount(raw.count or raw.amount or raw.qty or raw.perBatch, 1),
-    }
-
-    -- targetCount 只保留显式值；缺省由 normalizeTarget 按位置补齐
-    -- （products[1] 主产物继承目标级 targetCount，其余副产物默认 0）
-    if isProduct and raw.targetCount ~= nil then
-        entry.targetCount = numberOrDefault(raw.targetCount, 0, 0)
-    end
-
-    return entry
-end
-
-local function appendRecipeEntry(entries, byItem, entry, isProduct)
-    if not entry then return end
-    local existing = byItem[entry.item]
-    if existing then
-        existing.count = existing.count + entry.count
-        if isProduct and entry.targetCount ~= nil then existing.targetCount = entry.targetCount end
-        if entry.label and isGeneratedLabel(existing.label, existing.item) then
-            existing.label = entry.label
-        end
-    else
-        byItem[entry.item] = entry
-        entries[#entries + 1] = entry
-    end
-end
-
-local function normalizeRecipeEntries(rawEntries, isProduct, fallback)
-    local entries, byItem = {}, {}
-
-    if type(rawEntries) == "table" then
-        if rawEntries.item or rawEntries.name or rawEntries.itemId then
-            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct), isProduct)
-        else
-            for _, raw in ipairs(rawEntries) do
-                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
-            end
-
-            if #entries == 0 then
-                for key, value in pairs(rawEntries) do
-                    if type(key) == "string" then
-                        local raw = nil
-                        if type(value) == "table" then
-                            raw = Util.copyTable(value)
-                            raw.item = raw.item or raw.name or key
-                        else
-                            raw = { item = key, count = value }
-                        end
-                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
-                    end
-                end
-            end
-        end
-    end
-
-    if #entries == 0 and fallback and fallback.item then
-        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct), isProduct)
-    end
-
-    return entries
 end
 
 function TargetsStore.normalizeTarget(raw, existing, index)
@@ -124,6 +55,11 @@ function TargetsStore.normalizeTarget(raw, existing, index)
     end
 
     target.id = uniqueTargetId(existing, target.id or target.productItem or ("target_" .. tostring(index or 1)))
+    -- recipeId：指向样板库（recipes.db）的引用；样板内容在加载/保存时经
+    -- recipes_store.resolveTarget 覆写进本目标的 products/inputs/address。
+    -- 缺省不补值（旧数据保持无此字段，normalize 才能维持定点性质）。
+    local recipeId = Util.trimText(target.recipeId or "")
+    target.recipeId = recipeId ~= "" and recipeId or nil
     target.enabled = boolOrDefault(target.enabled, defaults.enabled)
     target.address = tostring(target.address or defaults.address)
     target.inputItem = tostring(target.inputItem or defaults.inputItem)

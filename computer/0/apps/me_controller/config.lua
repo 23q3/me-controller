@@ -9,6 +9,10 @@ Config.CONFIG = {
     -- 目标配置文件；工程师在 UI 中增删改查的数据会持久化到这里。
     targetsFile = "targets.db",
 
+    -- 样板库文件；样板（配方：输入/输出/工序地址）在这里持久化，
+    -- 目标只经 recipeId 引用样板，配方内容完全由样板控制。
+    recipesFile = "recipes.db",
+
     -- 运行状态文件；保存每个目标的在途承诺、冷却和统计数据。
     stateFile = "state.db",
 

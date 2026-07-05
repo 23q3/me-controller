@@ -68,6 +68,7 @@ export const TARGET_NUMBER_FIELDS: TargetNumberField[] = [
 export const TARGET_CONFIG_KEYS = [
   "id",
   "enabled",
+  "recipeId",
   "address",
   "priority",
   "products",
@@ -217,4 +218,40 @@ export function sanitizeTargetForController(rawTarget: JsonValue, resolveAssetNa
   if (Array.isArray(target.inputs) && target.inputs.length > 0) delete target.inputPerProduct;
 
   return target;
+}
+
+// 样板 upsert 的字段白名单：样板只有配方内容（输入/输出/地址）与展示名
+export const RECIPE_CONFIG_KEYS = ["id", "name", "address", "products", "inputs"] as const;
+
+// 样板清洗：白名单字段 + 条目标签清洗（自动生成形态剥除，交 Lua/显示层推导）。
+// 样板条目不携带 targetCount——那是目标侧库存策略，混入时一并剥掉。
+export function sanitizeRecipeForController(rawRecipe: JsonValue, resolveAssetName?: AssetNameResolver) {
+  if (!isJsonRecord(rawRecipe)) return rawRecipe;
+
+  const recipe: JsonRecord = {};
+  for (const key of RECIPE_CONFIG_KEYS) {
+    if (rawRecipe[key] !== undefined) recipe[key] = rawRecipe[key];
+  }
+
+  for (const key of ["products", "inputs"] as const) {
+    const entries = sanitizeRecipeEntries(recipe[key], resolveAssetName);
+    if (entries === undefined) continue;
+    for (const entry of Array.isArray(entries) ? entries : [entries]) {
+      if (isJsonRecord(entry)) delete entry.targetCount;
+    }
+    recipe[key] = entries;
+  }
+
+  const primaryItem = firstRecipeItem(recipe.products);
+  if (primaryItem) {
+    const name = manualDisplayLabel(recipe.name, primaryItem, resolveAssetName);
+    if (name) {
+      recipe.name = name;
+      setFirstRecipeLabel(recipe.products, name);
+    } else {
+      delete recipe.name;
+    }
+  }
+
+  return recipe;
 }

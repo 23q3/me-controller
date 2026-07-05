@@ -14,6 +14,7 @@ web/data/*.sqlite-wal
 # 游戏内运行时数据（活数据不入库；fixtures/ 下有基线副本）
 computer/0/apps/me_controller/state.db
 computer/0/apps/me_controller/targets.db
+computer/0/apps/me_controller/recipes.db
 computer/0/apps/me_controller/bridge.db
 computer/0/apps/me_controller/events.log
 computer/0/apps/me_controller/events.log.old

@@ -6,6 +6,7 @@ import { fetchItems } from "./api";
 import { connect, reloadStatus, requestRefresh } from "./ws";
 import { startRendering } from "./render";
 import { openTargetDialog, wireTargetEditor } from "./target-editor";
+import { openRecipeDialog, wireRecipeEditor } from "./recipe-editor";
 
 const VIEW_ROUTES: Record<string, ViewId> = {
   "#/overview": "overview",
@@ -26,6 +27,7 @@ function wireEvents() {
 
   must<HTMLButtonElement>("#refreshBtn").addEventListener("click", () => requestRefresh());
   must<HTMLButtonElement>("#addTargetBtn").addEventListener("click", () => openTargetDialog(null));
+  must<HTMLButtonElement>("#addRecipeBtn").addEventListener("click", () => openRecipeDialog(null));
 
   const search = must<HTMLInputElement>("#terminalSearch");
   search.addEventListener("input", () => {
@@ -40,6 +42,7 @@ function wireEvents() {
   });
 
   wireTargetEditor();
+  wireRecipeEditor();
 }
 
 async function loadItems() {

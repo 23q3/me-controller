@@ -2,6 +2,7 @@ local Config = require("config")
 local Util = require("util")
 local Items = require("items")
 local TargetsStore = require("targets_store")
+local RecipesStore = require("recipes_store")
 local StateStore = require("state_store")
 local Tracking = require("tracking")
 
@@ -38,6 +39,14 @@ Core.normalizeTargets = TargetsStore.normalizeTargets
 Core.saveTargets = TargetsStore.saveTargets
 Core.loadTargets = TargetsStore.loadTargets
 Core.findTarget = TargetsStore.findTarget
+
+-- 样板库存取与解析（recipes_store.lua）重导出
+Core.normalizeRecipe = RecipesStore.normalizeRecipe
+Core.normalizeRecipes = RecipesStore.normalizeRecipes
+Core.saveRecipes = RecipesStore.saveRecipes
+Core.loadRecipes = RecipesStore.loadRecipes
+Core.findRecipe = RecipesStore.findRecipe
+Core.resolveTarget = RecipesStore.resolveTarget
 
 -- 状态/账本存取（state_store.lua）重导出
 Core.loadState = StateStore.loadState
@@ -76,6 +85,8 @@ Core.setTargetEnabled = Commands.setTargetEnabled
 Core.resetTargetStateById = Commands.resetTargetStateById
 Core.deleteTargetById = Commands.deleteTargetById
 Core.upsertTarget = Commands.upsertTarget
+Core.upsertRecipe = Commands.upsertRecipe
+Core.deleteRecipeById = Commands.deleteRecipeById
 
 function Core.saveRuntimeTargets(runtime)
     runtime.targets = Core.normalizeTargets(runtime.targets or {})
@@ -84,8 +95,21 @@ function Core.saveRuntimeTargets(runtime)
     return true
 end
 
+-- 样板是配方唯一权威：先把无 recipeId 的旧目标迁移升格出样板，再把样板
+-- 内容覆写回各目标的运行时形态；任一侧有变化才落盘。
+function Core.applyRecipes(runtime)
+    local recipesDirty, targetsDirty, missing =
+        RecipesStore.syncTargetsWithRecipes(runtime.recipes, runtime.targets)
+    if recipesDirty then Core.saveRecipes(runtime.recipes) end
+    if targetsDirty then Core.saveRuntimeTargets(runtime) end
+    for _, entry in ipairs(missing) do
+        Util.logEvent(runtime, "WARN", "recipe_missing", entry)
+    end
+end
+
 function Core.makeRuntime()
     local runtime = {
+        recipes = Core.loadRecipes(),
         targets = Core.loadTargets(),
         state = Core.loadState(),
         dataById = {},
@@ -106,6 +130,7 @@ function Core.makeRuntime()
         running = true,
     }
 
+    Core.applyRecipes(runtime)
     Core.syncTargetData(runtime)
     -- 目标集合刚从磁盘加载：顺手清掉 state 里已无对应目标的孤儿条目
     if Core.pruneOrphanedTargetState(runtime.state, runtime.targets) then
@@ -115,7 +140,9 @@ function Core.makeRuntime()
 end
 
 function Core.reloadTargets(runtime)
+    runtime.recipes = Core.loadRecipes()
     runtime.targets = Core.loadTargets()
+    Core.applyRecipes(runtime)
     Core.syncTargetData(runtime)
     if Core.pruneOrphanedTargetState(runtime.state, runtime.targets) then
         Core.saveState(runtime.state)

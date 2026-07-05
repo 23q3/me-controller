@@ -1,12 +1,13 @@
 // 渲染层：保持"全量重渲染"模型——每次状态变化把各动态区域整体重建
 //（静态骨架与输入框在 index.html 里，不参与重建，搜索框因此不丢焦点）。
-import type { StoredCommand, TargetSnapshot } from "../shared/protocol";
+import type { RecipeSnapshot, StoredCommand, TargetSnapshot } from "../shared/protocol";
 import { defaultDisplayName } from "../shared/summary";
 import { app, itemAsset, subscribe, targetPending } from "./state";
 import type { ViewId } from "./state";
-import { asNumber, el, formatAmount, formatExact, formatTime, must, text } from "./dom";
+import { asNumber, el, formatAmount, formatExact, formatTime, must, text, toast } from "./dom";
 import { sendCommand } from "./ws";
 import { openTargetDialog } from "./target-editor";
+import { openRecipeDialog } from "./recipe-editor";
 
 // ---- 通用小部件 ------------------------------------------------------------
 
@@ -34,6 +35,7 @@ function statusLabel(status: unknown): string {
 
 const COMMAND_KIND_LABELS: Record<string, string> = {
   request: "请求物品",
+  request_recipe: "配方下单",
   set_enabled: "启停目标",
   target_enabled: "启停目标",
   reset_target_state: "重置状态",
@@ -41,6 +43,10 @@ const COMMAND_KIND_LABELS: Record<string, string> = {
   delete_target: "删除目标",
   upsert_target: "保存目标",
   save_target: "保存目标",
+  upsert_recipe: "保存样板",
+  save_recipe: "保存样板",
+  delete_recipe: "删除样板",
+  reload_targets: "重载配置",
   snapshot: "读取快照",
   ping: "心跳",
 };
@@ -102,6 +108,16 @@ export function itemIcon(itemId: string | undefined | null, size: "s" | "m" | "l
 function productLabel(target: TargetSnapshot): string {
   const product = target.products && target.products[0];
   return product ? itemName(product.item) : text(target.id);
+}
+
+function recipeById(recipeId: string | undefined): RecipeSnapshot | undefined {
+  if (!recipeId) return undefined;
+  return (app.snapshot?.recipes || []).find((recipe) => recipe.id === recipeId);
+}
+
+function recipeDisplayName(recipe: RecipeSnapshot): string {
+  const product = recipe.products && recipe.products[0];
+  return text(recipe.name, "") || (product ? itemName(product.item) : recipe.id);
 }
 
 function recipeLine(entries: TargetSnapshot["inputs"]): string {
@@ -182,11 +198,16 @@ function renderSidebar() {
     )
   );
 
-  // 导航徽标：自动维持显示目标数,命令日志显示未完成命令数
+  // 导航徽标：自动维持显示目标数,样板管理显示样板数,命令日志显示未完成命令数
   const summary = app.snapshot?.summary || {};
   const badgeTargets = must<HTMLElement>("#navBadgeTargets");
   badgeTargets.textContent = String(asNumber(summary.total));
   badgeTargets.hidden = asNumber(summary.total) === 0;
+
+  const recipeCount = (app.snapshot?.recipes || []).length;
+  const badgePatterns = must<HTMLElement>("#navBadgePatterns");
+  badgePatterns.textContent = String(recipeCount);
+  badgePatterns.hidden = recipeCount === 0;
 
   // 命令徽标只数还在等控制器回包的命令(sent);成功/失败都算已定型
   const activeCommands = (app.commands || []).filter(
@@ -368,12 +389,12 @@ function targetActions(target: TargetSnapshot): HTMLElement {
     className: "ghost",
     text: "请求",
     title: needed.length > 0
-      ? `请求全部缺料:${needed.map((entry) => `${itemName(entry.item)} ×${entry.count}`).join("、")}`
+      ? `请求全部缺料(一张订单):${needed.map((entry) => `${itemName(entry.item)} ×${entry.count}`).join("、")}`
       : "当前没有缺料",
     onClick: () => {
-      for (const entry of needed) {
-        sendCommand({ kind: "request", targetId: target.id, item: entry.item, count: entry.count });
-      }
+      // 全部缺料并入一条命令 = 一张订单(同一 PackageOrder):
+      // 理包机按订单合包,逐项下发会拆成多个包裹,同批同包的产线会卡死
+      sendCommand({ kind: "request", targetId: target.id, items: needed });
     },
   });
   request.disabled = locked || needed.length === 0;
@@ -396,7 +417,7 @@ function renderTargets() {
   const body = must<HTMLElement>("#targetsBody");
 
   if (targets.length === 0) {
-    const row = el("tr", {}, [el("td", { attrs: { colspan: "7" } }, [emptyState("暂无维持目标", ["点右上角「新增目标」,填一条产物配方即可开始。"])])]);
+    const row = el("tr", {}, [el("td", { attrs: { colspan: "7" } }, [emptyState("暂无维持目标", ["点右上角「新增目标」,选择一块样板即可开始;还没有样板就先到「样板管理」创建。"])])]);
     body.replaceChildren(row);
     return;
   }
@@ -423,6 +444,13 @@ function renderTargets() {
             el("div", { className: "targetName" }, [
               el("strong", { text: productLabel(target) }),
               el("span", { className: "mono", text: text(productId || target.id) }),
+              target.recipeId
+                ? el("span", {
+                    className: "recipeRefLine",
+                    title: `样板 ${target.recipeId}`,
+                    text: `样板:${recipeById(target.recipeId) ? recipeDisplayName(recipeById(target.recipeId)!) : target.recipeId}`,
+                  })
+                : null,
               el("span", { title: recipeLine(target.inputs), text: `配方:${recipeLine(target.inputs)}` }),
               byproducts ? el("span", { className: "byproductLine", title: byproducts, text: `副产:${byproducts}` }) : null,
             ]),
@@ -438,6 +466,91 @@ function renderTargets() {
         el("td", { className: "mono", text: String(asNumber(target.promisedInputs)) }),
         el("td", { className: "mono", text: text(target.address) }),
         el("td", {}, [targetActions(target)]),
+      ]);
+    })
+  );
+}
+
+// ---- 样板管理 ---------------------------------------------------------------
+
+// 下单批数输入:配方下单 = 请求订单的抽象,控制器按样板展开逐原料请求
+function promptRecipeOrder(recipe: RecipeSnapshot) {
+  const value = prompt(
+    `下单「${recipeDisplayName(recipe)}」批数\n每批产出:${recipeLine(recipe.products)}\n每批消耗:${recipeLine(recipe.inputs)}`,
+    "1"
+  );
+  if (value === null) return;
+  const batches = Math.floor(Number(value));
+  if (!Number.isFinite(batches) || batches <= 0) {
+    toast("批数无效,需要正整数", "bad");
+    return;
+  }
+  sendCommand({ kind: "request_recipe", recipeId: recipe.id, batches });
+}
+
+function recipeUsers(recipeId: string): TargetSnapshot[] {
+  return (app.snapshot?.targets || []).filter((target) => target.recipeId === recipeId);
+}
+
+function renderPatterns() {
+  const recipes = app.snapshot?.recipes || [];
+  const body = must<HTMLElement>("#patternsBody");
+
+  if (recipes.length === 0) {
+    const row = el("tr", {}, [
+      el("td", { attrs: { colspan: "6" } }, [
+        emptyState("还没有样板", [
+          "样板承载配方:输入、产出与工序地址;目标只引用样板。",
+          "点右上角「新增样板」创建第一块,再到「自动维持」新建目标引用它。",
+        ]),
+      ]),
+    ]);
+    body.replaceChildren(row);
+    return;
+  }
+
+  body.replaceChildren(
+    ...recipes.map((recipe) => {
+      const product = recipe.products && recipe.products[0];
+      const users = recipeUsers(recipe.id);
+
+      const order = el("button", {
+        className: "ghost",
+        text: "下单",
+        title: "按此样板下一笔合成订单(展开为对工序地址的逐原料请求)",
+        onClick: () => promptRecipeOrder(recipe),
+      });
+
+      const edit = el("button", { className: "ghost", text: "编辑", onClick: () => openRecipeDialog(recipe) });
+
+      const remove = el("button", {
+        className: "ghost danger",
+        text: "删除",
+        onClick: () => {
+          if (!confirm(`删除样板「${recipeDisplayName(recipe)}」?`)) return;
+          sendCommand({ kind: "delete_recipe", recipeId: recipe.id });
+        },
+      });
+      if (users.length > 0) {
+        remove.disabled = true;
+        remove.title = `被 ${users.length} 个目标引用:${users.map((target) => target.id).join("、")}`;
+      }
+
+      return el("tr", {}, [
+        el("td", {}, [
+          el("div", { className: "itemCell" }, [
+            itemIcon(product?.item || recipe.id, "m"),
+            el("div", { className: "targetName" }, [
+              el("strong", { text: recipeDisplayName(recipe) }),
+              el("span", { className: "mono", text: recipe.id }),
+            ]),
+          ]),
+        ]),
+        el("td", { title: recipeLine(recipe.products), text: recipeLine(recipe.products) }),
+        el("td", { title: recipeLine(recipe.inputs), text: recipeLine(recipe.inputs) }),
+        el("td", { className: "mono", text: text(recipe.address) }),
+        el("td", { className: "mono", text: String(users.length) }),
+        el("td", {}, [el("div", { className: "rowActions" }, [order, edit, remove])]),
       ]);
     })
   );
@@ -473,12 +586,25 @@ function commandErrorText(command: StoredCommand): string | null {
 function commandRow(command: StoredCommand, compact = false): HTMLElement {
   const request = (command.request && typeof command.request === "object" && !Array.isArray(command.request)
     ? command.request
-    : {}) as { kind?: string; targetId?: string; item?: string; count?: number };
+    : {}) as {
+    kind?: string;
+    targetId?: string;
+    recipeId?: string;
+    batches?: number;
+    item?: string;
+    count?: number;
+    items?: Array<{ item?: string; count?: number }>;
+  };
   const id = command.commandId || "";
   const kind = commandKindLabel(command.kind || request.kind);
   const detailParts: string[] = [];
   if (request.targetId) detailParts.push(`目标 ${request.targetId}`);
-  if (request.item) detailParts.push(`${itemName(request.item)} ×${asNumber(request.count) || 1}`);
+  if (request.recipeId) detailParts.push(`样板 ${request.recipeId}${request.batches ? ` ×${request.batches} 批` : ""}`);
+  if (Array.isArray(request.items) && request.items.length > 0) {
+    detailParts.push(request.items.map((entry) => `${itemName(String(entry.item || ""))} ×${asNumber(entry.count) || 1}`).join("、"));
+  } else if (request.item) {
+    detailParts.push(`${itemName(request.item)} ×${asNumber(request.count) || 1}`);
+  }
   const errorText = commandErrorText(command);
 
   const children: (Node | string | null)[] = [
@@ -527,11 +653,14 @@ function renderActiveView() {
     case "targets":
       renderTargets();
       break;
+    case "patterns":
+      renderPatterns();
+      break;
     case "commands":
       renderCommands();
       break;
     default:
-      break; // crafting/patterns 是静态占位视图
+      break; // crafting 是静态占位视图
   }
 }
 

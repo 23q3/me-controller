@@ -13,11 +13,22 @@ export type RecipeEntry = {
   targetCount?: number;
 };
 
+// 样板（recipes.db）：配方的唯一权威——输入/输出/工序地址；
+// 目标经 recipeId 引用样板，条目不携带 targetCount（那是目标侧库存策略）
+export type RecipeSnapshot = {
+  id: string;
+  name?: string;
+  address?: string;
+  products?: RecipeEntry[];
+  inputs?: RecipeEntry[];
+};
+
 export type TargetSnapshot = {
   id: string;
   enabled?: boolean;
   address?: string;
   priority?: number;
+  recipeId?: string;
   products?: RecipeEntry[];
   inputs?: RecipeEntry[];
   status?: string;
@@ -60,6 +71,7 @@ export type ControllerSnapshot = {
     disabled?: number;
   };
   targets?: TargetSnapshot[];
+  recipes?: RecipeSnapshot[];
   commands?: CommandRecord[];
   stockCounts?: Record<string, number>;
 };
@@ -72,6 +84,7 @@ export type CommandRecord = {
   targetId?: string;
   status?: string;
   item?: string;
+  items?: Array<{ item?: string; count?: number }>;
   wanted?: number;
   requested?: number;
   createdAt?: number;
@@ -87,11 +100,16 @@ export type ControllerCommand = {
   source?: string;
   targetId?: string;
   target?: JsonValue;
+  recipeId?: string;
+  recipe?: JsonValue;
+  batches?: number;
   enabled?: boolean;
   address?: string;
   item?: string;
   count?: number;
   amount?: number;
+  // 多物品请求：全部条目并入一张订单（同一 PackageOrder，理包机可按订单合包）
+  items?: Array<{ item: string; count: number }>;
   trackCommitment?: boolean;
   options?: Record<string, JsonValue>;
 };

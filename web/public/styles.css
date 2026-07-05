@@ -988,8 +988,9 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
   font-size: 12px;
 }
 
+/* 样板条目只有物品+每批数量(目标库存移到目标编辑器),产物/原料同构 */
 .recipeSectionHead.product {
-  grid-template-columns: minmax(0, 1fr) 86px 92px 28px;
+  grid-template-columns: minmax(0, 1fr) 86px 28px;
 }
 
 .recipeSectionTitle {
@@ -1019,7 +1020,7 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
 }
 
 .recipeRow.product {
-  grid-template-columns: 24px minmax(0, 1fr) 86px 92px 28px;
+  grid-template-columns: 24px minmax(0, 1fr) 86px 28px;
 }
 
 .recipeRow input {
@@ -1123,6 +1124,78 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
 /* 自动维持表格里的副产物行 */
 .targetName .byproductLine {
   color: #9ab0d4;
+}
+
+/* 自动维持表格里的样板引用行 */
+.targetName .recipeRefLine {
+  color: var(--energy);
+}
+
+/* ---- 目标编辑器:样板摘要 + 每产物目标库存 ---- */
+
+.targetEditorBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipePreview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-deep);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.stockTargetHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px;
+  gap: 8px;
+  padding: 0 9px;
+  align-items: end;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.stockTargetRows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stockTargetRow {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto 110px;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-deep);
+}
+
+.stockTargetRow input {
+  min-height: 30px;
+  width: 100%;
+}
+
+.stockTargetName {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.stockTargetName .mono {
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .spacer {

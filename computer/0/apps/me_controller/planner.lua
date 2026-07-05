@@ -182,7 +182,9 @@ return function(Core)
     end
 
     function Planner.updatePromiseData(runtime, target)
-        local data = runtime.dataById[target.id]
+        -- ensureTargetData 而非直接索引：目标新建后未经过扫描循环时 dataById
+        -- 还没有条目，远程请求路径（applyRemoteRequest）会在此索引 nil 崩溃
+        local data = Planner.ensureTargetData(runtime, target)
         local targetState = StateStore.getTargetState(runtime.state, target)
         local promisedInputs, promisedInputItems = Tracking.sumCommitments(targetState, target)
         local promisedBatches = Tracking.inputTotalsToBatches(target, promisedInputItems)
@@ -332,30 +334,9 @@ return function(Core)
         return bestPlan, bestTotal, bestBatches
     end
 
-    local function buildPartialRequestPlan(target, desiredBatches, committedTotals, availableInputs, allowance)
-        local fullPlan = Tracking.inputPlanForBatches(target, desiredBatches, committedTotals)
-        local plan, total, handled = {}, 0, {}
-
-        for _, input in ipairs(target.inputs or {}) do
-            local item = input.item
-            if not handled[item] then
-                handled[item] = true
-                local wanted = fullPlan[item] or 0
-                local available = math.floor(availableInputs[item] or 0)
-                local room = math.floor(allowance - total)
-                local amount = math.min(wanted, available, room)
-                if amount > 0 then
-                    plan[item] = amount
-                    total = total + amount
-                end
-            end
-            if total >= allowance then break end
-        end
-
-        if total <= 0 then return nil, 0 end
-        return plan, total
-    end
-
+    -- 只发整批：请求计划必须覆盖每种原料的整批比例（buildCompleteRequestPlan
+    -- 二分出可负担的最大整批数），凑不满一批就等待。此前的"部分计划"回退会
+    -- 发出原料不齐的订单——依赖理包机同批合包的产线收到残缺包裹会卡死。
     function Planner.buildRequestPlan(target, desiredBatches, committedTotals, availableInputs, outstandingRoom)
         local allowance = math.floor(math.min(outstandingRoom, target.maxRequestPerCycle))
         if allowance <= 0 then return nil, 0, false, 0 end
@@ -364,9 +345,7 @@ return function(Core)
         if plan and total > 0 then
             return plan, total, plannedBatches >= desiredBatches, plannedBatches
         end
-
-        plan, total = buildPartialRequestPlan(target, desiredBatches, committedTotals, availableInputs, allowance)
-        return plan, total, false, 0
+        return nil, 0, false, 0
     end
 
     function Planner.recordCommitment(targetState, target, requestedByItem, totalRequested, timestamp)
@@ -380,38 +359,51 @@ return function(Core)
         targetState.totalRequestedInputs = (targetState.totalRequestedInputs or 0) + totalRequested
     end
 
+    -- 整批原料合并为一条命令 = 一张订单（一次 requestFiltered 变参调用）。
+    -- 回包只有总数：足额时按计划入账；短缺（快照与下单间的库存竞态）无法按
+    -- 物品归因，仍按计划全额入账并记 WARN——宁可承诺虚高等 TTL 自愈，也不
+    -- 低记引发重复下单。
     function Planner.requestPlan(runtime, target, plan, availableInputs)
-        local requestedByItem, totalRequested = {}, 0
-        local handled = {}
-        local commandDirty = false
+        local items, requestedByItem = {}, {}
+        local plannedTotal = 0
 
         for _, input in ipairs(target.inputs or {}) do
             local item = input.item
             local amount = plan and plan[item] or 0
-            if amount > 0 and not handled[item] then
-                handled[item] = true
-                local command = {
-                    id = StateStore.nextLocalCommandId(runtime, target),
-                    source = "local",
-                    address = target.address,
-                    item = item,
-                    count = amount,
-                }
-                local ok, requested, err, duplicate = Core.executeRequestCommand(runtime, target, command)
-                commandDirty = true
-
-                if not ok then return false, requestedByItem, totalRequested, err, commandDirty end
-
-                requested = math.max(0, tonumber(requested) or 0)
-                if requested > 0 and not duplicate then
-                    requestedByItem[item] = (requestedByItem[item] or 0) + requested
-                    totalRequested = totalRequested + requested
-                    availableInputs[item] = math.max(0, (availableInputs[item] or 0) - requested)
-                end
+            if amount > 0 and requestedByItem[item] == nil then
+                items[#items + 1] = { item = item, count = amount }
+                requestedByItem[item] = amount
+                plannedTotal = plannedTotal + amount
             end
         end
 
-        return true, requestedByItem, totalRequested, nil, commandDirty
+        if plannedTotal <= 0 then return true, {}, 0, nil, false end
+
+        local command = {
+            id = StateStore.nextLocalCommandId(runtime, target),
+            source = "local",
+            address = target.address,
+            items = items,
+        }
+        local ok, requested, err, duplicate = Core.executeRequestCommand(runtime, target, command)
+        local commandDirty = true
+
+        if not ok then return false, {}, 0, err, commandDirty end
+        requested = math.max(0, tonumber(requested) or 0)
+        if requested <= 0 or duplicate then return true, {}, 0, nil, commandDirty end
+
+        if requested < plannedTotal then
+            Util.logEvent(runtime, "WARN", "request_shortfall", {
+                target = target.id,
+                wanted = plannedTotal,
+                requested = requested,
+            })
+        end
+        for item, amount in pairs(requestedByItem) do
+            availableInputs[item] = math.max(0, (availableInputs[item] or 0) - amount)
+        end
+
+        return true, requestedByItem, plannedTotal, nil, commandDirty
     end
 
     function Planner.requestSummary(target, requestedByItem, totalRequested)

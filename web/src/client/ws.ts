@@ -38,6 +38,22 @@ function responseError(response: unknown, fallback: string): string {
   return fallback;
 }
 
+// 样板/下单命令没有目标行可挂转圈,成功回包按 kind 给 toast(kind 由 Lua
+// applyCommand 回显在 response 里)
+const KIND_RESULT_TOASTS: Record<string, string> = {
+  upsert_recipe: "样板已保存",
+  save_recipe: "样板已保存",
+  delete_recipe: "样板已删除",
+  request_recipe: "配方订单已下发",
+};
+
+function responseKind(response: unknown): string {
+  if (response && typeof response === "object" && !Array.isArray(response)) {
+    return text((response as { kind?: string }).kind, "");
+  }
+  return "";
+}
+
 function handleEnvelope(payload: UiEnvelope) {
   if (payload.type === "state") {
     app.bridge = payload.bridge || app.bridge;
@@ -65,10 +81,13 @@ function handleEnvelope(payload: UiEnvelope) {
   if (payload.type === "command_result") {
     const resolved = resolvePendingCommand(payload.commandId, payload.ok);
     if (payload.ok) {
-      // "停用中"→"停用成功";没有 pending 的命令(如物品请求)走通用文案
-      const message = resolved ? `${resolved.entry.label.replace(/中$/, "")}成功` : "控制器执行成功";
+      // "停用中"→"停用成功";样板/下单命令按回包 kind 给文案;其余走通用文案
+      const kindToast = KIND_RESULT_TOASTS[responseKind(payload.response)];
+      const message = resolved
+        ? `${resolved.entry.label.replace(/中$/, "")}成功`
+        : kindToast || "控制器执行成功";
       pushMessage(message, "good");
-      if (resolved) toast(message, "good");
+      if (resolved || kindToast) toast(message, "good");
     } else {
       const message = responseError(payload.response, "控制器执行失败");
       pushMessage(message, "bad");

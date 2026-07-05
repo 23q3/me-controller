@@ -131,8 +131,8 @@ return function(Core)
                     .. "  " .. tostring(selectedData.message or "-")
                 writeAt(target, 2, h - 2, trim(detail, w - 2), statusColor(selectedData.status))
             end
-            writeAt(target, 2, h - 1, "A Add  E Edit  D Delete  Space Toggle  R Reset  Q Quit", colors.gray)
-            writeAt(target, 2, h, "Up/Down Select  PgUp/PgDn Page", colors.gray)
+            writeAt(target, 2, h - 1, "A Add  E Edit  D Delete  Space Toggle  R Reset", colors.gray)
+            writeAt(target, 2, h, "P Patterns  Up/Down Select  PgUp/PgDn Page  Q Quit", colors.gray)
         end
     end
 
@@ -290,6 +290,23 @@ return function(Core)
         end
     end
 
+    -- 样板 id 校验循环：输错时列出现有样板 id 再重试
+    local function promptRecipeId(runtime, title, defaultValue, allowBack)
+        while true do
+            local ids = {}
+            for _, recipe in ipairs(runtime.recipes or {}) do ids[#ids + 1] = recipe.id end
+            local value = promptValue(runtime, title, "Recipe id (" .. #ids .. " available)", defaultValue, allowBack)
+            if isCancel(value) or isBack(value) then return value end
+            if Core.findRecipe(runtime.recipes, value) then return value end
+            runtime.promptActive = true
+            print("")
+            print("Unknown recipe. Available:")
+            print(table.concat(ids, ", "))
+            sleep(1.5)
+            runtime.promptActive = false
+        end
+    end
+
     local function runFields(runtime, title, fields, draft)
         local index = 1
         while index <= #fields do
@@ -301,10 +318,10 @@ return function(Core)
                 value = promptNumber(runtime, title, field.label, draft[field.key], field.minimum, allowBack)
             elseif field.kind == "yesno" then
                 value = promptYesNo(runtime, title, field.label, draft[field.key], allowBack)
-            elseif field.kind == "recipeProducts" then
-                value = promptRecipe(runtime, title, field.label, draft[field.key], true, draft.targetCount, allowBack)
-            elseif field.kind == "recipeInputs" then
-                value = promptRecipe(runtime, title, field.label, draft[field.key], false, draft.targetCount, allowBack)
+            elseif field.kind == "recipeEntries" then
+                value = promptRecipe(runtime, title, field.label, draft[field.key], false, nil, allowBack)
+            elseif field.kind == "recipeId" then
+                value = promptRecipeId(runtime, title, draft[field.key], allowBack)
             else
                 value = promptValue(runtime, title, field.label, draft[field.key], allowBack)
             end
@@ -329,51 +346,24 @@ return function(Core)
         return true
     end
 
-    local function labelsByItem(entries)
-        local labels = {}
+    local function showMessage(runtime, text, seconds)
+        runtime.promptActive = true
+        term.setBackgroundColor(colors.black)
+        term.setTextColor(colors.white)
+        term.clear()
+        term.setCursorPos(1, 1)
+        print(text)
+        sleep(seconds or 1.5)
+        runtime.promptActive = false
+    end
+
+    -- 沿用旧配方文本编辑的标签保留语义：物品在旧条目里出现过则带回旧标签
+    local function preserveEntryLabels(entries, oldEntries)
+        local byItem = {}
+        for _, entry in ipairs(oldEntries or {}) do byItem[entry.item] = entry.label end
         for _, entry in ipairs(entries or {}) do
-            labels[entry.item] = entry.label
+            if byItem[entry.item] then entry.label = byItem[entry.item] end
         end
-        return labels
-    end
-
-    local function prepareRecipeDraft(draft)
-        draft.productsText = Core.formatRecipeEntries(draft.products, true)
-        draft.inputsText = Core.formatRecipeEntries(draft.inputs, false)
-        if draft.products and draft.products[1] then draft.productLabel = draft.products[1].label end
-        if draft.inputs and draft.inputs[1] then draft.inputLabel = draft.inputs[1].label end
-    end
-
-    local function applyRecipeDraft(draft)
-        local oldProductLabels = labelsByItem(draft.products)
-        local oldInputLabels = labelsByItem(draft.inputs)
-        local products = Core.parseRecipeEntries(draft.productsText, true, draft.targetCount)
-        local inputs = Core.parseRecipeEntries(draft.inputsText, false, draft.targetCount)
-
-        if not products or not inputs then return false end
-        for _, product in ipairs(products) do
-            product.label = oldProductLabels[product.item] or product.item
-        end
-        for _, input in ipairs(inputs) do
-            input.label = oldInputLabels[input.item] or input.item
-        end
-        if products[1] then
-            products[1].label = tostring(draft.productLabel or products[1].label or products[1].item)
-            draft.productItem = products[1].item
-            draft.productLabel = products[1].label
-            draft.targetCount = products[1].targetCount
-        end
-        if inputs[1] then
-            inputs[1].label = tostring(draft.inputLabel or inputs[1].label or inputs[1].item)
-            draft.inputItem = inputs[1].item
-            draft.inputLabel = inputs[1].label
-        end
-
-        draft.products = products
-        draft.inputs = inputs
-        draft.productsText = nil
-        draft.inputsText = nil
-        return true
     end
 
     function UI.reloadTargets(runtime)
@@ -381,32 +371,39 @@ return function(Core)
         UI.ensureSelection(runtime)
     end
 
+    -- 目标 = 样板引用 + 库存策略：新增/编辑只选样板、填目标库存与优先级，
+    -- 配方内容（产物/原料/地址）完全由样板控制（upsertTarget 内解析覆写）。
     function UI.addTarget(runtime)
+        if #(runtime.recipes or {}) == 0 then
+            showMessage(runtime, "No recipes yet. Press P to add a recipe first.")
+            return
+        end
+
         local title = "Add Target"
-        local defaults = Core.normalizeTarget(Core.TARGET_DEFAULTS, {}, 1)
-        local draft = Core.copyTable(defaults)
-        draft.id = Core.normalizeId(defaults.productItem)
-        prepareRecipeDraft(draft)
+        local defaults = Core.TARGET_DEFAULTS
+        local draft = {
+            enabled = true,
+            recipeId = runtime.recipes[1].id,
+            targetCount = defaults.targetCount,
+            id = "",
+            priority = defaults.priority,
+        }
 
         local ok = runFields(runtime, title, {
-            { key = "productsText", label = "Products item=count@target", kind = "recipeProducts", required = true },
-            { key = "productLabel", label = "Primary product label" },
-            { key = "id", label = "Target id", required = true },
-            { key = "inputsText", label = "Inputs item=count", kind = "recipeInputs", required = true },
-            { key = "inputLabel", label = "Primary input label" },
-            { key = "address", label = "Request address", required = true },
+            { key = "recipeId", label = "Recipe id", kind = "recipeId", required = true },
+            { key = "targetCount", label = "Target stock (primary product)", kind = "number", minimum = 0 },
+            { key = "id", label = "Target id (empty = from recipe)" },
             { key = "priority", label = "Priority, lower is earlier", kind = "number" },
         }, draft)
         if not ok then return end
-        if not applyRecipeDraft(draft) then return end
+        if draft.id == nil or draft.id == "" then draft.id = Core.normalizeId(draft.recipeId) end
 
-        local existing = {}
-        for _, target in ipairs(runtime.targets) do existing[target.id] = true end
-        local normalized = Core.normalizeTarget(draft, existing, #runtime.targets + 1)
-        runtime.targets[#runtime.targets + 1] = normalized
-        Core.logEvent(runtime, "INFO", "target_added", { target = normalized.id, name = Core.displayName(normalized) })
-
-        Core.saveTargets(Core.normalizeTargets(runtime.targets))
+        -- 单实现：与远程 upsert_target 共用 Core.upsertTarget（样板解析在其内完成）
+        local okUpsert, err = pcall(Core.upsertTarget, runtime, draft, nil, { uiEvents = true })
+        if not okUpsert then
+            showMessage(runtime, "Save failed: " .. tostring(err), 2)
+            return
+        end
         UI.reloadTargets(runtime)
     end
 
@@ -416,15 +413,11 @@ return function(Core)
 
         local draft = Core.copyTable(target)
         local title = "Edit " .. Core.displayName(draft)
-        prepareRecipeDraft(draft)
 
         local ok = runFields(runtime, title, {
             { key = "enabled", label = "Enabled", kind = "yesno" },
-            { key = "productsText", label = "Products item=count@target", kind = "recipeProducts", required = true },
-            { key = "productLabel", label = "Primary product label" },
-            { key = "inputsText", label = "Inputs item=count", kind = "recipeInputs", required = true },
-            { key = "inputLabel", label = "Primary input label" },
-            { key = "address", label = "Request address", required = true },
+            { key = "recipeId", label = "Recipe id", kind = "recipeId", required = true },
+            { key = "targetCount", label = "Target stock (primary product)", kind = "number", minimum = 0 },
             { key = "priority", label = "Priority, lower is earlier", kind = "number" },
             { key = "requestCooldownSeconds", label = "Request cooldown seconds", kind = "number", minimum = 0 },
             { key = "minImmediateRequest", label = "Immediate batch size", kind = "number", minimum = 1 },
@@ -438,11 +431,136 @@ return function(Core)
             { key = "stockDropConfirmSeconds", label = "Stock drop confirm seconds", kind = "number", minimum = 0 },
         }, draft)
         if not ok then return end
-        if not applyRecipeDraft(draft) then return end
+
+        -- 主产物目标库存以本次输入为准：写回 products[1]，否则解析时会被
+        -- "按物品保留旧值"盖掉本次编辑
+        if draft.products and draft.products[1] then
+            draft.products[1].targetCount = tonumber(draft.targetCount) or draft.products[1].targetCount
+        end
 
         -- 单实现：与远程 upsert_target 共用 Core.upsertTarget（uiEvents 保持 target_edited 事件名）
-        Core.upsertTarget(runtime, draft, target.id, { uiEvents = true })
+        local okUpsert, err = pcall(Core.upsertTarget, runtime, draft, target.id, { uiEvents = true })
+        if not okUpsert then
+            showMessage(runtime, "Save failed: " .. tostring(err), 2)
+            return
+        end
         UI.reloadTargets(runtime)
+    end
+
+    -- ---- 样板管理（P 键）：样板承载配方（输入/输出/地址），目标只引用 ----
+
+    local function listRecipesScreen(runtime)
+        runtime.promptActive = true
+        term.setBackgroundColor(colors.black)
+        term.setTextColor(colors.white)
+        term.clear()
+        term.setCursorPos(1, 1)
+        print("Recipes (" .. #(runtime.recipes or {}) .. ")")
+        print("")
+        for index, recipe in ipairs(runtime.recipes or {}) do
+            print(index .. ". " .. recipe.id .. "  @" .. recipe.address)
+            print("   " .. Core.formatRecipeEntries(recipe.inputs, false)
+                .. " -> " .. Core.formatRecipeEntries(recipe.products, false))
+        end
+        print("")
+        print("Press any key")
+        os.pullEvent("key")
+        runtime.promptActive = false
+    end
+
+    local function runRecipeFields(runtime, title, draft)
+        return runFields(runtime, title, {
+            { key = "productsText", label = "Products item=count", kind = "recipeEntries", required = true },
+            { key = "name", label = "Recipe name (primary product label)" },
+            { key = "id", label = "Recipe id (empty = from product)" },
+            { key = "inputsText", label = "Inputs item=count", kind = "recipeEntries", required = true },
+            { key = "address", label = "Request address", required = true },
+        }, draft)
+    end
+
+    local function upsertRecipeFromDraft(runtime, draft, recipeId, oldRecipe)
+        local products = Core.parseRecipeEntries(draft.productsText, false)
+        local inputs = Core.parseRecipeEntries(draft.inputsText, false)
+        if not products or not inputs then return end
+        preserveEntryLabels(products, oldRecipe and oldRecipe.products)
+        preserveEntryLabels(inputs, oldRecipe and oldRecipe.inputs)
+
+        draft.products = products
+        draft.inputs = inputs
+        draft.productsText = nil
+        draft.inputsText = nil
+
+        -- 单实现：与远程 upsert_recipe 共用（保存后自动重解析引用它的目标）
+        local ok, err = pcall(Core.upsertRecipe, runtime, draft, recipeId, { uiEvents = true })
+        if not ok then showMessage(runtime, "Save failed: " .. tostring(err), 2) end
+    end
+
+    function UI.managePatterns(runtime)
+        local action = promptValue(runtime, "Patterns (" .. #(runtime.recipes or {}) .. ")",
+            "a add | e edit | d delete | l list", "l")
+        if isCancel(action) then return end
+        action = tostring(action):lower()
+
+        if action == "l" or action == "list" then
+            listRecipesScreen(runtime)
+            return
+        end
+
+        if action == "a" or action == "add" then
+            local defaults = Core.TARGET_DEFAULTS
+            local draft = {
+                id = "",
+                name = "",
+                address = defaults.address,
+                productsText = defaults.productItem .. "=1",
+                inputsText = defaults.inputItem .. "=1",
+            }
+            if runRecipeFields(runtime, "Add Recipe", draft) then
+                upsertRecipeFromDraft(runtime, draft, nil, nil)
+                UI.ensureSelection(runtime)
+            end
+            return
+        end
+
+        if action == "e" or action == "edit" then
+            if #(runtime.recipes or {}) == 0 then
+                showMessage(runtime, "No recipes yet.")
+                return
+            end
+            local selected = runtime.targets[runtime.selectedIndex]
+            local defaultId = selected and selected.recipeId or runtime.recipes[1].id
+            local recipeId = promptRecipeId(runtime, "Edit Recipe", defaultId, false)
+            if isCancel(recipeId) or isBack(recipeId) then return end
+
+            local recipe = Core.findRecipe(runtime.recipes, recipeId)
+            local draft = Core.copyTable(recipe)
+            draft.productsText = Core.formatRecipeEntries(draft.products, false)
+            draft.inputsText = Core.formatRecipeEntries(draft.inputs, false)
+            if runRecipeFields(runtime, "Edit Recipe " .. recipe.id, draft) then
+                upsertRecipeFromDraft(runtime, draft, recipe.id, recipe)
+                UI.ensureSelection(runtime)
+            end
+            return
+        end
+
+        if action == "d" or action == "delete" then
+            if #(runtime.recipes or {}) == 0 then
+                showMessage(runtime, "No recipes yet.")
+                return
+            end
+            local recipeId = promptRecipeId(runtime, "Delete Recipe", runtime.recipes[1].id, false)
+            if isCancel(recipeId) or isBack(recipeId) then return end
+
+            local value = promptValue(runtime, "Delete recipe " .. tostring(recipeId), "Type DELETE to confirm", "")
+            if isCancel(value) or value ~= "DELETE" then return end
+
+            -- 被目标引用时 deleteRecipeById 会报错并列出引用者
+            local ok, err = pcall(Core.deleteRecipeById, runtime, recipeId, { uiEvents = true })
+            if not ok then showMessage(runtime, "Delete failed: " .. tostring(err), 2.5) end
+            return
+        end
+
+        showMessage(runtime, "Unknown action: " .. action, 1)
     end
 
     function UI.deleteTarget(runtime)
@@ -503,6 +621,8 @@ return function(Core)
             UI.toggleTarget(runtime)
         elseif key == keys.r then
             UI.resetTargetState(runtime)
+        elseif key == keys.p then
+            UI.managePatterns(runtime)
         elseif key == keys.q then
             runtime.running = false
         end

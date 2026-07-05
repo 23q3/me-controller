@@ -99,4 +99,23 @@ describe("sanitizeCommandForController 金样（upsert 双表示）", () => {
     const command: ControllerCommand = { kind: "set_enabled", targetId: "x", enabled: false };
     expect(sanitizeCommandForController(command)).toBe(command);
   });
+
+  // 多物品单订单请求:items 必须原样透传(全部条目在 Lua 侧汇入同一 PackageOrder,
+  // 理包机按订单合包;清洗层吞掉 items 会退化回逐物品拆单)
+  test("request 命令 items 原样透传", () => {
+    const command: ControllerCommand = {
+      kind: "request",
+      targetId: "create_brass_ingot",
+      items: [
+        { item: "minecraft:copper_ingot", count: 64 },
+        { item: "create:zinc_ingot", count: 64 },
+      ],
+    };
+    const clean = sanitizeCommandForController(command);
+    expect(clean).toBe(command);
+    expect(clean.items).toEqual([
+      { item: "minecraft:copper_ingot", count: 64 },
+      { item: "create:zinc_ingot", count: 64 },
+    ]);
+  });
 });

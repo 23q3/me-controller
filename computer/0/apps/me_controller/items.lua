@@ -89,6 +89,78 @@ function Items.entryLabel(entry)
     return entry and (entry.label or entry.item) or "item"
 end
 
+-- 配方条目规整（原 targets_store 私有实现原样上移，供目标与样板两个存储共用）。
+-- isProduct=true 时保留显式 targetCount；缺省值由调用方（normalizeTarget 的
+-- 位置化默认）补齐。样板的产物条目按 isProduct=false 规整——targetCount 是
+-- 目标侧库存策略，不属于样板。
+local function normalizeRecipeEntry(raw, isProduct)
+    if type(raw) ~= "table" then return nil end
+    local item = raw.item or raw.name or raw.itemId
+    if item == nil or tostring(item) == "" then return nil end
+
+    local entry = {
+        item = tostring(item),
+        label = Items.labelOrDefault(raw.label or raw.displayName, item),
+        count = Items.positiveCount(raw.count or raw.amount or raw.qty or raw.perBatch, 1),
+    }
+
+    if isProduct and raw.targetCount ~= nil then
+        entry.targetCount = numberOrDefault(raw.targetCount, 0, 0)
+    end
+
+    return entry
+end
+
+local function appendRecipeEntry(entries, byItem, entry, isProduct)
+    if not entry then return end
+    local existing = byItem[entry.item]
+    if existing then
+        existing.count = existing.count + entry.count
+        if isProduct and entry.targetCount ~= nil then existing.targetCount = entry.targetCount end
+        if entry.label and Items.isGeneratedLabel(existing.label, existing.item) then
+            existing.label = entry.label
+        end
+    else
+        byItem[entry.item] = entry
+        entries[#entries + 1] = entry
+    end
+end
+
+function Items.normalizeRecipeEntries(rawEntries, isProduct, fallback)
+    local entries, byItem = {}, {}
+
+    if type(rawEntries) == "table" then
+        if rawEntries.item or rawEntries.name or rawEntries.itemId then
+            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct), isProduct)
+        else
+            for _, raw in ipairs(rawEntries) do
+                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
+            end
+
+            if #entries == 0 then
+                for key, value in pairs(rawEntries) do
+                    if type(key) == "string" then
+                        local raw = nil
+                        if type(value) == "table" then
+                            raw = Util.copyTable(value)
+                            raw.item = raw.item or raw.name or key
+                        else
+                            raw = { item = key, count = value }
+                        end
+                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
+                    end
+                end
+            end
+        end
+    end
+
+    if #entries == 0 and fallback and fallback.item then
+        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct), isProduct)
+    end
+
+    return entries
+end
+
 function Items.formatRecipeEntries(entries, isProduct)
     local parts = {}
     for _, entry in ipairs(entries or {}) do

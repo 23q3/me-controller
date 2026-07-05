@@ -56,17 +56,34 @@ return function(Core)
         return { counts = counts, entries = entries }, nil
     end
 
+    -- 请求命令统一为多物品形态：command.items = { {item,count}... }（兼容旧
+    -- 单物品 command.item/count）。全部物品必须经一次 requestFiltered 变参调用
+    -- 汇入同一 PackageOrder：理包机按订单合包，逐物品多次调用会把一批原料拆成
+    -- 多个订单/包裹，需要"同批同包"的产线会因此卡死（勿改回逐物品循环）。
+    local function commandItems(command)
+        if type(command.items) == "table" and #command.items > 0 then return command.items end
+        return { { item = command.item, count = command.count } }
+    end
+
     function Network.executeRequestCommand(runtime, target, command)
         local commands = StateStore.commandState(runtime.state)
         local existing = StateStore.findCommandRecord(commands, command.id)
+        local items = commandItems(command)
         if existing then
             Util.logEvent(runtime, "WARN", "command_duplicate", {
                 commandId = command.id,
                 target = target.id,
-                item = command.item,
+                items = items,
                 status = existing.status,
             })
             return true, 0, nil, true
+        end
+
+        local filters = {}
+        local wanted = 0
+        for index, entry in ipairs(items) do
+            filters[index] = { name = entry.item, _requestCount = entry.count }
+            wanted = wanted + (tonumber(entry.count) or 0)
         end
 
         local timestamp = Util.now()
@@ -76,24 +93,24 @@ return function(Core)
             source = command.source or "local",
             targetId = target.id,
             address = command.address,
-            item = command.item,
+            item = #items == 1 and items[1].item or nil,
+            items = items,
             requested = 0,
-            wanted = command.count,
+            wanted = wanted,
             createdAt = timestamp,
             completedAt = timestamp,
         }
 
-        local filter = { name = command.item, _requestCount = command.count }
         local ok, requested = pcall(function()
-            return runtime.stockTicker.requestFiltered(command.address, filter)
+            return runtime.stockTicker.requestFiltered(command.address, table.unpack(filters))
         end)
 
         -- 成功/失败两分支的日志字段原为两份近乎相同的表，合并为一处（计划定点改进）
         local details = {
             commandId = command.id,
             target = target.id,
-            item = command.item,
-            wanted = command.count,
+            items = items,
+            wanted = wanted,
             address = command.address,
         }
 
@@ -103,7 +120,8 @@ return function(Core)
             record.status = requested > 0 and "done" or "zero"
             StateStore.rememberCommand(runtime.state, record)
             details.requested = requested
-            Util.logEvent(runtime, requested > 0 and "INFO" or "WARN", "command_request_" .. record.status, details)
+            local level = requested >= wanted and "INFO" or "WARN"
+            Util.logEvent(runtime, requested > 0 and level or "WARN", "command_request_" .. record.status, details)
             return true, requested, nil, false
         end
 
