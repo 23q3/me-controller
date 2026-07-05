@@ -8,6 +8,7 @@
     "dev:server": "bun run src/server/index.ts",
     "dev": "bun run build && bun run dev:server",
     "start": "bun run build && bun run src/server/index.ts",
+    "assets": "bun run scripts/build-assets.ts",
     "test": "bun test"
   },
   "devDependencies": {

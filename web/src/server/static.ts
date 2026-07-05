@@ -28,8 +28,10 @@ export async function staticResponse(url: URL) {
   const file = Bun.file(path);
   if (!(await file.exists())) return new Response("Not Found", { status: 404 });
   const headers: Record<string, string> = { "content-type": contentType(path) };
-  // 生成资产（物品图标 + item-index.json）内容只随重启重建，允许浏览器缓存一天
-  if (relative === "generated" || relative.startsWith("generated" + sep) || relative.startsWith("generated/")) {
+  // 物品图标 URL 带 ?v=构建版本参数,可以放心长缓存;item-index.json 不再长缓存
+  // (前端实际走 /api/items,这里只是兜底)
+  const itemsPrefix = join("generated", "items") + sep;
+  if (relative.startsWith(itemsPrefix) || relative.startsWith("generated/items/")) {
     headers["cache-control"] = "public, max-age=86400";
   }
   return new Response(file, { headers });

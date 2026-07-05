@@ -8,6 +8,7 @@ export type ItemAsset = {
   name: string;
   englishName?: string;
   icon?: string;
+  iconKind?: "flat" | "cube" | "export";
 };
 
 export type PendingTarget = {

@@ -1,12 +1,14 @@
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve, sep } from "node:path";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { basename, dirname, join, resolve, sep } from "node:path";
 import { inflateRawSync } from "node:zlib";
+import { renderIcon } from "./icons";
 
 export type ItemAsset = {
   id: string;
   name: string;
   englishName?: string;
   icon?: string;
+  iconKind?: "flat" | "cube" | "export";
   source?: string;
   iconSource?: string;
 };
@@ -32,10 +34,20 @@ type AssetSource = {
   readText(path: string): string | undefined;
 };
 
+// 惰性来源引用:open() 时才把 jar 读进内存,处理完一个释放一个,
+// 避免整合包上百个 mod jar 同时驻留
+type SourceRef = { label: string; open: () => AssetSource };
+
 type ModelData = {
   parent?: string;
   textures?: Record<string, string>;
 };
+
+type PickedTexture = { location: string; buffer: Buffer; source: string };
+
+type IconPlan =
+  | { kind: "flat"; layers: PickedTexture[] }
+  | { kind: "cube"; top: PickedTexture; left: PickedTexture; right: PickedTexture };
 
 const PUBLIC_DIR = resolve(import.meta.dir, "..", "..", "public");
 const GENERATED_DIR = join(PUBLIC_DIR, "generated");
@@ -213,40 +225,145 @@ function generatedIconPath(itemId: string) {
   };
 }
 
-function collectSources(gameRoot: string): AssetSource[] {
-  const sources: AssetSource[] = [];
+// 来源顺序(后者覆盖前者):版本 jar(原版) → mods/*.jar → automodpack 注入的
+// mods → kubejs/assets。刻意不扫 resourcepacks:整合包会往那儿放未启用的
+// 高清材质包(此包就带了个 64x 写实包),混进来会整批污染"原版长相"的图标。
+function collectSourceRefs(gameRoot: string): SourceRef[] {
+  const refs: SourceRef[] = [];
+  const addJar = (label: string, path: string) => refs.push({ label, open: () => new ZipSource(label, path) });
 
   for (const name of readdirSync(gameRoot)) {
     const full = join(gameRoot, name);
-    if (statSync(full).isFile() && name.endsWith(".jar")) sources.push(new ZipSource(name, full));
+    if (statSync(full).isFile() && name.endsWith(".jar")) addJar(name, full);
   }
 
-  const modsRoot = join(gameRoot, "mods");
-  for (const file of listFilesRecursive(modsRoot).filter((path) => path.endsWith(".jar"))) {
-    const full = join(modsRoot, file.split("/").join(sep));
-    sources.push(new ZipSource(`mods/${file}`, full));
-  }
-
-  const kubeAssets = join(gameRoot, "kubejs", "assets");
-  if (existsSync(kubeAssets)) sources.push(new DirectorySource("kubejs/assets", kubeAssets, "assets"));
-
-  const resourcePacks = join(gameRoot, "resourcepacks");
-  if (existsSync(resourcePacks)) {
-    for (const name of readdirSync(resourcePacks)) {
-      const full = join(resourcePacks, name);
-      const stat = statSync(full);
-      if (stat.isDirectory()) sources.push(new DirectorySource(`resourcepacks/${name}`, full));
-      else if (stat.isFile() && (name.endsWith(".zip") || name.endsWith(".jar"))) {
-        sources.push(new ZipSource(`resourcepacks/${name}`, full));
+  const modDirs = [{ prefix: "mods", root: join(gameRoot, "mods") }];
+  const modpacksRoot = join(gameRoot, "automodpack", "modpacks");
+  if (existsSync(modpacksRoot)) {
+    for (const name of readdirSync(modpacksRoot)) {
+      const root = join(modpacksRoot, name, "mods");
+      if (existsSync(root) && statSync(root).isDirectory()) {
+        modDirs.push({ prefix: `automodpack/${name}/mods`, root });
       }
     }
   }
+  for (const { prefix, root } of modDirs) {
+    for (const file of listFilesRecursive(root).filter((path) => path.endsWith(".jar"))) {
+      addJar(`${prefix}/${file}`, join(root, file.split("/").join(sep)));
+    }
+  }
 
-  return sources;
+  const kubeDirs = [join(gameRoot, "kubejs", "assets")];
+  if (existsSync(modpacksRoot)) {
+    for (const name of readdirSync(modpacksRoot)) kubeDirs.push(join(modpacksRoot, name, "kubejs", "assets"));
+  }
+  for (const dir of kubeDirs) {
+    if (existsSync(dir)) refs.push({ label: "kubejs/assets", open: () => new DirectorySource("kubejs/assets", dir, "assets") });
+  }
+
+  return refs;
 }
 
-function resolveTextureReference(textures: Record<string, string>, key: string): string | undefined {
-  let value = textures[key];
+// 原版 zh_cn 不在客户端 jar 里(jar 只带 en_us),而在启动器共享的
+// assets 资源库中按 hash 寻址:versions/<ver>.json 的 assetIndex →
+// assets/indexes/<id>.json → objects/<hash 前两位>/<hash>
+function loadVanillaZhLang(gameRoot: string): Record<string, string> | undefined {
+  try {
+    const versionJsonPath = join(gameRoot, `${basename(gameRoot)}.json`);
+    if (!existsSync(versionJsonPath)) return undefined;
+    const versionJson = safeJson<{ assetIndex?: { id?: string }; assets?: string }>(readFileSync(versionJsonPath, "utf8"));
+    const indexId = versionJson?.assetIndex?.id || versionJson?.assets;
+    if (!indexId) return undefined;
+
+    const assetsRoot = resolve(gameRoot, "..", "..", "assets");
+    const indexPath = join(assetsRoot, "indexes", `${indexId}.json`);
+    if (!existsSync(indexPath)) return undefined;
+    const index = safeJson<{ objects?: Record<string, { hash?: string }> }>(readFileSync(indexPath, "utf8"));
+    const hash = index?.objects?.["minecraft/lang/zh_cn.json"]?.hash;
+    if (!hash) return undefined;
+
+    const objectPath = join(assetsRoot, "objects", hash.slice(0, 2), hash);
+    if (!existsSync(objectPath)) return undefined;
+    return safeJson<Record<string, string>>(readFileSync(objectPath, "utf8"));
+  } catch {
+    return undefined;
+  }
+}
+
+type ExportedIcon = {
+  file: string; // 绝对路径
+  label: string; // <目录名>/<文件名>,写进 iconSource 便于排查
+  dir: string; // 目录名,写进 source
+  parts: number; // 文件名 "__" 段数,越少越是基础款
+  nameLength: number;
+};
+
+// 游戏内 IconExporter 导出的成品图标(/iconexporter export N):游戏引擎亲自渲染,
+// 箱子/楼梯/代码渲染物品/染色/附魔光效都与游戏内完全一致,优先级最高。
+// 目录:实例根下的 icon-exports-xN(N=分辨率),多个时取最近修改的;
+// 可用环境变量 ICON_EXPORTS_DIR 指定其他目录。
+// 文件名格式 modid__itemid[__元数据][__NBT或哈希].png(双下划线分隔),
+// 同一物品有多个变体文件时取后缀段数最少、名字最短的"基础款"。
+function loadExportedIcons(gameRoot: string): Map<string, ExportedIcon> {
+  const icons = new Map<string, ExportedIcon>();
+
+  let dir: string | undefined;
+  if (process.env.ICON_EXPORTS_DIR) {
+    dir = resolve(process.env.ICON_EXPORTS_DIR);
+  } else {
+    let newest = -1;
+    try {
+      for (const name of readdirSync(gameRoot)) {
+        if (!/^icon-exports-x\d+$/.test(name)) continue;
+        const full = join(gameRoot, name);
+        const stat = statSync(full);
+        if (stat.isDirectory() && stat.mtimeMs > newest) {
+          newest = stat.mtimeMs;
+          dir = full;
+        }
+      }
+    } catch {
+      return icons;
+    }
+  }
+  if (!dir || !existsSync(dir)) return icons;
+
+  const dirName = basename(dir);
+  for (const name of readdirSync(dir)) {
+    if (!name.endsWith(".png")) continue;
+    const parts = name.slice(0, -4).split("__");
+    if (parts.length < 2 || !parts[0] || !parts[1]) continue;
+    const id = `${parts[0]}:${parts[1]}`;
+    const existing = icons.get(id);
+    const better =
+      !existing ||
+      parts.length < existing.parts ||
+      (parts.length === existing.parts && name.length < existing.nameLength);
+    if (better) {
+      icons.set(id, {
+        file: join(dir, name),
+        label: `${dirName}/${name}`,
+        dir: dirName,
+        parts: parts.length,
+        nameLength: name.length,
+      });
+    }
+  }
+  return icons;
+}
+
+// 数据驱动 mod 的"容器物品"没有基础翻译键(名字由组件运行时解析,官方 lang
+// 里压根不写),lang 查找必然落空。这里给合并行一个可读的兜底名。
+// 注:TACZ 所有枪共享 modern_kinetic_gun 一个 id,Create 报点器聚合后只剩
+// 物品 id,每把枪单独识别需要伴生 mod 暴露组件(见 README),纯读取做不到。
+const EXTRA_NAMES: Record<string, { name: string; englishName?: string }> = {
+  "tacz:modern_kinetic_gun": { name: "现代动能枪械", englishName: "Modern Kinetic Gun" },
+  "tacz:ammo": { name: "枪械弹药", englishName: "Gun Ammo" },
+  "tacz:attachment": { name: "枪械配件", englishName: "Gun Attachment" },
+  "tacz:ammo_box": { name: "弹药盒", englishName: "Ammo Box" },
+};
+
+function resolveTextureReference(textures: Record<string, string>, key: string): string | undefined {  let value = textures[key];
   const seen = new Set<string>();
   while (value && value.startsWith("#")) {
     const next = value.slice(1);
@@ -270,23 +387,73 @@ function mergeModelTextures(models: Map<string, ModelData>, location: string, de
   };
 }
 
-function pickTexture(models: Map<string, ModelData>, textures: Map<string, { buffer: Buffer; source: string }>, itemId: string) {
-  const namespace = itemId.split(":", 1)[0];
-  const model = models.get(`${namespace}:item/${itemId.split(":")[1]}`);
-  const merged = model ? mergeModelTextures(models, `${namespace}:item/${itemId.split(":")[1]}`) : {};
+// 物品模型的 parent 链(含最末一个解析不到的 parent id,如 minecraft:builtin/entity)
+function modelChain(models: Map<string, ModelData>, location: string) {
+  const chain: string[] = [];
+  let current: string | undefined = location;
+  while (current && chain.length < 16 && !chain.includes(current)) {
+    chain.push(current);
+    const model = models.get(current);
+    if (!model) break;
+    current = model.parent ? resourceLocation(model.parent, current.split(":", 1)[0]) : undefined;
+  }
+  return chain;
+}
 
-  for (const key of ["layer0", "all", "particle", "front", "side", "top"]) {
-    const picked = resolveTextureReference(merged, key);
-    if (picked) {
-      const loc = resourceLocation(picked, namespace);
-      const texture = textures.get(loc);
-      if (texture) return { location: loc, ...texture };
+// 图标选取策略:
+// 1) 有 layer0 → 平面物品(叠加 layer1+,如药水的液体层+瓶身层)
+// 2) cross 类模型(花/树苗/菌类) → 平面
+// 3) 模型链途经 block/ → 立方体等距渲染,分别挑 顶/左/右 三面贴图
+// 4) 其余回退平面单贴图,最后按物品 id 猜贴图路径
+function pickIconPlan(
+  models: Map<string, ModelData>,
+  textures: Map<string, { buffer: Buffer; source: string }>,
+  itemId: string,
+): IconPlan | undefined {
+  const [namespace, itemPath] = itemId.split(":", 2);
+  const modelId = `${namespace}:item/${itemPath}`;
+  const merged = mergeModelTextures(models, modelId);
+  const chain = modelChain(models, modelId);
+
+  const tex = (key: string): PickedTexture | undefined => {
+    const value = resolveTextureReference(merged, key);
+    if (!value) return undefined;
+    const location = resourceLocation(value, namespace);
+    const texture = textures.get(location);
+    return texture ? { location, ...texture } : undefined;
+  };
+
+  const layer0 = tex("layer0");
+  if (layer0) {
+    const layers = [layer0];
+    for (const key of ["layer1", "layer2", "layer3", "layer4"]) {
+      const layer = tex(key);
+      if (layer) layers.push(layer);
     }
+    return { kind: "flat", layers };
   }
 
-  for (const guess of [`${namespace}:item/${itemId.split(":")[1]}`, `${namespace}:block/${itemId.split(":")[1]}`]) {
-    const texture = textures.get(guess);
-    if (texture) return { location: guess, ...texture };
+  const cross = tex("cross");
+  if (cross) return { kind: "flat", layers: [cross] };
+
+  if (chain.some((entry) => entry.includes(":block/"))) {
+    const top = tex("up") || tex("top") || tex("end") || tex("all") || tex("texture") || tex("particle") || tex("side");
+    const left = tex("front") || tex("north") || tex("side") || tex("west") || tex("all") || tex("texture") || tex("particle") || top;
+    const right = tex("side") || tex("east") || tex("south") || tex("all") || tex("texture") || tex("particle") || top;
+    if (top && left && right) return { kind: "cube", top, left, right };
+  }
+
+  for (const key of ["all", "texture", "particle", "front", "side", "top"]) {
+    const picked = tex(key);
+    if (picked) return { kind: "flat", layers: [picked] };
+  }
+
+  const itemGuess = textures.get(`${namespace}:item/${itemPath}`);
+  if (itemGuess) return { kind: "flat", layers: [{ location: `${namespace}:item/${itemPath}`, ...itemGuess }] };
+  const blockGuess = textures.get(`${namespace}:block/${itemPath}`);
+  if (blockGuess) {
+    const face = { location: `${namespace}:block/${itemPath}`, ...blockGuess };
+    return { kind: "cube", top: face, left: face, right: face };
   }
 
   return undefined;
@@ -295,14 +462,22 @@ function pickTexture(models: Map<string, ModelData>, textures: Map<string, { buf
 export function buildAssetIndex() {
   const gameRoot = findGameRoot();
   const startedAt = now();
-  const sources = collectSources(gameRoot);
   const namesZh = new Map<string, string>();
   const namesEn = new Map<string, string>();
   const models = new Map<string, ModelData>();
   const itemIds = new Set<string>();
   const textures = new Map<string, { buffer: Buffer; source: string }>();
 
-  for (const source of sources) {
+  // 原版中文名垫底,mod/kubejs 的 lang 在后面覆盖
+  for (const [key, value] of Object.entries(loadVanillaZhLang(gameRoot) || {})) namesZh.set(key, value);
+
+  for (const ref of collectSourceRefs(gameRoot)) {
+    let source: AssetSource;
+    try {
+      source = ref.open();
+    } catch {
+      continue; // 损坏/读不了的 jar 跳过,不拖垮整个索引
+    }
     for (const path of source.list()) {
       const lang = parseAssetPath(path, /^assets\/([^/]+)\/lang\/(zh_cn|en_us)\.json$/);
       if (lang) {
@@ -327,7 +502,9 @@ export function buildAssetIndex() {
         continue;
       }
 
-      const texture = parseAssetPath(path, /^assets\/([^/]+)\/textures\/(.+)\.png$/);
+      // 只留 item*/block* 前缀:物品图标只会引用这两类,gui/entity/环境贴图
+      // 留着只会白吃内存(199 个 mod 的贴图全量驻留会到 GB 级)
+      const texture = parseAssetPath(path, /^assets\/([^/]+)\/textures\/((?:item|items|block|blocks)\/.+)\.png$/);
       if (texture) {
         const buffer = source.readBuffer(path);
         if (buffer) textures.set(`${texture.namespace}:${texture.name}`, { buffer, source: source.label });
@@ -335,16 +512,25 @@ export function buildAssetIndex() {
     }
   }
 
+  // 全量重建:清掉上一次的产物,防止旧图(比如被材质包污染过的)残留被继续伺服
+  rmSync(ITEM_ICON_DIR, { recursive: true, force: true });
   mkdirSync(ITEM_ICON_DIR, { recursive: true });
 
+  // 游戏内导出图优先;导出里出现但没有物品模型文件的 id(运行时生成模型的
+  // mod 物品)也并入索引,名字走 lang 查找
+  const exported = loadExportedIcons(gameRoot);
+  for (const id of exported.keys()) itemIds.add(id);
+
+  const cacheTag = startedAt.toString(36);
   const items: Record<string, ItemAsset> = {};
   for (const id of [...itemIds].sort()) {
     const [namespace, itemPath] = id.split(":", 2);
     const nameKey = `item.${namespace}.${itemPath.replaceAll("/", ".")}`;
     const blockNameKey = `block.${namespace}.${itemPath.replaceAll("/", ".")}`;
-    const name = namesZh.get(nameKey) || namesZh.get(blockNameKey) || namesEn.get(nameKey) || namesEn.get(blockNameKey) || id;
-    const englishName = namesEn.get(nameKey) || namesEn.get(blockNameKey);
-    const picked = pickTexture(models, textures, id);
+    const extra = EXTRA_NAMES[id];
+    const name =
+      namesZh.get(nameKey) || namesZh.get(blockNameKey) || namesEn.get(nameKey) || namesEn.get(blockNameKey) || extra?.name || id;
+    const englishName = namesEn.get(nameKey) || namesEn.get(blockNameKey) || extra?.englishName;
 
     const asset: ItemAsset = {
       id,
@@ -352,13 +538,31 @@ export function buildAssetIndex() {
       englishName,
     };
 
-    if (picked) {
+    const exportedIcon = exported.get(id);
+    if (exportedIcon) {
+      // 游戏引擎渲染的成品,原样拷贝即是"完美"效果
       const icon = generatedIconPath(id);
       mkdirSync(dirname(icon.file), { recursive: true });
-      writeFileSync(icon.file, picked.buffer);
-      asset.icon = icon.url;
-      asset.iconSource = picked.location;
-      asset.source = picked.source;
+      writeFileSync(icon.file, readFileSync(exportedIcon.file));
+      asset.icon = `${icon.url}?v=${cacheTag}`;
+      asset.iconKind = "export";
+      asset.iconSource = exportedIcon.label;
+      asset.source = exportedIcon.dir;
+    } else {
+      const plan = pickIconPlan(models, textures, id);
+      if (plan) {
+        const primary = plan.kind === "flat" ? plan.layers[0] : plan.top;
+        // 合成失败(源 PNG 解不开)时原样拷贝首选贴图,保底有图
+        const rendered = renderIcon(plan) ?? primary.buffer;
+        const icon = generatedIconPath(id);
+        mkdirSync(dirname(icon.file), { recursive: true });
+        writeFileSync(icon.file, rendered);
+        // 内容随重建变化但 URL 不变,挂个版本参数击穿浏览器的一天缓存
+        asset.icon = `${icon.url}?v=${cacheTag}`;
+        asset.iconKind = plan.kind;
+        asset.iconSource = primary.location;
+        asset.source = primary.source;
+      }
     }
 
     items[id] = asset;
