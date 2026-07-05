@@ -136,7 +136,13 @@ function Items.parseRecipeEntries(text, isProduct, defaultTargetCount)
                 count = count,
             }
             if isProduct then
-                entry.targetCount = numberOrDefault(targetCount, defaultTargetCount or 0, 0)
+                if targetCount ~= nil then
+                    entry.targetCount = numberOrDefault(targetCount, 0, 0)
+                else
+                    -- 首个产物是主产物，未写 @ 时继承默认目标库存；
+                    -- 其余是副产物，默认 0（不驱动生产）
+                    entry.targetCount = #entries == 0 and numberOrDefault(defaultTargetCount, 0, 0) or 0
+                end
             end
             entries[#entries + 1] = entry
         end

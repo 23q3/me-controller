@@ -5,6 +5,8 @@
 -- inputPerProduct 等）与 products[]/inputs[] 数组同时存在且互相同步：
 -- 数组是权威，规整末尾会把 products[1]/inputs[1] 回写进标量，
 -- inputPerProduct 由配方整体重新推导。磁盘上两种表示都写入。
+-- targetCount 位置化默认：products[1]（主产物）缺省继承目标级 targetCount，
+-- 其余产物（副产物）缺省 0；规整后每个产物都带显式 targetCount 落盘。
 local Config = require("config")
 local Util = require("util")
 local Items = require("items")
@@ -29,7 +31,7 @@ local function uniqueTargetId(existing, wanted)
     return candidate
 end
 
-local function normalizeRecipeEntry(raw, isProduct, defaultTargetCount)
+local function normalizeRecipeEntry(raw, isProduct)
     if type(raw) ~= "table" then return nil end
     local item = raw.item or raw.name or raw.itemId
     if item == nil or tostring(item) == "" then return nil end
@@ -40,8 +42,10 @@ local function normalizeRecipeEntry(raw, isProduct, defaultTargetCount)
         count = positiveCount(raw.count or raw.amount or raw.qty or raw.perBatch, 1),
     }
 
-    if isProduct then
-        entry.targetCount = numberOrDefault(raw.targetCount, defaultTargetCount or 0, 0)
+    -- targetCount 只保留显式值；缺省由 normalizeTarget 按位置补齐
+    -- （products[1] 主产物继承目标级 targetCount，其余副产物默认 0）
+    if isProduct and raw.targetCount ~= nil then
+        entry.targetCount = numberOrDefault(raw.targetCount, 0, 0)
     end
 
     return entry
@@ -62,15 +66,15 @@ local function appendRecipeEntry(entries, byItem, entry, isProduct)
     end
 end
 
-local function normalizeRecipeEntries(rawEntries, isProduct, fallback, defaultTargetCount)
+local function normalizeRecipeEntries(rawEntries, isProduct, fallback)
     local entries, byItem = {}, {}
 
     if type(rawEntries) == "table" then
         if rawEntries.item or rawEntries.name or rawEntries.itemId then
-            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct, defaultTargetCount), isProduct)
+            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct), isProduct)
         else
             for _, raw in ipairs(rawEntries) do
-                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct, defaultTargetCount), isProduct)
+                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
             end
 
             if #entries == 0 then
@@ -83,7 +87,7 @@ local function normalizeRecipeEntries(rawEntries, isProduct, fallback, defaultTa
                         else
                             raw = { item = key, count = value }
                         end
-                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct, defaultTargetCount), isProduct)
+                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
                     end
                 end
             end
@@ -91,7 +95,7 @@ local function normalizeRecipeEntries(rawEntries, isProduct, fallback, defaultTa
     end
 
     if #entries == 0 and fallback and fallback.item then
-        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct, defaultTargetCount), isProduct)
+        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct), isProduct)
     end
 
     return entries
@@ -133,16 +137,25 @@ function TargetsStore.normalizeTarget(raw, existing, index)
         label = target.productLabel,
         count = target.productCount or 1,
         targetCount = target.targetCount,
-    }, target.targetCount)
+    })
     target.inputs = normalizeRecipeEntries(target.inputs or target.ingredients, false, {
         item = target.inputItem,
         label = target.inputLabel,
         count = target.inputPerProduct,
-    }, target.targetCount)
+    })
     target.outputs = nil
     target.ingredients = nil
     target.productsText = nil
     target.inputsText = nil
+
+    -- 位置化 targetCount 默认（AE2 副产物语义）：products[1] 是主产物，缺省
+    -- 继承目标级 targetCount；其余是副产物，缺省 0——不主动驱动生产，只在
+    -- 下游依赖需求拉动或显式设定目标库存时参与批次计算。
+    for index, product in ipairs(target.products) do
+        if product.targetCount == nil then
+            product.targetCount = index == 1 and target.targetCount or 0
+        end
+    end
 
     local product = target.products[1]
     local input = target.inputs[1]

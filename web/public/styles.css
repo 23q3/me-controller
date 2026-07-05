@@ -664,6 +664,12 @@ input::placeholder {
   object-fit: contain;
 }
 
+/* 方块的等距合成图与游戏内导出图都是 64px 级的,缩到 22~36px 用平滑插值;
+   点阵小图标保持 pixelated */
+.itemIcon.iso {
+  image-rendering: auto;
+}
+
 .itemIcon.s { width: 22px; height: 22px; flex: 0 0 22px; }
 .itemIcon.m { width: 28px; height: 28px; flex: 0 0 28px; }
 .itemIcon.l { width: 36px; height: 36px; }
@@ -962,6 +968,161 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
 
 .advancedFields .fieldGrid {
   padding: 10px 12px 12px;
+}
+
+/* ---- 配方行编辑器(AE2 样板风:图标 + 物品补全 + 数量列) ---- */
+
+.recipeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipeSectionHead {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 86px 28px;
+  gap: 8px;
+  padding: 0 9px;
+  align-items: end;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recipeSectionHead.product {
+  grid-template-columns: minmax(0, 1fr) 86px 92px 28px;
+}
+
+.recipeSectionTitle {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.recipeColLabel {
+  font-size: 11px;
+}
+
+.recipeRows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipeRow {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 86px 28px;
+  gap: 8px;
+  align-items: start;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-deep);
+}
+
+.recipeRow.product {
+  grid-template-columns: 24px minmax(0, 1fr) 86px 92px 28px;
+}
+
+.recipeRow input {
+  min-height: 30px;
+  width: 100%;
+}
+
+.recipeIconHost {
+  display: flex;
+  align-items: center;
+  min-height: 30px;
+}
+
+.recipeItemCell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.recipeHint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 14px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.recipeNameHint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipeBadge {
+  flex: 0 0 auto;
+  padding: 0 5px;
+  border: 1px solid var(--line-bright);
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 14px;
+}
+
+.recipeBadge.primary {
+  color: var(--energy);
+  border-color: rgb(79 214 232 / 0.45);
+  background: var(--energy-soft);
+}
+
+.recipeRemoveBtn {
+  min-height: 30px;
+  padding: 0;
+}
+
+.recipeAddBtn {
+  align-self: flex-start;
+}
+
+.itemSuggest {
+  position: fixed;
+  z-index: 60;
+  max-height: 264px;
+  overflow-y: auto;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.55);
+}
+
+.itemSuggestRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 9px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.itemSuggestRow:hover,
+.itemSuggestRow.active {
+  background: var(--energy-soft);
+}
+
+.itemSuggestName {
+  flex: 0 0 auto;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemSuggestId {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+/* 自动维持表格里的副产物行 */
+.targetName .byproductLine {
+  color: #9ab0d4;
 }
 
 .spacer {

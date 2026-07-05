@@ -84,10 +84,12 @@ export function itemName(itemId: string | undefined | null): string {
   return (asset && asset.name) || defaultDisplayName(itemId);
 }
 
-function itemIcon(itemId: string | undefined | null, size: "s" | "m" | "l" = "m"): HTMLElement {
+export function itemIcon(itemId: string | undefined | null, size: "s" | "m" | "l" = "m"): HTMLElement {
   const asset = itemAsset(itemId || undefined);
   if (asset?.icon) {
-    const img = el("img", { className: `itemIcon ${size}`, attrs: { alt: "", loading: "lazy" } });
+    // 立体合成图(64px)与游戏内导出图(64px+)缩到显示尺寸走平滑插值;16px 点阵图保持 pixelated
+    const iso = asset.iconKind === "cube" || asset.iconKind === "export" ? " iso" : "";
+    const img = el("img", { className: `itemIcon ${size}${iso}`, attrs: { alt: "", loading: "lazy" } });
     img.src = asset.icon;
     return img;
   }
@@ -107,14 +109,38 @@ function recipeLine(entries: TargetSnapshot["inputs"]): string {
   return entries.map((entry) => `${itemName(entry.item)} ×${entry.count || 1}`).join("、");
 }
 
-function firstNeededInput(target: TargetSnapshot) {
+// 快照 productCounts 的值是 Lua 侧的产物数据表({count,targetCount,deficit,...}),
+// 兼容直接给数字的旧形状
+function productStockOf(counts: TargetSnapshot["productCounts"], item: string): number {
+  const value = counts?.[item];
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return asNumber((value as { count?: unknown }).count);
+  }
+  return asNumber(value);
+}
+
+// 副产物行(products[2..]):入账库存,目标库存为 0 时不驱动生产
+function byproductLine(target: TargetSnapshot): string | null {
+  const byproducts = (target.products || []).slice(1);
+  if (byproducts.length === 0) return null;
+  return byproducts
+    .map((entry) => {
+      const stock = formatExact(productStockOf(target.productCounts, entry.item));
+      const goal = asNumber(entry.targetCount) > 0 ? `,目标 ${formatExact(asNumber(entry.targetCount))}` : "";
+      return `${itemName(entry.item)} ×${entry.count || 1}(库存 ${stock}${goal})`;
+    })
+    .join("、");
+}
+
+// 全部缺料清单:手动"请求"按钮逐项下发(单项上限 64,只是人工催单而非接管调度)
+function neededInputRequests(target: TargetSnapshot): Array<{ item: string; count: number }> {
   const needed = target.neededInputItems || {};
-  const input = (target.inputs || []).find((entry) => asNumber(needed[entry.item]) > 0);
-  if (!input) return null;
-  return {
-    item: input.item,
-    count: Math.max(1, Math.min(64, Math.floor(asNumber(needed[input.item])))),
-  };
+  return (target.inputs || [])
+    .filter((entry) => asNumber(needed[entry.item]) > 0)
+    .map((entry) => ({
+      item: entry.item,
+      count: Math.max(1, Math.min(64, Math.floor(asNumber(needed[entry.item])))),
+    }));
 }
 
 function emptyState(title: string, hints: string[] = []) {
@@ -318,7 +344,7 @@ function renderTerminal() {
 function targetActions(target: TargetSnapshot): HTMLElement {
   const pending = targetPending(target.id);
   const locked = Boolean(pending);
-  const needed = firstNeededInput(target);
+  const needed = neededInputRequests(target);
 
   const toggle = el("button", {
     className: "ghost",
@@ -341,13 +367,16 @@ function targetActions(target: TargetSnapshot): HTMLElement {
   const request = el("button", {
     className: "ghost",
     text: "请求",
-    title: needed ? `请求 ${itemName(needed.item)} ×${needed.count}` : "当前没有缺料",
+    title: needed.length > 0
+      ? `请求全部缺料:${needed.map((entry) => `${itemName(entry.item)} ×${entry.count}`).join("、")}`
+      : "当前没有缺料",
     onClick: () => {
-      if (!needed) return;
-      sendCommand({ kind: "request", targetId: target.id, item: needed.item, count: needed.count });
+      for (const entry of needed) {
+        sendCommand({ kind: "request", targetId: target.id, item: entry.item, count: entry.count });
+      }
     },
   });
-  request.disabled = locked || !needed;
+  request.disabled = locked || needed.length === 0;
 
   const remove = el("button", {
     className: "ghost danger",
@@ -379,6 +408,7 @@ function renderTargets() {
       const have = asNumber(target.productCount);
       const want = asNumber(target.targetCount);
       const pct = want > 0 ? Math.min(100, Math.round((have / want) * 100)) : 0;
+      const byproducts = byproductLine(target);
 
       const bar = el("div", { className: "stockBar" }, [
         el("div", { className: `stockBarFill ${statusClass(effectiveTargetStatus(target))}`.trim() }),
@@ -394,6 +424,7 @@ function renderTargets() {
               el("strong", { text: productLabel(target) }),
               el("span", { className: "mono", text: text(productId || target.id) }),
               el("span", { title: recipeLine(target.inputs), text: `配方:${recipeLine(target.inputs)}` }),
+              byproducts ? el("span", { className: "byproductLine", title: byproducts, text: `副产:${byproducts}` }) : null,
             ]),
           ]),
         ]),

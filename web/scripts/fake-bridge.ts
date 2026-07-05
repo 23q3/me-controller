@@ -33,6 +33,9 @@ const stockCounts: Record<string, number> = {
   "minecraft:netherite_ingot": 7,
   "minecraft:emerald": 1518,
   "minecraft:lapis_lazuli": 30_704,
+  // TACZ 数据驱动物品:所有枪/弹药共享一个 id,报点器聚合后就是这样的合并行
+  "tacz:modern_kinetic_gun": 12,
+  "tacz:ammo": 8640,
 };
 
 type FakeTarget = {
@@ -45,8 +48,10 @@ type FakeTarget = {
   status: string;
   message: string;
   productCount: number;
+  productCounts?: Record<string, { count: number; targetCount: number; deficit: number; batches: number }>;
   targetCount: number;
   neededInputs: number;
+  neededInputItems?: Record<string, number>;
   promisedInputs: number;
 };
 
@@ -65,6 +70,33 @@ const targets: FakeTarget[] = [
     neededInputs: 0,
     promisedInputs: 0,
   },
+  // 多原料 + 副产物示例:黄铜(主产,目标 8192)混合产出安山合金(副产,目标 0 不驱动)
+  {
+    id: "create_brass_ingot",
+    enabled: true,
+    address: "mixer",
+    priority: 90,
+    products: [
+      { item: "create:brass_ingot", count: 2, targetCount: 8192 },
+      { item: "create:andesite_alloy", count: 1, targetCount: 0 },
+    ],
+    inputs: [
+      { item: "minecraft:copper_ingot", count: 1 },
+      { item: "create:zinc_ingot", count: 1 },
+    ],
+    status: "WAITING",
+    message: "Batching 96/128 12s",
+    productCount: 4820,
+    // 与 Lua updateDemandData 的 productData 形状一致:值为产物数据表而非数字
+    productCounts: {
+      "create:brass_ingot": { count: 4820, targetCount: 8192, deficit: 3372, batches: 1686 },
+      "create:andesite_alloy": { count: 18_326, targetCount: 0, deficit: 0, batches: 0 },
+    },
+    targetCount: 8192,
+    neededInputs: 3372,
+    neededInputItems: { "minecraft:copper_ingot": 1686, "create:zinc_ingot": 1686 },
+    promisedInputs: 256,
+  },
 ];
 
 function summarize() {
@@ -72,6 +104,7 @@ function summarize() {
   for (const target of targets) {
     if (target.enabled) summary.enabled += 1;
     if (target.status === "SATISFIED") summary.satisfied += 1;
+    else if (target.status === "WAITING") summary.waiting += 1;
     else if (target.status === "DISABLED") summary.disabled += 1;
   }
   return summary;
