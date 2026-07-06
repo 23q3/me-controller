@@ -4,7 +4,7 @@ local Config = {}
 
 Config.CONFIG = {
     -- 状态文件结构版本；控制逻辑或状态形状变更时升版，旧状态会自动迁移补齐。
-    stateVersion = 6,
+    stateVersion = 7,
 
     -- 目标配置文件；工程师在 UI 中增删改查的数据会持久化到这里。
     targetsFile = "targets.db",
@@ -27,6 +27,19 @@ Config.CONFIG = {
 
     -- 本地命令历史保留条数，用于去重和未来后端命令回放保护。
     commandHistoryLimit = 256,
+
+    -- 无目标承诺可联动的订单（样板下单等）派发后的跟踪窗口秒数；
+    -- 窗口内主产物库存较基线净增长达预期记完成，超时转 expired 停止观测。
+    orderTtlSeconds = 180,
+
+    -- 终态订单（完成/失败/取消/超时）历史保留条数；活动订单不受限。
+    orderHistoryLimit = 48,
+
+    -- 同时处于排队/在途的订单上限，防误操作刷单挤爆队列。
+    maxActiveOrders = 32,
+
+    -- 快照默认携带的订单条数（活动订单始终全量携带，终态填充到该数为止）。
+    ordersSnapshotLimit = 40,
 
     -- 读取 Create Stock Ticker 全网库存的间隔。
     stockPollSeconds = 1,

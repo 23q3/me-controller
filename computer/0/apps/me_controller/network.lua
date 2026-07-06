@@ -81,9 +81,12 @@ return function(Core)
 
         local filters = {}
         local wanted = 0
+        local wantedByItem = {}
         for index, entry in ipairs(items) do
             filters[index] = { name = entry.item, _requestCount = entry.count }
-            wanted = wanted + (tonumber(entry.count) or 0)
+            local count = tonumber(entry.count) or 0
+            wanted = wanted + count
+            wantedByItem[entry.item] = (wantedByItem[entry.item] or 0) + count
         end
 
         local timestamp = Util.now()
@@ -101,10 +104,6 @@ return function(Core)
             completedAt = timestamp,
         }
 
-        local ok, requested = pcall(function()
-            return runtime.stockTicker.requestFiltered(command.address, table.unpack(filters))
-        end)
-
         -- 成功/失败两分支的日志字段原为两份近乎相同的表，合并为一处（计划定点改进）
         local details = {
             commandId = command.id,
@@ -113,6 +112,46 @@ return function(Core)
             wanted = wanted,
             address = command.address,
         }
+
+        -- 下单前置校验（严格对齐）：按最新网络库存全量校验，任一物品不足则整单
+        -- 拒发。requestFiltered 本身是"有多少拿多少"语义，不校验就会在缺料时发出
+        -- 原料不齐的订单——理包机合出的残缺包裹会卡死"同批同包"的产线。
+        -- 读不到库存同样拒发：无法证明足额就不下单。
+        local report, readErr = Network.readNetworkStock(runtime.stockTicker)
+        if not report then
+            local message = "Stock read failed before request: " .. tostring(readErr)
+            record.status = "failed"
+            record.error = message
+            StateStore.rememberCommand(runtime.state, record)
+            details.error = message
+            Util.logEvent(runtime, "ERROR", "command_request_failed", details)
+            return false, 0, message, false
+        end
+
+        local shortages = {}
+        for _, entry in ipairs(items) do
+            local want = wantedByItem[entry.item]
+            if want then
+                wantedByItem[entry.item] = nil
+                local have = math.floor(report.counts[entry.item] or 0)
+                if have < want then
+                    shortages[#shortages + 1] = tostring(entry.item) .. " " .. tostring(have) .. "/" .. tostring(want)
+                end
+            end
+        end
+        if #shortages > 0 then
+            local message = "Insufficient stock: " .. table.concat(shortages, ", ")
+            record.status = "short"
+            record.error = message
+            StateStore.rememberCommand(runtime.state, record)
+            details.error = message
+            Util.logEvent(runtime, "WARN", "command_request_short", details)
+            return false, 0, message, false
+        end
+
+        local ok, requested = pcall(function()
+            return runtime.stockTicker.requestFiltered(command.address, table.unpack(filters))
+        end)
 
         if ok then
             requested = math.max(0, tonumber(requested) or 0)

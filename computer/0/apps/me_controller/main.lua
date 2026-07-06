@@ -31,6 +31,8 @@ local function controlLoop(runtime)
         if clock >= nextDecisionAt then
             if not runtime.networkReady then dirty = Core.refreshNetwork(runtime) or dirty end
             dirty = Core.decideTargets(runtime) or dirty
+            -- 订单处理紧随决策：排队单派发（原料齐备时）+ 在途单对账（完成/超时）
+            dirty = Core.processOrders(runtime) or dirty
             nextDecisionAt = clock + config.decisionSeconds
         end
 
@@ -145,6 +147,35 @@ local function printCommands(limit)
     end
 end
 
+local function printOrders(limit)
+    limit = math.max(1, math.floor(tonumber(limit) or 20))
+
+    local state = Core.loadState()
+    local list = (state.orders and state.orders.list) or {}
+    if #list == 0 then
+        print("no orders")
+        return
+    end
+
+    local first = math.max(1, #list - limit + 1)
+    for index = first, #list do
+        local order = list[index] or {}
+        local line = tostring(index) .. ". "
+            .. "t=" .. tostring(order.createdAt or "?")
+            .. " status=" .. tostring(order.status or "?")
+            .. " kind=" .. tostring(order.kind or "?")
+            .. " id=" .. tostring(order.id or "?")
+            .. " address=" .. tostring(order.address or "?")
+            .. " wanted=" .. tostring(order.wanted or 0)
+            .. " requested=" .. tostring(order.requested or 0)
+        if order.recipeId then line = line .. " recipe=" .. tostring(order.recipeId) end
+        if order.targetId then line = line .. " target=" .. tostring(order.targetId) end
+        if order.note then line = line .. " note=" .. tostring(order.note) end
+        if order.error then line = line .. " error=" .. tostring(order.error) end
+        print(line)
+    end
+end
+
 local args = { ... }
 
 if args[1] == "reset" then
@@ -162,6 +193,9 @@ elseif args[1] == "events" or args[1] == "logs" or args[1] == "log" then
     return
 elseif args[1] == "commands" then
     printCommands(args[2])
+    return
+elseif args[1] == "orders" then
+    printOrders(args[2])
     return
 elseif args[1] == "bridge" then
     if args[2] == "enable" then

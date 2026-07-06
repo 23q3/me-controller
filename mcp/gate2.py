@@ -23,6 +23,7 @@ COMPILE_PATHS = [
     "apps/me_controller/tracking.lua",
     "apps/me_controller/network.lua",
     "apps/me_controller/planner.lua",
+    "apps/me_controller/orders.lua",
     "apps/me_controller/decide.lua",
     "apps/me_controller/commands.lua",
     "apps/me_controller/core.lua",

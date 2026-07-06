@@ -65,13 +65,26 @@ Core.refreshNetwork = Network.refreshNetwork
 Core.executeRequestCommand = Network.executeRequestCommand
 
 -- 规划与目标数据同步（planner.lua，function(Core) 工厂：requestPlan 经
--- Core.executeRequestCommand 触达外设）
+-- Core.dispatchOrderNow 走订单层触达外设）
 local Planner = require("planner")(Core)
 Core.buildDependencyPlan = Planner.buildDependencyPlan
 Core.updateDemandData = Planner.updateDemandData
 Core.updatePromiseData = Planner.updatePromiseData
 Core.ensureTargetData = Planner.ensureTargetData
 Core.syncTargetData = Planner.syncTargetData
+
+-- 订单管理（orders.lua，function(Core) 工厂：派发经 Core.executeRequestCommand，
+-- 取消释放承诺后经 Core.updatePromiseData 回写目标数据）。
+-- 下单纳管的单一入口：placeOrder 排队（样板下单/未来合成链），dispatchOrderNow
+-- 立即派发（自动维持决策/目标催单）。
+local Orders = require("orders")(Core)
+Core.placeOrder = Orders.place
+Core.dispatchOrderNow = Orders.dispatchNow
+Core.processOrders = Orders.processOrders
+Core.cancelOrder = Orders.cancelOrder
+Core.attachOrderCommitment = Orders.attachCommitment
+Core.releaseTargetOrders = Orders.releaseTargetOrders
+Core.snapshotOrders = Orders.snapshotOrders
 
 -- 决策引擎（decide.lua）与命令/快照/共享目标操作（commands.lua）
 local Decide = require("decide")(Core, Planner)
@@ -153,6 +166,7 @@ function Core.runOnce(runtime)
     local dirty = false
     dirty = Core.refreshNetwork(runtime) or dirty
     dirty = Core.decideTargets(runtime) or dirty
+    dirty = Core.processOrders(runtime) or dirty
     Core.saveState(runtime.state)
     return dirty
 end

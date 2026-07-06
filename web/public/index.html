@@ -46,7 +46,7 @@
           <a id="nav-crafting" class="navItem" href="#/crafting">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 1v2M10 1v2M6 13v2M10 13v2M1 6h2M1 10h2M13 6h2M13 10h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
             <span>自动合成</span>
-            <span class="navTag">规划中</span>
+            <span id="navBadgeCrafting" class="navBadge" hidden>0</span>
           </a>
           <a id="nav-patterns" class="navItem" href="#/patterns">
             <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M2 6.5h12M6.5 2v12" stroke="currentColor" stroke-width="1.3"/></svg>
@@ -146,20 +146,26 @@
           </div>
         </section>
 
-        <!-- 自动合成(规划中) -->
+        <!-- 自动合成:订单卡片(下单纳管——自动维持/样板下单/缺料催单都以订单呈现,
+             点卡片看详情,活动单可取消;动态区域由 crafting.ts 重建) -->
         <section id="view-crafting" class="view" hidden>
           <header class="viewHeader">
             <div>
               <span class="eyebrow mono">ME.CRAFTING</span>
               <h2>自动合成</h2>
             </div>
-          </header>
-          <div class="panel plannedPanel">
-            <div class="panelBody">
-              <p class="emptyTitle">此模块尚未实装</p>
-              <p class="emptyHint">规划能力:合成 CPU 状态与占用、按需合成任务下达、任务队列与依赖树跟踪、失败回滚。</p>
-              <p class="emptyHint">底层依赖:控制器的依赖规划器(dependency planner)已在快照中上报 demandByTarget,前端布局已为其预留。</p>
+            <div class="viewActions">
+              <button id="newOrderBtn" type="button" class="primary">手动下单</button>
             </div>
+          </header>
+          <p id="craftingMeta" class="viewMeta muted mono"></p>
+          <div class="orderSection">
+            <h3 class="orderSectionTitle">进行中</h3>
+            <div id="ordersActive" class="orderGrid"></div>
+          </div>
+          <div class="orderSection">
+            <h3 class="orderSectionTitle">历史</h3>
+            <div id="ordersHistory" class="orderGrid history"></div>
           </div>
         </section>
 
@@ -242,6 +248,48 @@
           <span class="spacer"></span>
           <button id="cancelRecipeBtn" type="button">取消</button>
           <button id="saveRecipeBtn" type="submit" class="primary">保存</button>
+        </div>
+      </form>
+    </dialog>
+
+    <!-- 订单详情:内容由 crafting.ts 渲染到 #orderDetailBody,随快照实时刷新 -->
+    <dialog id="orderDialog" class="dialog">
+      <div class="dialogHeader">
+        <h2>订单详情</h2>
+        <button id="closeOrderDialogBtn" type="button" aria-label="关闭">✕</button>
+      </div>
+      <div id="orderDetailBody" class="dialogFields orderDetail"></div>
+      <div class="dialogActions">
+        <button id="cancelOrderBtn" type="button" class="danger" hidden>取消订单</button>
+        <span class="spacer"></span>
+        <button id="closeOrderBtn" type="button">关闭</button>
+      </div>
+    </dialog>
+
+    <!-- 手动下单:选样板 × 批数;未来"请求合成"的合成链规划器沿用此入口
+         (订单协议已预留 jobId/parentOrderId) -->
+    <dialog id="newOrderDialog" class="dialog">
+      <form id="newOrderForm" method="dialog" class="targetForm">
+        <div class="dialogHeader">
+          <h2>手动下单</h2>
+          <button id="closeNewOrderDialogBtn" type="button" aria-label="关闭">✕</button>
+        </div>
+        <div class="dialogFields">
+          <label class="field">
+            <span>样板</span>
+            <select id="newOrderRecipe"></select>
+          </label>
+          <label class="field">
+            <span>批数</span>
+            <input id="newOrderBatches" type="number" min="1" step="1" value="1" />
+          </label>
+          <p id="newOrderPreview" class="muted newOrderPreview"></p>
+          <p class="muted newOrderHint">整批原料汇入同一订单一次派发;原料不足时排队等待,可随时取消。</p>
+        </div>
+        <div class="dialogActions">
+          <span class="spacer"></span>
+          <button id="cancelNewOrderBtn" type="button">取消</button>
+          <button type="submit" class="primary">下单</button>
         </div>
       </form>
     </dialog>

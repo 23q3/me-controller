@@ -348,18 +348,22 @@ return function(Core)
         return nil, 0, false, 0
     end
 
-    function Planner.recordCommitment(targetState, target, requestedByItem, totalRequested, timestamp)
+    function Planner.recordCommitment(targetState, target, requestedByItem, totalRequested, timestamp, orderId)
         if totalRequested <= 0 then return end
         targetState.commitments[#targetState.commitments + 1] = {
             inputs = requestedByItem,
             amount = totalRequested,
             createdAt = timestamp,
             expiresAt = timestamp + target.promiseTtlSeconds,
+            -- 订单联动锚点：orders.processOrders 按它对账（结清→完成，过期→超时）
+            orderId = orderId,
         }
         targetState.totalRequestedInputs = (targetState.totalRequestedInputs or 0) + totalRequested
     end
 
     -- 整批原料合并为一条命令 = 一张订单（一次 requestFiltered 变参调用）。
+    -- 下单纳管：请求经订单层（Core.dispatchOrderNow）派发，订单实体入账后
+    -- 自动合成页可见、可取消；外设路径不变，仍是一次变参调用。
     -- 回包只有总数：足额时按计划入账；短缺（快照与下单间的库存竞态）无法按
     -- 物品归因，仍按计划全额入账并记 WARN——宁可承诺虚高等 TTL 自愈，也不
     -- 低记引发重复下单。
@@ -377,20 +381,21 @@ return function(Core)
             end
         end
 
-        if plannedTotal <= 0 then return true, {}, 0, nil, false end
+        if plannedTotal <= 0 then return true, {}, 0, nil, false, nil end
 
-        local command = {
-            id = StateStore.nextLocalCommandId(runtime, target),
+        local order, ok, requested, err, duplicate = Core.dispatchOrderNow(runtime, {
+            kind = "maintain",
             source = "local",
+            targetId = target.id,
             address = target.address,
             items = items,
-        }
-        local ok, requested, err, duplicate = Core.executeRequestCommand(runtime, target, command)
+            ttlSeconds = target.promiseTtlSeconds,
+        }, { target = target })
         local commandDirty = true
 
-        if not ok then return false, {}, 0, err, commandDirty end
+        if not ok then return false, {}, 0, err, commandDirty, nil end
         requested = math.max(0, tonumber(requested) or 0)
-        if requested <= 0 or duplicate then return true, {}, 0, nil, commandDirty end
+        if requested <= 0 or duplicate then return true, {}, 0, nil, commandDirty, nil end
 
         if requested < plannedTotal then
             Util.logEvent(runtime, "WARN", "request_shortfall", {
@@ -403,7 +408,7 @@ return function(Core)
             availableInputs[item] = math.max(0, (availableInputs[item] or 0) - amount)
         end
 
-        return true, requestedByItem, plannedTotal, nil, commandDirty
+        return true, requestedByItem, plannedTotal, nil, commandDirty, order.id
     end
 
     function Planner.requestSummary(target, requestedByItem, totalRequested)

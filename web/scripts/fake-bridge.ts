@@ -51,6 +51,7 @@ type FakeTarget = {
   productCount: number;
   productCounts?: Record<string, { count: number; targetCount: number; deficit: number; batches: number }>;
   targetCount: number;
+  neededBatches?: number;
   neededInputs: number;
   neededInputItems?: Record<string, number>;
   promisedInputs: number;
@@ -128,11 +129,209 @@ const targets: FakeTarget[] = [
       "create:andesite_alloy": { count: 18_326, targetCount: 0, deficit: 0, batches: 0 },
     },
     targetCount: 8192,
+    neededBatches: 1558,
     neededInputs: 3372,
     neededInputItems: { "minecraft:copper_ingot": 1686, "create:zinc_ingot": 1686 },
     promisedInputs: 256,
   },
 ];
+
+// 订单(下单纳管):覆盖全部状态供自动合成页验收;heartbeat 推进在途单进度,
+// request_recipe 入队新订单并模拟"排队→派发→完成"流转,cancel_order 立即取消
+type FakeOrder = {
+  id: string;
+  kind: string;
+  source: string;
+  status: string;
+  recipeId?: string;
+  recipeName?: string;
+  targetId?: string;
+  jobId?: string;
+  address: string;
+  batches?: number;
+  items: Array<{ item: string; count: number }>;
+  products?: Array<{ item: string; count: number }>;
+  wanted: number;
+  requested: number;
+  tracked?: boolean;
+  trackedInputs?: number;
+  remainingInputs?: number;
+  deliveredProducts?: number;
+  note?: string;
+  error?: string;
+  createdAt: number;
+  dispatchedAt?: number;
+  completedAt?: number;
+  expiresAt?: number;
+};
+
+const nowSec = () => Math.floor(Date.now() / 1000);
+let orderSeq = 100;
+const bootAt = nowSec();
+
+const orders: FakeOrder[] = [
+  {
+    id: "ord_demo_1",
+    kind: "maintain",
+    source: "local",
+    status: "dispatched",
+    targetId: "create_brass_ingot",
+    address: "mixer",
+    items: [
+      { item: "minecraft:copper_ingot", count: 128 },
+      { item: "create:zinc_ingot", count: 128 },
+    ],
+    wanted: 256,
+    requested: 256,
+    tracked: true,
+    trackedInputs: 256,
+    remainingInputs: 192,
+    note: "Packages dispatched",
+    createdAt: bootAt - 40,
+    dispatchedAt: bootAt - 39,
+    expiresAt: bootAt + 50,
+  },
+  {
+    id: "ord_demo_2",
+    kind: "recipe",
+    source: "web",
+    status: "queued",
+    recipeId: "create_brass_ingot",
+    recipeName: "Brass Ingot",
+    address: "mixer",
+    batches: 400_000_000,
+    items: [
+      { item: "minecraft:copper_ingot", count: 400_000_000 },
+      { item: "create:zinc_ingot", count: 400_000_000 },
+    ],
+    products: [
+      { item: "create:brass_ingot", count: 800_000_000 },
+      { item: "create:andesite_alloy", count: 400_000_000 },
+    ],
+    wanted: 800_000_000,
+    requested: 0,
+    note: "Missing 399903885x minecraft:copper_ingot",
+    createdAt: bootAt - 120,
+  },
+  {
+    id: "ord_demo_3",
+    kind: "recipe",
+    source: "web",
+    status: "dispatched",
+    recipeId: "create_iron_sheet",
+    recipeName: "Iron Sheet",
+    address: "press",
+    batches: 64,
+    items: [{ item: "minecraft:iron_ingot", count: 64 }],
+    products: [{ item: "create:iron_sheet", count: 64 }],
+    wanted: 64,
+    requested: 64,
+    deliveredProducts: 18,
+    note: "Packages dispatched",
+    createdAt: bootAt - 25,
+    dispatchedAt: bootAt - 24,
+    expiresAt: bootAt + 160,
+  },
+  {
+    id: "ord_demo_4",
+    kind: "manual",
+    source: "web",
+    status: "completed",
+    targetId: "create_brass_ingot",
+    address: "mixer",
+    items: [
+      { item: "minecraft:copper_ingot", count: 64 },
+      { item: "create:zinc_ingot", count: 64 },
+    ],
+    wanted: 128,
+    requested: 128,
+    tracked: true,
+    trackedInputs: 128,
+    remainingInputs: 0,
+    note: "Committed inputs settled by delivery",
+    createdAt: bootAt - 600,
+    dispatchedAt: bootAt - 599,
+    completedAt: bootAt - 480,
+  },
+  {
+    id: "ord_demo_5",
+    kind: "recipe",
+    source: "web",
+    status: "failed",
+    recipeId: "create_iron_sheet",
+    recipeName: "Iron Sheet",
+    address: "press",
+    batches: 8,
+    items: [{ item: "minecraft:iron_ingot", count: 8 }],
+    products: [{ item: "create:iron_sheet", count: 8 }],
+    wanted: 8,
+    requested: 0,
+    error: "Insufficient stock: minecraft:iron_ingot 2/8",
+    note: "Request failed",
+    createdAt: bootAt - 900,
+    completedAt: bootAt - 899,
+  },
+  {
+    id: "ord_demo_6",
+    kind: "recipe",
+    source: "web",
+    status: "expired",
+    recipeId: "create_brass_ingot",
+    recipeName: "Brass Ingot",
+    address: "mixer",
+    batches: 4,
+    items: [
+      { item: "minecraft:copper_ingot", count: 4 },
+      { item: "create:zinc_ingot", count: 4 },
+    ],
+    products: [{ item: "create:brass_ingot", count: 8 }],
+    wanted: 8,
+    requested: 8,
+    deliveredProducts: 3,
+    note: "Tracking window elapsed (production may still finish)",
+    createdAt: bootAt - 1500,
+    dispatchedAt: bootAt - 1499,
+    completedAt: bootAt - 1200,
+  },
+  {
+    id: "ord_demo_7",
+    kind: "maintain",
+    source: "local",
+    status: "cancelled",
+    targetId: "create_iron_sheet",
+    address: "press",
+    items: [{ item: "minecraft:iron_ingot", count: 256 }],
+    wanted: 256,
+    requested: 256,
+    note: "Tracking released; dispatched packages cannot be recalled",
+    createdAt: bootAt - 2200,
+    dispatchedAt: bootAt - 2199,
+    completedAt: bootAt - 2000,
+  },
+];
+
+// 在途单进度推进:承诺单每拍结算 32,基线单每拍入账 9,走完转 completed
+function tickOrders() {
+  for (const order of orders) {
+    if (order.status !== "dispatched") continue;
+    if (order.tracked && typeof order.remainingInputs === "number") {
+      order.remainingInputs = Math.max(0, order.remainingInputs - 32);
+      if (order.remainingInputs === 0) {
+        order.status = "completed";
+        order.note = "Committed inputs settled by delivery";
+        order.completedAt = nowSec();
+      }
+    } else if (order.products && order.products[0]) {
+      const expected = order.products[0].count;
+      order.deliveredProducts = Math.min(expected, (order.deliveredProducts || 0) + 9);
+      if (order.deliveredProducts >= expected) {
+        order.status = "completed";
+        order.note = "Observed expected product delivery";
+        order.completedAt = nowSec();
+      }
+    }
+  }
+}
 
 function summarize() {
   const summary = { total: targets.length, enabled: 0, requested: 0, waiting: 0, error: 0, satisfied: 0, disabled: 0 };
@@ -162,6 +361,8 @@ function makeSnapshot() {
     summary: summarize(),
     recipes,
     targets,
+    // 新在前(与 Lua snapshotOrders 一致)
+    orders: [...orders].reverse(),
     commands: [],
     stockCounts,
   };
@@ -179,6 +380,7 @@ function applyFakeCommand(command: {
   item?: string;
   count?: number;
   items?: Array<{ item?: string; count?: number }>;
+  orderId?: string;
 }) {
   const kind = command.kind || "";
   const target = targets.find((item) => item.id === command.targetId);
@@ -222,8 +424,60 @@ function applyFakeCommand(command: {
     return;
   }
 
+  // 下单纳管:request_recipe 入队订单,~1.5s 后派发,再由 heartbeat 推进到完成
   if (kind === "request_recipe") {
-    console.log("[fake-bridge] request_recipe", command.recipeId, "batches:", command.batches ?? 1);
+    const recipe = recipes.find((entry) => entry.id === command.recipeId);
+    const batches = Math.max(1, Math.floor(Number(command.batches) || 1));
+    if (!recipe) {
+      console.log("[fake-bridge] request_recipe unknown recipe", command.recipeId);
+      return;
+    }
+    orderSeq += 1;
+    const order: FakeOrder = {
+      id: `ord_${nowSec()}_${orderSeq}`,
+      kind: "recipe",
+      source: "web",
+      status: "queued",
+      recipeId: recipe.id,
+      recipeName: recipe.name,
+      address: recipe.address,
+      batches,
+      items: recipe.inputs.map((entry) => ({ item: entry.item, count: entry.count * batches })),
+      products: recipe.products.map((entry) => ({ item: entry.item, count: entry.count * batches })),
+      wanted: recipe.inputs.reduce((sum, entry) => sum + entry.count * batches, 0),
+      requested: 0,
+      note: "Queued, waiting for dispatch",
+      createdAt: nowSec(),
+    };
+    orders.push(order);
+    console.log("[fake-bridge] request_recipe queued", order.id, recipe.id, "batches:", batches);
+    setTimeout(() => {
+      if (order.status !== "queued") return;
+      order.status = "dispatched";
+      order.requested = order.wanted;
+      order.dispatchedAt = nowSec();
+      order.expiresAt = nowSec() + 180;
+      order.deliveredProducts = 0;
+      order.note = "Packages dispatched";
+      sendSnapshot("snapshot");
+      console.log("[fake-bridge] order dispatched", order.id);
+    }, 1500);
+    return;
+  }
+
+  // 取消:排队单真取消;在途单释放跟踪(与 Lua cancelOrder 文案一致)
+  if (kind === "cancel_order") {
+    const order = orders.find((entry) => entry.id === command.orderId);
+    if (!order || (order.status !== "queued" && order.status !== "dispatched")) {
+      console.log("[fake-bridge] cancel_order not active", command.orderId);
+      return;
+    }
+    order.note = order.status === "queued"
+      ? "Cancelled before dispatch"
+      : "Tracking released; dispatched packages cannot be recalled";
+    order.status = "cancelled";
+    order.completedAt = nowSec();
+    console.log("[fake-bridge] order cancelled", order.id);
     return;
   }
 
@@ -264,7 +518,10 @@ ws.onopen = () => {
   console.log("[fake-bridge] connected");
   ws.send(JSON.stringify({ type: "hello", clientId: "fake_bridge_test", protocol: "me_controller.bridge.v1", time: Math.floor(Date.now() / 1000) }));
   sendSnapshot("snapshot");
-  setInterval(() => sendSnapshot("heartbeat"), 5000);
+  setInterval(() => {
+    tickOrders();
+    sendSnapshot("heartbeat");
+  }, 5000);
 };
 
 ws.onmessage = (event) => {

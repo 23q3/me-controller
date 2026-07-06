@@ -1,32 +1,40 @@
--- 运行状态（state.db，stateVersion=6）与命令账本的持久化。
+-- 运行状态（state.db，stateVersion=7）与命令账本/订单队列的持久化。
 -- 账本红线：命令历史按 id 去重（后写覆盖前写并移到末尾）、
 -- 上限 commandHistoryLimit 截断头部；sequence 单调递增。
+-- 订单：orders.list 按创建序追加，终态裁剪由 orders.processOrders 负责。
 local Config = require("config")
 local Util = require("util")
-local Items = require("items")
 
 local StateStore = {}
 
 local numberOrDefault = Util.numberOrDefault
 
-function StateStore.loadState()
-    local state = Util.readSerialized(Config.CONFIG.stateFile)
-
+local function ensureShape(state)
     if type(state) ~= "table" then state = {} end
     state.version = Config.CONFIG.stateVersion
     if type(state.targets) ~= "table" then state.targets = {} end
     if type(state.commands) ~= "table" then state.commands = {} end
     if type(state.commands.history) ~= "table" then state.commands.history = {} end
     state.commands.sequence = numberOrDefault(state.commands.sequence, 0, 0)
+    StateStore.ordersState(state)
     return state
 end
 
+function StateStore.loadState()
+    return ensureShape(Util.readSerialized(Config.CONFIG.stateFile))
+end
+
 function StateStore.saveState(state)
-    state.version = Config.CONFIG.stateVersion
-    if type(state.targets) ~= "table" then state.targets = {} end
-    if type(state.commands) ~= "table" then state.commands = {} end
-    if type(state.commands.history) ~= "table" then state.commands.history = {} end
-    state.commands.sequence = numberOrDefault(state.commands.sequence, 0, 0)
+    ensureShape(state)
+
+    -- 先序列化再动文件：fs.open("w") 会立刻截断旧文件，若序列化在写入前
+    -- 抛错（如状态树里出现共享表触发 repeated entries），state.db 会被截成
+    -- 空文件，重启后订单/账本/承诺全部清零。序列化失败时响亮记录并保住旧文件。
+    local ok, payload = pcall(textutils.serialize, state)
+    if not ok then
+        Util.logEvent(nil, "ERROR", "state_serialize_failed", { error = tostring(payload) })
+        return false
+    end
 
     local handle = fs.open(Config.CONFIG.stateFile, "w")
     if not handle then
@@ -34,7 +42,7 @@ function StateStore.saveState(state)
         Util.logEvent(nil, "ERROR", "state_save_failed", { file = Config.CONFIG.stateFile })
         return false
     end
-    handle.write(textutils.serialize(state))
+    handle.write(payload)
     handle.close()
     return true
 end
@@ -115,10 +123,18 @@ function StateStore.recentCommands(state, limit)
     return out
 end
 
-function StateStore.nextLocalCommandId(runtime, target)
-    local commands = StateStore.commandState(runtime.state)
-    commands.sequence = (tonumber(commands.sequence) or 0) + 1
-    return "local_" .. Items.normalizeId(target.id) .. "_" .. tostring(Util.now()) .. "_" .. tostring(commands.sequence)
+-- 订单队列（orders.lua 的持久层）：list 按创建序存放，sequence 供 id 生成。
+function StateStore.ordersState(state)
+    if type(state.orders) ~= "table" then state.orders = {} end
+    if type(state.orders.list) ~= "table" then state.orders.list = {} end
+    state.orders.sequence = numberOrDefault(state.orders.sequence, 0, 0)
+    return state.orders
+end
+
+function StateStore.nextOrderId(state)
+    local orders = StateStore.ordersState(state)
+    orders.sequence = orders.sequence + 1
+    return "ord_" .. tostring(Util.now()) .. "_" .. tostring(orders.sequence)
 end
 
 return StateStore

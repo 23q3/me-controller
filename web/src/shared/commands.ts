@@ -21,6 +21,25 @@ export function targetDisplayId(target: Record<string, unknown>) {
   return String(target.id || (primaryProduct(target)?.item ?? "target"));
 }
 
+// 人工催单也必须整批对齐样板:请求量 = 每批消耗 × 整批数,批数取
+// min(neededBatches, 单物品 64 上限换算的批数上限;超大配方保底 1 批)。
+// Lua 侧同样校验(残缺/畸比/库存不足直接拒单),这里算出的就是合法请求。
+// batches 为 0 表示当前没有可请求的整批缺料(按钮应禁用)。
+export function wholeBatchRequestItems(
+  target: TargetSnapshot
+): { batches: number; items: Array<{ item: string; count: number }> } {
+  const inputs = (target.inputs || [])
+    .filter((entry) => Boolean(entry.item))
+    .map((entry) => ({ item: entry.item, per: Math.max(1, Math.floor(Number(entry.count) || 1)) }));
+  const neededBatches = Math.max(0, Math.floor(Number(target.neededBatches) || 0));
+  if (inputs.length === 0 || neededBatches <= 0) return { batches: 0, items: [] };
+
+  const maxPer = Math.max(...inputs.map((entry) => entry.per));
+  const capBatches = Math.max(1, Math.floor(64 / maxPer));
+  const batches = Math.min(neededBatches, capBatches);
+  return { batches, items: inputs.map((entry) => ({ item: entry.item, count: entry.per * batches })) };
+}
+
 export function sanitizeCommandForController(
   command: ControllerCommand,
   resolveAssetName?: AssetNameResolver

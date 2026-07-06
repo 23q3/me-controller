@@ -1,5 +1,5 @@
 // 入口:hash 路由(#/terminal 等,刷新后停留在原视图)、事件接线、启动加载。
-import { app, notify, pushMessage, sweepPendingTargets } from "./state";
+import { app, notify, pushMessage, sweepPendingOrders, sweepPendingTargets } from "./state";
 import type { ViewId } from "./state";
 import { must, toast } from "./dom";
 import { fetchItems } from "./api";
@@ -7,6 +7,7 @@ import { connect, reloadStatus, requestRefresh } from "./ws";
 import { startRendering } from "./render";
 import { openTargetDialog, wireTargetEditor } from "./target-editor";
 import { openRecipeDialog, wireRecipeEditor } from "./recipe-editor";
+import { wireCrafting } from "./crafting";
 
 const VIEW_ROUTES: Record<string, ViewId> = {
   "#/overview": "overview",
@@ -43,6 +44,7 @@ function wireEvents() {
 
   wireTargetEditor();
   wireRecipeEditor();
+  wireCrafting();
 }
 
 async function loadItems() {
@@ -59,12 +61,16 @@ startRendering();
 // 在途命令超时清扫:转圈最多挂 12 秒,超时给出明确提示而不是永远转下去
 setInterval(() => {
   const expired = sweepPendingTargets();
-  if (expired.length === 0) return;
   for (const { targetId, entry } of expired) {
     toast(`操作超时:${targetId} ${entry.label.replace(/中$/, "")}未收到控制器确认`, "bad");
     pushMessage(`操作超时:${targetId} ${entry.label}(${entry.commandId})`, "bad");
   }
-  notify();
+  const expiredOrders = sweepPendingOrders();
+  for (const { orderId, entry } of expiredOrders) {
+    toast(`操作超时:订单 ${orderId} ${entry.label.replace(/中$/, "")}未收到控制器确认`, "bad");
+    pushMessage(`操作超时:订单 ${orderId} ${entry.label}(${entry.commandId})`, "bad");
+  }
+  if (expired.length > 0 || expiredOrders.length > 0) notify();
 }, 2000);
 
 reloadStatus().catch((error) => {

@@ -1,6 +1,8 @@
 // 渲染层：保持"全量重渲染"模型——每次状态变化把各动态区域整体重建
 //（静态骨架与输入框在 index.html 里，不参与重建，搜索框因此不丢焦点）。
+// 自动合成页(订单卡片/详情/手动下单)在 crafting.ts,经 renderCrafting 挂入。
 import type { RecipeSnapshot, StoredCommand, TargetSnapshot } from "../shared/protocol";
+import { wholeBatchRequestItems } from "../shared/commands";
 import { defaultDisplayName } from "../shared/summary";
 import { app, itemAsset, subscribe, targetPending } from "./state";
 import type { ViewId } from "./state";
@@ -8,6 +10,7 @@ import { asNumber, el, formatAmount, formatExact, formatTime, must, text, toast 
 import { sendCommand } from "./ws";
 import { openTargetDialog } from "./target-editor";
 import { openRecipeDialog } from "./recipe-editor";
+import { activeOrders, renderCrafting } from "./crafting";
 
 // ---- 通用小部件 ------------------------------------------------------------
 
@@ -36,6 +39,7 @@ function statusLabel(status: unknown): string {
 const COMMAND_KIND_LABELS: Record<string, string> = {
   request: "请求物品",
   request_recipe: "配方下单",
+  cancel_order: "取消订单",
   set_enabled: "启停目标",
   target_enabled: "启停目标",
   reset_target_state: "重置状态",
@@ -56,11 +60,11 @@ function commandKindLabel(kind: unknown): string {
   return COMMAND_KIND_LABELS[value] || value || "-";
 }
 
-function pill(label: string, tone: string) {
+export function pill(label: string, tone: string) {
   return el("span", { className: `pill ${tone}`.trim(), text: label });
 }
 
-function pendingPill(label: string) {
+export function pendingPill(label: string) {
   return el("span", { className: "pill pending" }, [
     el("span", { className: "spinner", attrs: { "aria-hidden": "true" } }),
     label,
@@ -115,12 +119,12 @@ function recipeById(recipeId: string | undefined): RecipeSnapshot | undefined {
   return (app.snapshot?.recipes || []).find((recipe) => recipe.id === recipeId);
 }
 
-function recipeDisplayName(recipe: RecipeSnapshot): string {
+export function recipeDisplayName(recipe: RecipeSnapshot): string {
   const product = recipe.products && recipe.products[0];
   return text(recipe.name, "") || (product ? itemName(product.item) : recipe.id);
 }
 
-function recipeLine(entries: TargetSnapshot["inputs"]): string {
+export function recipeLine(entries: TargetSnapshot["inputs"]): string {
   if (!entries || entries.length === 0) return "-";
   return entries.map((entry) => `${itemName(entry.item)} ×${entry.count || 1}`).join("、");
 }
@@ -148,18 +152,7 @@ function byproductLine(target: TargetSnapshot): string | null {
     .join("、");
 }
 
-// 全部缺料清单:手动"请求"按钮逐项下发(单项上限 64,只是人工催单而非接管调度)
-function neededInputRequests(target: TargetSnapshot): Array<{ item: string; count: number }> {
-  const needed = target.neededInputItems || {};
-  return (target.inputs || [])
-    .filter((entry) => asNumber(needed[entry.item]) > 0)
-    .map((entry) => ({
-      item: entry.item,
-      count: Math.max(1, Math.min(64, Math.floor(asNumber(needed[entry.item])))),
-    }));
-}
-
-function emptyState(title: string, hints: string[] = []) {
+export function emptyState(title: string, hints: string[] = []) {
   return el("div", { className: "emptyState" }, [
     el("p", { className: "emptyTitle", text: title }),
     ...hints.map((hint) => el("p", { className: "emptyHint", text: hint })),
@@ -198,11 +191,17 @@ function renderSidebar() {
     )
   );
 
-  // 导航徽标：自动维持显示目标数,样板管理显示样板数,命令日志显示未完成命令数
+  // 导航徽标：自动维持显示目标数,自动合成显示进行中订单数,样板管理显示样板数,
+  // 命令日志显示未完成命令数
   const summary = app.snapshot?.summary || {};
   const badgeTargets = must<HTMLElement>("#navBadgeTargets");
   badgeTargets.textContent = String(asNumber(summary.total));
   badgeTargets.hidden = asNumber(summary.total) === 0;
+
+  const orderCount = activeOrders().length;
+  const badgeCrafting = must<HTMLElement>("#navBadgeCrafting");
+  badgeCrafting.textContent = String(orderCount);
+  badgeCrafting.hidden = orderCount === 0;
 
   const recipeCount = (app.snapshot?.recipes || []).length;
   const badgePatterns = must<HTMLElement>("#navBadgePatterns");
@@ -365,7 +364,9 @@ function renderTerminal() {
 function targetActions(target: TargetSnapshot): HTMLElement {
   const pending = targetPending(target.id);
   const locked = Boolean(pending);
-  const needed = neededInputRequests(target);
+  // 人工催单也走整批:请求量 = 每批消耗 × 整批数,Lua 侧还会按最新库存全量校验,
+  // 任一原料不足整单拒发(不满足样板需求坚决不下单)
+  const order = wholeBatchRequestItems(target);
 
   const toggle = el("button", {
     className: "ghost",
@@ -388,16 +389,14 @@ function targetActions(target: TargetSnapshot): HTMLElement {
   const request = el("button", {
     className: "ghost",
     text: "请求",
-    title: needed.length > 0
-      ? `请求全部缺料(一张订单):${needed.map((entry) => `${itemName(entry.item)} ×${entry.count}`).join("、")}`
-      : "当前没有缺料",
+    title: order.batches > 0
+      ? `请求 ${order.batches} 整批(一张订单):${order.items.map((entry) => `${itemName(entry.item)} ×${entry.count}`).join("、")}`
+      : "当前没有可请求的整批缺料",
     onClick: () => {
-      // 全部缺料并入一条命令 = 一张订单(同一 PackageOrder):
-      // 理包机按订单合包,逐项下发会拆成多个包裹,同批同包的产线会卡死
-      sendCommand({ kind: "request", targetId: target.id, items: needed });
+      sendCommand({ kind: "request", targetId: target.id, items: order.items });
     },
   });
-  request.disabled = locked || needed.length === 0;
+  request.disabled = locked || order.batches === 0;
 
   const remove = el("button", {
     className: "ghost danger",
@@ -473,7 +472,8 @@ function renderTargets() {
 
 // ---- 样板管理 ---------------------------------------------------------------
 
-// 下单批数输入:配方下单 = 请求订单的抽象,控制器按样板展开逐原料请求
+// 下单批数输入:配方下单 = 排队一张合成订单,原料齐备时由控制器派发,
+// 进度与取消在「自动合成」页
 function promptRecipeOrder(recipe: RecipeSnapshot) {
   const value = prompt(
     `下单「${recipeDisplayName(recipe)}」批数\n每批产出:${recipeLine(recipe.products)}\n每批消耗:${recipeLine(recipe.inputs)}`,
@@ -517,7 +517,7 @@ function renderPatterns() {
       const order = el("button", {
         className: "ghost",
         text: "下单",
-        title: "按此样板下一笔合成订单(展开为对工序地址的逐原料请求)",
+        title: "按此样板排队一张合成订单(原料齐备时派发;到「自动合成」页跟踪/取消)",
         onClick: () => promptRecipeOrder(recipe),
       });
 
@@ -653,6 +653,9 @@ function renderActiveView() {
     case "targets":
       renderTargets();
       break;
+    case "crafting":
+      renderCrafting();
+      break;
     case "patterns":
       renderPatterns();
       break;
@@ -660,7 +663,7 @@ function renderActiveView() {
       renderCommands();
       break;
     default:
-      break; // crafting 是静态占位视图
+      break;
   }
 }
 

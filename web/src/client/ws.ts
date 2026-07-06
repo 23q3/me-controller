@@ -44,7 +44,8 @@ const KIND_RESULT_TOASTS: Record<string, string> = {
   upsert_recipe: "样板已保存",
   save_recipe: "样板已保存",
   delete_recipe: "样板已删除",
-  request_recipe: "配方订单已下发",
+  request_recipe: "合成订单已排队",
+  cancel_order: "订单已取消",
 };
 
 function responseKind(response: unknown): string {
@@ -52,6 +53,17 @@ function responseKind(response: unknown): string {
     return text((response as { kind?: string }).kind, "");
   }
   return "";
+}
+
+// request_recipe 回包带订单状态:原料齐备时入队即派发,文案跟着状态走
+function orderResultToast(response: unknown): string | null {
+  if (!response || typeof response !== "object" || Array.isArray(response)) return null;
+  const result = (response as { result?: unknown }).result;
+  if (!result || typeof result !== "object" || Array.isArray(result)) return null;
+  const status = text((result as { status?: string }).status, "");
+  if (status === "dispatched") return "合成订单已派发";
+  if (status === "queued") return "合成订单已排队(等待原料)";
+  return null;
 }
 
 function handleEnvelope(payload: UiEnvelope) {
@@ -82,7 +94,8 @@ function handleEnvelope(payload: UiEnvelope) {
     const resolved = resolvePendingCommand(payload.commandId, payload.ok);
     if (payload.ok) {
       // "停用中"→"停用成功";样板/下单命令按回包 kind 给文案;其余走通用文案
-      const kindToast = KIND_RESULT_TOASTS[responseKind(payload.response)];
+      const kind = responseKind(payload.response);
+      const kindToast = (kind === "request_recipe" && orderResultToast(payload.response)) || KIND_RESULT_TOASTS[kind];
       const message = resolved
         ? `${resolved.entry.label.replace(/中$/, "")}成功`
         : kindToast || "控制器执行成功";
@@ -142,7 +155,7 @@ export function requestRefresh() {
   }
 }
 
-function makeCommandId() {
+export function makeCommandId() {
   return `web_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 

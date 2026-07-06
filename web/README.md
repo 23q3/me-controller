@@ -1,6 +1,6 @@
 # ME Controller Web 控制台
 
-基于 Bun 的本地后端 + 浏览器控制台,配合游戏内 ComputerCraft ME 控制器使用。前后端全部 TypeScript,无框架,界面为 AE2 风格(侧边导航:总览 / 物品终端 / 自动维持 / 样板管理 / 命令日志,自动合成为规划中的占位)。
+基于 Bun 的本地后端 + 浏览器控制台,配合游戏内 ComputerCraft ME 控制器使用。前后端全部 TypeScript,无框架,界面为 AE2 风格(侧边导航:总览 / 物品终端 / 自动维持 / 自动合成 / 样板管理 / 命令日志)。
 
 ## 运行
 
@@ -31,7 +31,7 @@ http://localhost:8787
 
 ### 不开游戏做前端开发
 
-`scripts/fake-bridge.ts` 可模拟游戏内桥接(发送带 `stockCounts` 的快照心跳、确认命令),物品终端等视图即可看到数据:
+`scripts/fake-bridge.ts` 可模拟游戏内桥接(发送带 `stockCounts` 的快照心跳、确认命令),物品终端等视图即可看到数据;自动合成页也有全状态样例订单(排队/在途/完成/失败/取消/超时),`request_recipe` 会模拟"排队→派发→完成"流转、`cancel_order` 立即生效:
 
 ```sh
 PORT=8787 bun run scripts/fake-bridge.ts
@@ -70,7 +70,7 @@ action = "allow"
 
 - **原料**:每行一种,"每批消耗"是一批配方消耗的数量。决策器只发**整批**:按可负担的最大整批数计算,任一原料凑不满一批则整个目标等待(不会瘸腿请求,也不会发出原料不齐的订单)。
 - **产物**:第一行是**主产物**,决定样板名称与图标;其余行是副产物。样板条目不携带目标库存——那是目标侧策略。
-- **下单**按钮 = 手动合成订单(`request_recipe` 命令):按样板 × 批数把全部原料并入**一张订单**下发。
+- **下单**按钮 = 手动合成订单(`request_recipe` 命令):按样板 × 批数把全部原料并入**一张订单**,先排队、原料齐备时由控制器派发;进度与取消在「自动合成」页。
 
 **自动维持**页新增/编辑目标时直接选择样板,再按产物填目标库存:
 
@@ -79,7 +79,21 @@ action = "allow"
 - Lua 侧位置化默认与此一致:targets.db 中省略 `targetCount` 的产物,第一个继承目标级 targetCount,其余按 0 处理;规整后每个产物都带显式 targetCount 落盘。
 - 目标行的"请求"按钮把**全部缺料**并入一张订单下发(每种上限 64,人工催单用,不接管调度)。
 
-样板相关命令:`upsert_recipe`/`save_recipe`(保存)、`delete_recipe`(删除,被引用时报错)、`request_recipe`(下单,`{recipeId, batches}`);快照新增 `recipes` 数组与目标上的 `recipeId` 字段(additive,schema 仍为 `me_controller.snapshot.v1`)。
+样板相关命令:`upsert_recipe`/`save_recipe`(保存)、`delete_recipe`(删除,被引用时报错)、`request_recipe`(下单,`{recipeId, batches}`,响应带 `order` id 与状态)、`cancel_order`(取消订单,`{orderId}`);快照新增 `recipes`、`orders` 数组与目标上的 `recipeId` 字段(additive,schema 仍为 `me_controller.snapshot.v1`)。
+
+## 自动合成页:订单管理(下单纳管)
+
+所有请求路径都先落成**订单实体**再触达外设(Lua 侧 `orders.lua`,持久化在 `state.db`),自动合成页以卡片呈现,点卡片看详情,活动单可取消:
+
+- **订单来源**:`maintain`(自动维持决策的补货请求)、`recipe`(样板下单,排队式)、`manual`(目标行"请求"催单)。三者共用同一订单形状与展示。
+- **生命周期**:`queued`(排队,等原料齐备/外设可用)→ `dispatched`(已派发,包裹物理在途)→ `completed` | `expired`(跟踪窗口超时,生产可能仍在继续)| `failed`;任一活动态可 `cancelled`。
+- **完成判定**:目标联动单(maintain/manual)挂接承诺跟踪——承诺条目带 `orderId`,交付结清转完成、TTL 过期转超时;样板单按**主产物库存基线**观测(派发时记基线,净增长达预期转完成),并发消耗会压低净增长导致只能等超时,属已知取舍。
+- **取消语义**:排队单是真取消(尚未发包);在途单只能**释放跟踪**——Create 物流没有召回 API,包裹已发出无法撤回;目标联动单取消时同步移除对应承诺,决策器按真实库存重新评估。目标重置/删除会联动取消其活动订单。
+- **排队派发**:控制循环每个决策拍处理队列,外设可用且**全部原料齐备**才派发(整单一次 `requestFiltered` 变参调用,缺一项整单等待);派发瞬间撞上库存竞态(下单前置严格校验拒绝)会回退排队下拍重试。
+- **手动下单**:自动合成页右上角「手动下单」选样板 × 批数,与样板管理页的「下单」等价。
+- **合成链预留**:订单/协议已带 `jobId`(作业分组)与 `parentOrderId`(父子关联)字段,未来"手动请求自动合成"的链式规划器把整条链拆成多张订单统一经 `Orders.place` 入队即可,协议无需再动。
+- 配置(`config.lua`):`orderTtlSeconds`(无承诺联动订单的跟踪窗口,默认 180s)、`orderHistoryLimit`(终态订单保留 48 条)、`maxActiveOrders`(活动订单上限 32)、`ordersSnapshotLimit`(快照携带条数,活动单始终全量)。
+- 游戏内终端可用 `me_controller orders [N]` 查看订单账本。
 
 ### 一批原料 = 一张订单(理包机兼容)
 

@@ -1,5 +1,5 @@
 /* ME 网络控制台 —— 视觉语言取自 AE2 本体:
-   深蓝板岩机壳、赛特斯石英青(能量/交互)、福鲁伊克斯紫(仅"规划中"模块)。
+   深蓝板岩机壳、赛特斯石英青(能量/交互)、福鲁伊克斯紫(保留的点缀色)。
    签名元素:侧边栏能量核,在线时青色脉冲辉光。 */
 
 :root {
@@ -266,15 +266,6 @@ h1, h2, h3, p {
 
 .navItem.active .navBadge {
   color: var(--energy);
-}
-
-.navTag {
-  margin-left: auto;
-  padding: 1px 6px;
-  border: 1px solid rgb(160 108 232 / 0.4);
-  border-radius: 999px;
-  color: var(--fluix);
-  font-size: 10px;
 }
 
 .sidebarFooter {
@@ -852,18 +843,233 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
   line-height: 1.6;
 }
 
-.plannedPanel {
-  border-style: dashed;
-  border-color: rgb(160 108 232 / 0.35);
+/* ---- 自动合成:订单卡片 ---- */
+
+.orderSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.plannedPanel .emptyTitle {
-  color: var(--fluix);
+.orderSectionTitle {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
-.plannedPanel .panelBody {
-  padding: 30px 24px;
-  text-align: center;
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 10px;
+}
+
+/* 空态必须占满整行:否则会被 auto-fill 网格塞进一个窄列,文案换行错乱 */
+.orderGrid .emptyState {
+  grid-column: 1 / -1;
+  border: 1px dashed var(--line);
+  border-radius: 10px;
+}
+
+.orderCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.orderCard:hover {
+  border-color: rgb(79 214 232 / 0.55);
+}
+
+/* 历史订单弱化显示,但仍可点开详情 */
+.orderCard.done {
+  opacity: 0.68;
+}
+
+.orderCard.done:hover {
+  opacity: 1;
+}
+
+.orderCardHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.orderCardTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.orderCardTitle strong,
+.orderCardTitle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderCardTitle span {
+  font-size: 11px;
+}
+
+.orderChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.orderChip {
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--slot);
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.orderProgress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.orderProgress .stockBar {
+  flex: 1;
+}
+
+.orderProgress span {
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.orderNote {
+  margin: 0;
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderNote.bad {
+  color: var(--bad);
+}
+
+.orderCardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+  font-size: 11px;
+}
+
+/* ---- 订单详情对话框 ---- */
+
+.orderDetail {
+  gap: 14px;
+}
+
+.orderDetailHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orderDetailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.orderDetailSection h4 {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+
+.orderKV {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.orderKV span:first-child {
+  flex: 0 0 auto;
+}
+
+.orderKV span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderItems {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderItemRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.orderItemRow:last-child {
+  border-bottom: 0;
+}
+
+.orderItemName {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.orderItemName span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.orderItemName .mono {
+  font-size: 10px;
+}
+
+.orderItemCount {
+  white-space: nowrap;
+}
+
+/* ---- 手动下单对话框 ---- */
+
+.newOrderPreview {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.newOrderHint {
+  margin: 0;
+  font-size: 11px;
 }
 
 /* ---- 目标编辑器对话框 ---- */

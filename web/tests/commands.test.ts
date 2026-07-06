@@ -3,8 +3,8 @@
 // 在命令声明的字段上一致"，而非整快照相等。
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { applyCommandToSnapshot, sanitizeCommandForController, targetDisplayId } from "../src/shared/commands";
-import type { ControllerCommand, ControllerSnapshot } from "../src/shared/protocol";
+import { applyCommandToSnapshot, sanitizeCommandForController, targetDisplayId, wholeBatchRequestItems } from "../src/shared/commands";
+import type { ControllerCommand, ControllerSnapshot, TargetSnapshot } from "../src/shared/protocol";
 
 type Pair = {
   commandId: string;
@@ -117,5 +117,52 @@ describe("sanitizeCommandForController 金样（upsert 双表示）", () => {
       { item: "minecraft:copper_ingot", count: 64 },
       { item: "create:zinc_ingot", count: 64 },
     ]);
+  });
+});
+
+// 人工催单整批化:请求量必须是样板每批消耗的同一整批倍数,不足一整批则不可请求。
+// Lua 侧还会做库存全量校验与比例校验——这里锁定前端算出的请求本身就是合法形态。
+describe("wholeBatchRequestItems 整批催单", () => {
+  const mk = (inputs: Array<{ item: string; count: number }>, neededBatches?: number) =>
+    ({ id: "t", inputs, neededBatches }) as TargetSnapshot;
+
+  test("1:3 配比按 64 上限换算批数上限(21 批),数量保持配比", () => {
+    const order = wholeBatchRequestItems(mk([{ item: "a:c", count: 1 }, { item: "a:z", count: 3 }], 1558));
+    expect(order.batches).toBe(21);
+    expect(order.items).toEqual([
+      { item: "a:c", count: 21 },
+      { item: "a:z", count: 63 },
+    ]);
+  });
+
+  test("1:1 配比上限 64 批", () => {
+    const order = wholeBatchRequestItems(mk([{ item: "a:c", count: 1 }, { item: "a:z", count: 1 }], 1558));
+    expect(order.batches).toBe(64);
+    expect(order.items).toEqual([
+      { item: "a:c", count: 64 },
+      { item: "a:z", count: 64 },
+    ]);
+  });
+
+  test("缺料不足上限时按 neededBatches 请求", () => {
+    const order = wholeBatchRequestItems(mk([{ item: "a:c", count: 2 }, { item: "a:z", count: 1 }], 5));
+    expect(order.batches).toBe(5);
+    expect(order.items).toEqual([
+      { item: "a:c", count: 10 },
+      { item: "a:z", count: 5 },
+    ]);
+  });
+
+  test("超大配方(单批消耗 >64)保底 1 整批,不打散配比", () => {
+    const order = wholeBatchRequestItems(mk([{ item: "a:big", count: 100 }], 7));
+    expect(order.batches).toBe(1);
+    expect(order.items).toEqual([{ item: "a:big", count: 100 }]);
+  });
+
+  test("neededBatches 为 0/缺省/无原料时不可请求", () => {
+    expect(wholeBatchRequestItems(mk([{ item: "a:c", count: 1 }], 0)).batches).toBe(0);
+    expect(wholeBatchRequestItems(mk([{ item: "a:c", count: 1 }])).batches).toBe(0);
+    expect(wholeBatchRequestItems(mk([], 10)).batches).toBe(0);
+    expect(wholeBatchRequestItems(mk([], 10)).items).toEqual([]);
   });
 });

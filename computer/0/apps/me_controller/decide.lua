@@ -143,11 +143,14 @@ return function(Core, Planner)
             data.status = "WAITING"
             data.message = "Batching " .. requestCount .. "/" .. target.minImmediateRequest .. " " .. pendingAge .. "s"
         else
-            local ok, requestedByItem, requested, err, commandDirty = Planner.requestPlan(runtime, target, plan, ctx.availableInputs)
+            local ok, requestedByItem, requested, err, commandDirty, orderId =
+                Planner.requestPlan(runtime, target, plan, ctx.availableInputs)
             markDirty(ctx, commandDirty)
             requested = tonumber(requested) or 0
             if requested > 0 then
-                Planner.recordCommitment(targetState, target, requestedByItem, requested, timestamp)
+                Planner.recordCommitment(targetState, target, requestedByItem, requested, timestamp, orderId)
+                -- 承诺入账后挂接订单跟踪：结清/过期驱动订单终态与进度显示
+                Core.attachOrderCommitment(runtime, targetState, orderId)
                 markDirty(ctx, true)
             end
 
