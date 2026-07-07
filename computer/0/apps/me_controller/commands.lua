@@ -381,16 +381,26 @@ return function(Core, Planner)
         end
 
         -- 目标绑定的人工请求必须整批对齐样板：覆盖全部原料、每种数量 = 每批消耗 ×
-        -- 同一整批数。残缺/畸比订单即使库存足额也会破坏"同批同包"产线的批次完整性
+        -- 同一整批数。残缺/畸比订单即使库存足额也会破坏"同批同包"产线的批次完整性。
+        -- 每批消耗按物品聚合：顺序敏感样板会把同一物品拆成多条条目，比例校验
+        -- 只关心物品级总量；perByItem 兼作"未校验物品"集合，按首次出现顺序报错。
         if #(target.inputs or {}) > 0 then
             local wantedByItem = {}
             for _, entry in ipairs(items) do
                 wantedByItem[entry.item] = (wantedByItem[entry.item] or 0) + entry.count
             end
-            local batches = nil
+            local perByItem = {}
             for _, input in ipairs(target.inputs) do
                 local per = math.floor(tonumber(input.count) or 0)
                 if per > 0 then
+                    perByItem[input.item] = (perByItem[input.item] or 0) + per
+                end
+            end
+            local batches = nil
+            for _, input in ipairs(target.inputs) do
+                local per = perByItem[input.item]
+                if per then
+                    perByItem[input.item] = nil
                     local got = wantedByItem[input.item] or 0
                     if got <= 0 then
                         error("Request must cover all recipe inputs, missing: " .. Items.entryLabel(input))

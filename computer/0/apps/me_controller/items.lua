@@ -111,30 +111,23 @@ local function normalizeRecipeEntry(raw, isProduct)
     return entry
 end
 
-local function appendRecipeEntry(entries, byItem, entry, isProduct)
+-- 同名物品不合并：条目顺序 = requestFiltered 变参顺序 = 包裹装配顺序，
+-- 顺序敏感的产线（定序装配等）依赖"白-灰-白-灰"这类同物品交替条目。
+-- 需要物品级汇总的消费方（recipeInputCounts/下单校验）各自聚合。
+local function appendRecipeEntry(entries, entry)
     if not entry then return end
-    local existing = byItem[entry.item]
-    if existing then
-        existing.count = existing.count + entry.count
-        if isProduct and entry.targetCount ~= nil then existing.targetCount = entry.targetCount end
-        if entry.label and Items.isGeneratedLabel(existing.label, existing.item) then
-            existing.label = entry.label
-        end
-    else
-        byItem[entry.item] = entry
-        entries[#entries + 1] = entry
-    end
+    entries[#entries + 1] = entry
 end
 
 function Items.normalizeRecipeEntries(rawEntries, isProduct, fallback)
-    local entries, byItem = {}, {}
+    local entries = {}
 
     if type(rawEntries) == "table" then
         if rawEntries.item or rawEntries.name or rawEntries.itemId then
-            appendRecipeEntry(entries, byItem, normalizeRecipeEntry(rawEntries, isProduct), isProduct)
+            appendRecipeEntry(entries, normalizeRecipeEntry(rawEntries, isProduct))
         else
             for _, raw in ipairs(rawEntries) do
-                appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
+                appendRecipeEntry(entries, normalizeRecipeEntry(raw, isProduct))
             end
 
             if #entries == 0 then
@@ -147,7 +140,7 @@ function Items.normalizeRecipeEntries(rawEntries, isProduct, fallback)
                         else
                             raw = { item = key, count = value }
                         end
-                        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(raw, isProduct), isProduct)
+                        appendRecipeEntry(entries, normalizeRecipeEntry(raw, isProduct))
                     end
                 end
             end
@@ -155,7 +148,7 @@ function Items.normalizeRecipeEntries(rawEntries, isProduct, fallback)
     end
 
     if #entries == 0 and fallback and fallback.item then
-        appendRecipeEntry(entries, byItem, normalizeRecipeEntry(fallback, isProduct), isProduct)
+        appendRecipeEntry(entries, normalizeRecipeEntry(fallback, isProduct))
     end
 
     return entries

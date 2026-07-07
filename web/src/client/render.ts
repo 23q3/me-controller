@@ -9,7 +9,7 @@ import type { ViewId } from "./state";
 import { asNumber, el, formatAmount, formatExact, formatTime, must, text, toast } from "./dom";
 import { sendCommand } from "./ws";
 import { openTargetDialog } from "./target-editor";
-import { openRecipeDialog } from "./recipe-editor";
+import { openRecipeDialog, isRecipeDragActive } from "./recipe-editor";
 import { activeOrders, renderCrafting } from "./crafting";
 
 // ---- 通用小部件 ------------------------------------------------------------
@@ -667,9 +667,24 @@ function renderActiveView() {
   }
 }
 
+// 拖拽排序进行中暂停整页重渲染:快照心跳每秒重建侧栏/表格,大量 DOM 替换
+// 会挤掉拖拽动画的帧预算(卡顿/乱跳);期间到达的快照置脏标记,落定后补渲染
+let renderSkippedDuringDrag = false;
+
 export function render() {
+  if (isRecipeDragActive()) {
+    renderSkippedDuringDrag = true;
+    return;
+  }
   renderSidebar();
   renderActiveView();
+}
+
+// 拖拽落定后由 recipe-editor 调用:补上被跳过的快照渲染
+export function flushRenderAfterDrag() {
+  if (!renderSkippedDuringDrag) return;
+  renderSkippedDuringDrag = false;
+  render();
 }
 
 export function startRendering() {

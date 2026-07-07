@@ -1215,6 +1215,7 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
 }
 
 .recipeRow {
+  position: relative;
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr) 86px 28px;
   gap: 8px;
@@ -1223,15 +1224,56 @@ th:nth-child(7), td:nth-child(7) { width: 316px; }
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--bg-deep);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.recipeRow:hover {
+  border-color: var(--line-bright);
+}
+
+.recipeRow:active {
+  cursor: grabbing;
 }
 
 .recipeRow.product {
   grid-template-columns: 24px minmax(0, 1fr) 86px 28px;
 }
 
+/* 拖拽中的本体:抬起(微放大+投影+描边),不虚化——就是在拖这张卡 */
+.recipeRow.dragging {
+  z-index: 5;
+  border-color: rgb(79 214 232 / 0.55);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.5), 0 0 0 1px rgb(79 214 232 / 0.25);
+  scale: 1.02;
+  cursor: grabbing;
+}
+
+/* 拖拽落定反馈:一次青色光晕脉冲后回归常态 */
+.recipeRow.dropSettle {
+  animation: recipeDropSettle 0.5s ease;
+}
+
+@keyframes recipeDropSettle {
+  0% {
+    border-color: rgb(79 214 232 / 0.7);
+    background: var(--energy-soft);
+    box-shadow: 0 0 0 0 rgb(79 214 232 / 0.4);
+  }
+  100% {
+    border-color: var(--line);
+    background: var(--bg-deep);
+    box-shadow: 0 0 12px 6px rgb(79 214 232 / 0);
+  }
+}
+
 .recipeRow input {
   min-height: 30px;
   width: 100%;
+  /* 行背景为拖拽区禁选,输入框内保留文本选择 */
+  user-select: text;
 }
 
 .recipeIconHost {

@@ -313,11 +313,19 @@ return function(Core)
         return dirty
     end
 
+    -- 缺料判断按物品聚合：顺序敏感样板的同一物品拆成多条条目，逐条独立
+    -- 判断会漏掉"单条够、合计超库存"的短缺——放行后必被派发前置严格校验
+    -- 拒回，排队单每拍空转重试、命令账本反复记 short。
     local function firstShortage(order, available)
+        local neededByItem = {}
+        for _, entry in ipairs(order.items) do
+            neededByItem[entry.item] = (neededByItem[entry.item] or 0) + entry.count
+        end
         for _, entry in ipairs(order.items) do
             local have = available[entry.item] or 0
-            if have < entry.count then
-                return entry, entry.count - have
+            local need = neededByItem[entry.item]
+            if need > have then
+                return entry, need - have
             end
         end
         return nil, 0

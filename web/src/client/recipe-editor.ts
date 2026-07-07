@@ -8,7 +8,7 @@ import { TARGET_DEFAULTS } from "../shared/target-fields";
 import type { ItemAsset } from "./state";
 import { app } from "./state";
 import { el, must, text, toast } from "./dom";
-import { itemIcon, itemName } from "./render";
+import { flushRenderAfterDrag, itemIcon, itemName } from "./render";
 import { sendCommand } from "./ws";
 
 type RecipeRow = {
@@ -37,6 +37,17 @@ type EditorRefs = {
 let refs: EditorRefs | null = null;
 let productRows: RecipeRow[] = [];
 let inputRows: RecipeRow[] = [];
+
+// 拖拽结束后按 DOM 顺序回写行数组:readRecipeRows 以数组顺序为准,
+// 条目顺序就是保存后 requestFiltered 的变参顺序
+function syncRowsFromDom(isProduct: boolean) {
+  if (!refs) return;
+  const host = isProduct ? refs.productsHost : refs.inputsHost;
+  const order = Array.from(host.children);
+  const list = isProduct ? productRows : inputRows;
+  list.sort((a, b) => order.indexOf(a.root) - order.indexOf(b.root));
+  refreshRowDecorations();
+}
 
 // ---- 物品自动补全(数据源:/api/items 的物品索引,支持中文名/英文名/ID) ----
 
@@ -226,6 +237,9 @@ function buildRecipeRow(isProduct: boolean, entry: RecipeEntry): RecipeRow {
     removeBtn,
   };
 
+  // 整行背景即拖拽区:仅避开输入框/按钮/补全下拉,保留文本编辑与点击
+  wireRowPointerDrag(row, isProduct);
+
   attachItemSuggest(item, itemCell, () => {
     updateRowVisuals(row);
     syncPrimaryPlaceholders();
@@ -265,7 +279,9 @@ function setRecipeRows(isProduct: boolean, entries: RecipeEntry[]) {
   refreshRowDecorations();
 }
 
-// 读取配方行为 RecipeEntry[];样板条目只有物品与每批数量
+// 读取配方行为 RecipeEntry[];样板条目只有物品与每批数量。
+// 原料允许同一物品多条条目:条目顺序 = requestFiltered 变参顺序 = 包裹装配
+// 顺序,顺序敏感的产线依赖"白-灰-白-灰"这类交替样板;产物重复无意义,仍查重。
 function readRecipeRows(isProduct: boolean): RecipeEntry[] {
   const rows = isProduct ? productRows : inputRows;
   const listLabel = isProduct ? "产物" : "原料";
@@ -275,8 +291,10 @@ function readRecipeRows(isProduct: boolean): RecipeEntry[] {
   for (const [index, row] of rows.entries()) {
     const item = row.item.value.trim();
     if (!item) throw new Error(`${listLabel}第 ${index + 1} 行缺少物品 ID`);
-    if (seen.has(item)) throw new Error(`${listLabel}列表存在重复物品:${item}`);
-    seen.add(item);
+    if (isProduct) {
+      if (seen.has(item)) throw new Error(`${listLabel}列表存在重复物品:${item}`);
+      seen.add(item);
+    }
 
     const count = Number(row.count.value);
     if (!Number.isFinite(count) || count <= 0) throw new Error(`${listLabel}「${item}」的每批数量无效`);
@@ -314,6 +332,192 @@ function recipeManualName(recipe: RecipeSnapshot): string {
   const product = recipe.products && recipe.products[0];
   if (!product) return text(recipe.name, "");
   return manualLabel(recipe.name, product.item) || manualLabel(product.label, product.item) || "";
+}
+
+// ---- 拖拽排序(指针驱动) -------------------------------------------------------
+// 不用 HTML5 DnD:原生拖拽只会显示半透明快照幽灵、本体留在原地,观感是"复制
+// 出一张虚卡"。这里直接让卡片本体 transform 跟手移动,让位行 FLIP 平滑滑动,
+// 松手后本体滑入落定槽位。按下位移超过阈值才算拖拽,行背景普通点击不受影响。
+
+const DRAG_THRESHOLD_PX = 4;
+const ROW_SLIDE_MS = 160;
+
+// 拖拽进行中标记:render() 据此暂停整页重渲染(快照心跳每秒重建侧栏/表格,
+// 大量 DOM 替换会与拖拽动画互相挤压出卡顿),落定后 flushRenderAfterDrag 补上
+let dragActive = false;
+
+export function isRecipeDragActive() {
+  return dragActive;
+}
+
+// 每行进行中的 FLIP 回放帧:新一轮重排要先取消旧回调,否则过期回调会把
+// 刚设好的起步变换提前清零,快速连续跨槽时让位行会乱跳
+const pendingFlip = new WeakMap<HTMLElement, number>();
+
+// 让位行 FLIP:记录当前视觉位置(含未完成的过渡) → 重排 → 清掉旧变换量出
+// 纯布局位置 → 从视觉位差值起步过渡归零,动画可无缝接续
+function flipSiblings(host: HTMLElement, dragged: HTMLElement, mutate: () => void) {
+  const siblings = Array.from(host.children).filter(
+    (node): node is HTMLElement => node !== dragged && node instanceof HTMLElement
+  );
+  const visualTop = new Map<HTMLElement, number>();
+  for (const node of siblings) visualTop.set(node, node.getBoundingClientRect().top);
+
+  mutate();
+
+  for (const node of siblings) {
+    const prior = pendingFlip.get(node);
+    if (prior !== undefined) {
+      cancelAnimationFrame(prior);
+      pendingFlip.delete(node);
+    }
+    node.style.transition = "none";
+    node.style.transform = "";
+  }
+  for (const node of siblings) {
+    const delta = (visualTop.get(node) ?? 0) - node.getBoundingClientRect().top;
+    if (!delta) continue;
+    node.style.transform = `translateY(${delta}px)`;
+    const frame = requestAnimationFrame(() => {
+      pendingFlip.delete(node);
+      node.style.transition = `transform ${ROW_SLIDE_MS}ms ease`;
+      node.style.transform = "";
+    });
+    pendingFlip.set(node, frame);
+  }
+}
+
+function wireRowPointerDrag(row: RecipeRow, isProduct: boolean) {
+  row.root.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || !refs) return;
+    const target = event.target instanceof HTMLElement ? event.target : null;
+    if (target?.closest("input, button, .itemSuggest")) return;
+    event.preventDefault();
+
+    const host = isProduct ? refs.productsHost : refs.inputsHost;
+    const dragged = row.root;
+    // 字段区是滚动容器:滚轮/自动滚动会让列表在视口中移动,几何不能缓存
+    const scroller = host.closest(".dialogFields");
+    const startPointerY = event.clientY;
+    let lastPointerY = startPointerY;
+    let active = false;
+    // 步长/槽数/抓取偏移在激活时量好(拖拽期间不变);hostTop 不缓存
+    let step = 0;
+    let maxIndex = 0;
+    let currentIndex = 0;
+    let grabOffset = 0;
+    let scrollFrame = 0;
+
+    // 期望视觉位与槽位判定:hostTop 每次实时读——滚动会让列表在视口中移动,
+    // 用缓存值会让卡片和槽位判定一起漂移(拖动中滚滚轮就卡死的根源)
+    const update = () => {
+      const hostTop = host.getBoundingClientRect().top;
+      const desiredTop = Math.max(hostTop, Math.min(hostTop + step * maxIndex, lastPointerY - grabOffset));
+      const targetIndex = Math.round((desiredTop - hostTop) / step);
+      if (targetIndex !== currentIndex) {
+        flipSiblings(host, dragged, () => {
+          host.insertBefore(dragged, host.children[targetIndex + (targetIndex > currentIndex ? 1 : 0)] ?? null);
+        });
+        currentIndex = targetIndex;
+      }
+      // 本体跟手:transform = 期望视觉位 - 当前槽位布局位
+      dragged.style.transform = `translateY(${desiredTop - (hostTop + currentIndex * step)}px)`;
+    };
+
+    // 拖拽期间任何滚动(滚轮/自动滚动/滚动链)都重新对齐卡片与槽位
+    const onScroll = () => {
+      if (active) update();
+    };
+
+    // 指针贴近滚动容器上下边缘时持续滚动:长列表拖到视野外的槽位靠它
+    const autoScrollTick = () => {
+      scrollFrame = requestAnimationFrame(autoScrollTick);
+      if (!scroller) return;
+      const rect = scroller.getBoundingClientRect();
+      const zone = 32;
+      let velocity = 0;
+      if (lastPointerY < rect.top + zone) velocity = -Math.min(14, (rect.top + zone - lastPointerY) * 0.4);
+      else if (lastPointerY > rect.bottom - zone) velocity = Math.min(14, (lastPointerY - (rect.bottom - zone)) * 0.4);
+      if (!velocity) return;
+      const before = scroller.scrollTop;
+      scroller.scrollTop = before + velocity;
+      if (scroller.scrollTop !== before) update();
+    };
+
+    const activate = () => {
+      active = true;
+      dragActive = true;
+      dragged.classList.add("dragging");
+      // 清掉可能残留的落定过渡,量出干净的布局几何
+      dragged.style.transition = "none";
+      dragged.style.transform = "";
+      const gap = Number.parseFloat(getComputedStyle(host).rowGap) || 0;
+      step = dragged.offsetHeight + gap;
+      maxIndex = host.children.length - 1;
+      currentIndex = Array.prototype.indexOf.call(host.children, dragged);
+      // 锚定按下时刻的指针位置:快速甩动时首个 move 事件可能已离按下点
+      // 几十像素,锚到激活时刻会把这段位移永久丢掉,卡片全程滞后于指针
+      grabOffset = startPointerY - (host.getBoundingClientRect().top + currentIndex * step);
+      document.addEventListener("scroll", onScroll, { capture: true, passive: true });
+      if (scroller) scrollFrame = requestAnimationFrame(autoScrollTick);
+    };
+
+    const onMove = (ev: PointerEvent) => {
+      if (ev.pointerId !== event.pointerId) return;
+      lastPointerY = ev.clientY;
+      if (!active) {
+        if (Math.abs(ev.clientY - startPointerY) < DRAG_THRESHOLD_PX) return;
+        activate();
+      }
+      update();
+    };
+
+    const finish = (ev: PointerEvent) => {
+      if (ev.pointerId !== event.pointerId) return;
+      document.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerup", finish);
+      document.removeEventListener("pointercancel", finish);
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      cancelAnimationFrame(scrollFrame);
+      try {
+        refs?.dialog.releasePointerCapture(event.pointerId);
+      } catch {
+        /* 指针已消失,无需释放 */
+      }
+      dragActive = false;
+      if (active) {
+        dragged.classList.remove("dragging");
+        // 本体平滑滑入落定槽位,落定后光晕脉冲一次
+        dragged.style.transition = `transform ${ROW_SLIDE_MS}ms ease`;
+        dragged.style.transform = "";
+        dragged.addEventListener(
+          "transitionend",
+          () => {
+            dragged.style.transition = "";
+          },
+          { once: true }
+        );
+        syncRowsFromDom(isProduct);
+        dragged.classList.add("dropSettle");
+        dragged.addEventListener("animationend", () => dragged.classList.remove("dropSettle"), { once: true });
+      }
+      // 拖拽期间被跳过的快照重渲染在这里补上
+      flushRenderAfterDrag();
+    };
+
+    // 监听挂 document 而非行自身:跨槽重排的 insertBefore 会隐式释放行上的
+    // 指针捕获(规范:节点离开文档即释放,移动 = 移除+重插),快速拖动时指针
+    // 一旦甩出行外事件就断流(慢拖卡片跟得上指针所以侥幸可用)。
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", finish);
+    document.addEventListener("pointercancel", finish);
+    // 捕获挂到对话框(拖拽中永不重排的稳定节点):指针拖出浏览器窗口也能跟手
+    try {
+      refs.dialog.setPointerCapture(event.pointerId);
+    } catch {
+      /* 无活动指针(合成事件等),document 监听仍然工作 */
+    }
+  });
 }
 
 // ---- 表单生成(一次性) --------------------------------------------------------
